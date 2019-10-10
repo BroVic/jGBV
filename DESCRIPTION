@@ -1,6 +1,6 @@
 Package: raampGBV
 Title: Helper functions and related object for Jhpiego Nigeria RAAMP-GBV Assessment
-Version: 0.0.0.9001
+Version: 0.0.0.9002
 Authors@R: 
     person(given = "Victor",
            family = "Ordu",
@@ -9,7 +9,10 @@ Authors@R:
            comment = c(ORCID = "0000-0003-3716-0668"))
 Description: Developed for the purpose of reproducible research and for project
     scale up. 
-Depends: R (>= 3.6)
+Depends: 
+    R (>= 3.6),
+    DBI (>= 1.0.0),
+    RSQLite (>= 2.1.2)
 Imports:
     Hmisc (>= 4.2.0),
     RQDA (>= 0.3.1),
