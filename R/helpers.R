@@ -5,7 +5,7 @@ globalVariables(c(".",
                   "new"))
 
 
-#' Make a Represendation of the Project's Standard Directory Tree
+#' Make a Representation of the Project's Standard Directory Tree
 #'
 #' @importFrom here here
 #' @importFrom purrr map

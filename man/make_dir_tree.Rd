@@ -2,10 +2,10 @@
 % Please edit documentation in R/helpers.R
 \name{make_dir_tree}
 \alias{make_dir_tree}
-\title{Make a Represendation of the Project's Standard Directory Tree}
+\title{Make a Representation of the Project's Standard Directory Tree}
 \usage{
 make_dir_tree()
 }
 \description{
-Make a Represendation of the Project's Standard Directory Tree
+Make a Representation of the Project's Standard Directory Tree
 }
