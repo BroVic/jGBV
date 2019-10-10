@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{extract_code}
 \alias{extract_code}
-\title{Extract Code}
+\title{Extract Code from an R script}
 \usage{
 extract_code(rgx, txt)
 }
@@ -15,5 +15,5 @@ extract_code(rgx, txt)
 A character vector with the extracted code
 }
 \description{
-Extract Code
+Extract Code from an R script
 }

@@ -13,11 +13,11 @@ prepare_extended_col(data, variable, options, multisectoral = TRUE,
 \item{variable}{A character vector of length 1 representing the
 name of the column to ve extended}
 
+\item{options}{The would-be levels of the resulting factor column}
+
 \item{multisectoral}{Logical. Whether work is on combined data frame}
 
 \item{notReferral}{Logical. Whether not Referral Directory data}
-
-\item{option}{The would-be levels of the resulting factor column}
 }
 \value{
 A modified data frame with the choices now appearing as

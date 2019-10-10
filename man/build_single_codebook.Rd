@@ -4,12 +4,16 @@
 \alias{build_single_codebook}
 \title{Build codebook}
 \usage{
-build_single_codebook(state, tool)
+build_single_codebook(state, tool, rmdfile, outputdir)
 }
 \arguments{
 \item{state}{The State where the Assessment was conducted}
 
 \item{tool}{The specific category of tool that was administered}
+
+\item{rmdfile}{The template Rmarkdown file for building the codebook}
+
+\item{outputdir}{The output directory}
 }
 \value{
 The path of the rendered Rmarkdown file.

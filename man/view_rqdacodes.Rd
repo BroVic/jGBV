@@ -4,7 +4,7 @@
 \alias{view_rqdacodes}
 \title{Display current RQDA codes for the project}
 \usage{
-view_rqdacodes(dir = raampDir$tools)
+view_rqdacodes(dir)
 }
 \arguments{
 \item{dir}{Path to the directory to which to save the persistent data.

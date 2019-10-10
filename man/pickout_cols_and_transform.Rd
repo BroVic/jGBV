@@ -6,6 +6,11 @@
 \usage{
 pickout_cols_and_transform(data, chklist)
 }
+\arguments{
+\item{data}{A data frame}
+
+\item{chklist}{An object of class \code{colCheck}}
+}
 \description{
 Pick out a Colum and Transform it
 }

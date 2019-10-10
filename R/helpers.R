@@ -1,6 +1,53 @@
-globalVariables(
-  "lgas_nigeria"
-)
+globalVariables(c(".",
+                  "lgas_nigeria",
+                  "name",
+                  "value",
+                  "new"))
+
+
+#' Make a Represendation of the Project's Standard Directory Tree
+#'
+#' @importFrom here here
+#' @importFrom purrr map
+#' @importFrom stats setNames
+#'
+#' @export
+make_dir_tree <- function()
+{
+  dList <-
+    map(c("data", "src", "downloads", "doc", "tools"), here)
+  dList <-
+    setNames(dList, c("dat", "src", "dwn", "doc", "tls"))
+
+  ql <- file.path(dList$dat, "qual")
+  qt <- file.path(dList$dat, "quant")
+  cod <- "coding"
+
+  list(
+    qual = ql,
+    quant = qt,
+    data = dList$dat,
+    tools = dList$tls,
+    downloads = dList$dwn,
+    coding = file.path(dList$src, cod),
+    clean = file.path(dList$src, "clean"),
+    output = file.path(dList$doc, "output"),
+    utility = file.path(dList$src, "utility"),
+    transcripts = file.path(ql, "transcripts"),
+    shinyApp = file.path(dList$src, "shiny", "app"),
+    codebooks = file.path(dList$src, cod, "codebooks")
+  )
+}
+
+
+
+
+
+
+
+
+
+
 
 #' Retrieve all files of a given type from a directory
 #'
@@ -42,26 +89,29 @@ fetch_all_filepaths_named <- function(dir, file.ext = "R") {
 #' @importFrom purrr map
 #' @importFrom stats setNames
 #'
+#' @param state The RAAMP Assessment State e.g. Ogun
+#' @param dir The directory where the data are saved.
+#' @param sectors The sectors for which we are retrieving data
+#'
 #' @export
 fetch_all_data <-
-  function(state = state,
-           dir = raampDir$quant) {
+  function(state, dir, sectors) {
     dPath <- file.path(dir, state)
 
-    map(tool.sectors, function(sector) {
+    map(sectors, function(sector) {
       regex <- glue("transformed.+{state}.+{sector}")
       rds <- list.files(dPath, pattern = regex, full.names = TRUE)
       if (is.null(rds))
         stop("Data file not found")
       readRDS(rds)
     }) %>%
-      setNames(tool.sectors)
+      setNames(sectors)
   }
 
 
 
 
-#' Extract Code
+#' Extract Code from an R script
 #'
 #' @param rgx A reguar expression
 #' @param txt A portion of text, supplied as a character vector
@@ -92,21 +142,26 @@ extract_vector <- function(str)
 
 
 
+
+
+
+
+
+
 #' Save an object with specific details
 #'
-#' This is a ustom wrapper for \code{saveRDS()}
+#' This is a custom wrapper for \code{saveRDS}.
 #'
+#' @param dir The directory to which to save the RDS file
 #' @param obj The object to be save.
 #' @param filelabel A label to be applied to the filename.
 #' @param state The State for whose data we are saving (specific to
 #' RAAMP-GBV project)
+#' @param ... Additional strings to add to filename
+#'
 #'
 #' @export
-save_as_rds <- function(obj, filelabel, ..., state) {
-  dir <- if (grepl("qual", filelabel))
-    raampDir$qual
-  else
-    raampDir$quant
+save_as_rds <- function(dir, obj, filelabel, ..., state) {
   saveRDS(obj,
           file.path(
             dir,
@@ -114,6 +169,12 @@ save_as_rds <- function(obj, filelabel, ..., state) {
             paste0(filelabel, "_", state, "_", ..., ".rds")
           ))
 }
+
+
+
+
+
+
 
 
 
@@ -323,17 +384,19 @@ generate_all_codebooks <- function(states, sectors) {
 #'
 #' @param state The State where the Assessment was conducted
 #' @param tool The specific category of tool that was administered
+#' @param rmdfile The template Rmarkdown file for building the codebook
+#' @param outputdir The output directory
 #'
 #' @importFrom rmarkdown render
 #'
 #' @return The path of the rendered Rmarkdown file.
 #'
 #' @export
-build_single_codebook <- function(state, tool) {
+build_single_codebook <- function(state, tool, rmdfile, outputdir) {
   render(
-    input = file.path(raampDir$codebooks, "template_codebook.Rmd"),
+    input = rmdfile,
     output_format = "html_document",
-    output_dir = file.path(raampDir$output, state),
+    output_dir = outputdir,
     output_file = sprintf("codebook_%s_%s.html", tool, state),
     params = list(state = state, toolType = tool),
     quiet = TRUE
@@ -349,8 +412,7 @@ build_single_codebook <- function(state, tool) {
 #'
 #' @param row A vector for the rows.
 #' @param column A character vector of the column names
-#' @param label A label to be applied to the table; as in \code{knitr::kable}
-#' @param caption A caption. Used as in \emph{label} above.
+#' @param opt The options for the dummy table
 #'
 #' @importFrom kableExtra add_header_above
 #' @importFrom kableExtra kable_styling
@@ -510,6 +572,7 @@ fetch_only_word_files <- function(dir) {
 #' Add some codes to the RQDA project
 #'
 #' @param codes A character vector of the new codes that are to be added.
+#' @param rqdafile An RQDA project file
 #'
 #' @note The rationale behind creating this function is the fact that merging
 #' the binary RQDA in Git version control is not feasible. Thus, codes can be
@@ -517,11 +580,11 @@ fetch_only_word_files <- function(dir) {
 #' uses downstream.
 #'
 #' @importFrom RQDA RQDA
-#' @import magrittr
+#' @importFrom magrittr %>%
 #'
 #' @export
-add_rqdacodes <- function(codes) {
-  openProject(file.path(raampDir$tools, "qual_gbv.rqda"))
+add_rqdacodes <- function(codes, rqdafile) {
+  openProject(rqdafile)
   on.exit(closeProject())
 
   cd <- getCodingTable()$codename %>%
@@ -549,7 +612,7 @@ add_rqdacodes <- function(codes) {
 #' Defaults to the folder containing the RQDA project file.
 #'
 #' @export
-store_rqdacodes <- function(codes, dir = raampDir$tools) {
+store_rqdacodes <- function(codes, dir) {
   stopifnot(inherits(codes, "LocalCodes"))
   stopifnot(is.character(codes), dir.exists(dir))
   saveRDS(codes, file = file.path(dir, "CODES.rds"))
@@ -566,7 +629,7 @@ store_rqdacodes <- function(codes, dir = raampDir$tools) {
 #' Defaults to the folder containing the RQDA project file.
 #'
 #' @export
-view_rqdacodes <- function(dir = raampDir$tools) {
+view_rqdacodes <- function(dir) {
   codes <- readRDS(file.path(dir, "CODES.rds"))
   cat(codes, sep = "\n")
 }
@@ -656,11 +719,16 @@ transform_checked <- function(data, vec) {
 ## TODO: Write unit tests
 #' Pick out a Colum and Transform it
 #'
+#' @param data A data frame
+#' @param chklist An object of class \code{colCheck}
+#'
 #' @import dplyr
 #' @importFrom rlang :=
 #' @importFrom rlang !!
 #' @importFrom rlang quo_name
 #' @importFrom tidyr unite
+#'
+#' @export
 pickout_cols_and_transform <- function(data, chklist) {
   columnnames <- colnames(data)
   varsIndex <- grep(chklist$regex, columnnames)
@@ -779,9 +847,14 @@ transform_sector_data <- function(data, regexes, options) {
 #' @param chr A character vector, which is the label of the value and which
 #' will also be used to develop a new name for the column
 #'
-#' @import dplyr
-#' @import rlang
+#' @importFrom dplyr %>%
+#' @importFrom dplyr mutate
+#' @importFrom rlang enquo
+#' @importFrom rlang quo_name
+#' @importFrom rlang !!
+#' @importFrom rlang :=
 #' @importFrom purrr map_lgl
+#' @importFrom stringr str_detect
 #'
 #' @return A modified data frame
 #'
@@ -797,12 +870,6 @@ extend_single_listcol <- function(data, var, chr) {
       !!colname := map(!!var, str_detect, chr) %>%
         map_lgl(any)
     )
-
-  # chr <- chr[-(length(chr))]
-  # if (length(chr) == 0L)
-  #   return(data)
-  # else
-  #   extend_single_listcol(data, var, chr)
 }
 
 
@@ -839,9 +906,12 @@ question_in_all_sectors <- function(quest, table) {
 #' @param data A data frame with the collaped column
 #' @param variable A character vector of length 1 representing the
 #' name of the column to ve extended
-#' @param option The would-be levels of the resulting factor column
+#' @param options The would-be levels of the resulting factor column
 #' @param multisectoral Logical. Whether work is on combined data frame
 #' @param notReferral Logical. Whether not Referral Directory data
+#'
+#' @importFrom stats reorder
+#' @importFrom tidyr pivot_longer
 #'
 #' @return  A modified data frame with the choices now appearing as
 #' levels of a factor.
@@ -907,6 +977,14 @@ basic_bar <- function(data, title = "[Title]", xlab = 'x') {
 }
 
 
+#' Get a variable with it's question
+#'
+#' @param data The data frame
+#' @param ques The question found within the variable label
+#'
+#' @importFrom labelled var_label
+#' @importFrom magrittr %>%
+#'
 #' @export
 # TODO: Unit tests and roxygen2 commenting
 find_var_with_ques <- function(data, ques) {
@@ -914,6 +992,18 @@ find_var_with_ques <- function(data, ques) {
     str_which(ques)
 }
 
+
+
+
+
+
+#' Get a Question from the Variable name
+#'
+#' @param data The data frame
+#' @param varname The variable name
+#'
+#' @importFrom labelled var_label
+#'
 #' @export
 find_ques_with_var <- function(data, varname) {
   stopifnot(is.character(varname))
@@ -924,6 +1014,17 @@ find_ques_with_var <- function(data, varname) {
   var_label(data)[ind]
 }
 
+
+
+
+
+#' Get Column from a question
+#'
+#' @param data The data frame
+#' @param ques The question found in the variable label
+#'
+#' @importFrom magrittr %>%
+#'
 #' @export
 column_from_question <- function(data, ques) {
   ind <- data %>%
@@ -931,12 +1032,37 @@ column_from_question <- function(data, ques) {
   colnames(data)[ind]
 }
 
+
+
+
+
+#' Get Data on Services Offered
+#'
+#' @param data A data frame
+#' @param ques The question (found in the variable label itself)
+#' @param options The service options for that given question and tool
+#'
 #' @export
-get_service_data <- function(data, ques, options, ...) {
+get_service_data <- function(data, ques, options) {
   col <- column_from_question(data, ques)
   prepare_extended_col(data, col, options, multisectoral = FALSE)
 }
 
+
+
+
+
+
+
+
+
+#' Plot the Services for a Single Sector Selected
+#'
+#' @param data The data frame
+#'
+#' @import ggplot2
+#' @importFrom magrittr %>%
+#'
 #' @export
 single_sector_services_plot <- function(data) {
   (data %>%
@@ -987,6 +1113,7 @@ launch_rqda <- function() {
 #' @importFrom RQDA getCodingTable
 #' @importFrom RQDA openProject
 #' @importFrom purrr map_df
+#' @importFrom utils file_test
 #'
 #'
 #' @return The coding table as an R \code{data.frame}.

@@ -4,16 +4,20 @@
 \alias{save_as_rds}
 \title{Save an object with specific details}
 \usage{
-save_as_rds(obj, filelabel, ..., state)
+save_as_rds(dir, obj, filelabel, ..., state)
 }
 \arguments{
+\item{dir}{The directory to which to save the RDS file}
+
 \item{obj}{The object to be save.}
 
 \item{filelabel}{A label to be applied to the filename.}
+
+\item{...}{Additional strings to add to filename}
 
 \item{state}{The State for whose data we are saving (specific to
 RAAMP-GBV project)}
 }
 \description{
-This is a ustom wrapper for \code{saveRDS()}
+This is a custom wrapper for \code{saveRDS}.
 }

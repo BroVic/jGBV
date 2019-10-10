@@ -4,7 +4,14 @@
 \alias{fetch_all_data}
 \title{Fetch All The Data}
 \usage{
-fetch_all_data(state = state, dir = raampDir$quant)
+fetch_all_data(state, dir, sectors)
+}
+\arguments{
+\item{state}{The RAAMP Assessment State e.g. Ogun}
+
+\item{dir}{The directory where the data are saved.}
+
+\item{sectors}{The sectors for which we are retrieving data}
 }
 \description{
 Fetch All The Data

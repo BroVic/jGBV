@@ -4,10 +4,12 @@
 \alias{add_rqdacodes}
 \title{Add some codes to the RQDA project}
 \usage{
-add_rqdacodes(codes)
+add_rqdacodes(codes, rqdafile)
 }
 \arguments{
 \item{codes}{A character vector of the new codes that are to be added.}
+
+\item{rqdafile}{An RQDA project file}
 }
 \description{
 Add some codes to the RQDA project

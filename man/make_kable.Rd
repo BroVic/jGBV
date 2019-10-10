@@ -11,9 +11,7 @@ make_kable(row, column, opt = NULL)
 
 \item{column}{A character vector of the column names}
 
-\item{label}{A label to be applied to the table; as in \code{knitr::kable}}
-
-\item{caption}{A caption. Used as in \emph{label} above.}
+\item{opt}{The options for the dummy table}
 }
 \description{
 Create a table formatted for markdown

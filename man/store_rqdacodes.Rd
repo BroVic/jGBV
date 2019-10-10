@@ -4,7 +4,7 @@
 \alias{store_rqdacodes}
 \title{Save New Codes To Disk}
 \usage{
-store_rqdacodes(codes, dir = raampDir$tools)
+store_rqdacodes(codes, dir)
 }
 \arguments{
 \item{codes}{An object of class \code{LocalCodes} which are created by the
