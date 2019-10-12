@@ -119,6 +119,8 @@ fetch_all_data <-
 #' @import stringr
 #'
 #' @return A character vector with the extracted code
+#'
+#' @export
 extract_code <- function(rgx, txt) {
   stopifnot(is.character(rgx))
   stopifnot(is.character(txt))
@@ -179,8 +181,15 @@ save_as_rds <- function(dir, obj, filelabel, ..., state) {
 
 
 
-## Creates value-label pairing for a given vector
+#' Creates value-label pairing for a given vector
+#'
+#' @param variable The data frame variable
+#' @param val.lab.obj The object with the label:value pairs
+#'
 #' @importFrom labelled var_label
+#' @importFrom labelled val_labels
+#'
+#' @export
 create_value_label_pairs <- function(variable, val.lab.obj)
 {
   stopifnot(is.atomic(variable))
@@ -210,7 +219,12 @@ create_value_label_pairs <- function(variable, val.lab.obj)
 
 
 
-# Creates sequences of odd or even values
+#' Creates sequences of odd or even value
+#'
+#' @param vec The vector to be checked
+#' @param type Whether to follow an odd or even sequence
+#'
+#' @export
 odd_even_seq <- function(vec, type = c("odd", "even")) {
   stopifnot(is.vector(vec))
 
@@ -225,8 +239,14 @@ odd_even_seq <- function(vec, type = c("odd", "even")) {
 
 
 
-## creates a named vector from single string
+#' creates a named vector from single string
+#'
+#' @param vec.list A vector that contains a list of items for creating
+#' a named vector
+#'
 #' @import stringr
+#'
+#' @export
 create_named_vector <- function(vec.list) {
   stopifnot(is.character(vec.list))
 
@@ -272,8 +292,16 @@ create_named_vector <- function(vec.list) {
 
 
 
-
-## Selects a file from a vector of file names based on a regex pattern
+#' Select a file from a directory
+#'
+#' Selects a file from a vector of file names based on a regex pattern
+#'
+#' @param path.list A character vector of paths
+#' @param pattern A regular expression
+#' @param type The file format. The functions only support \emph{.R} and
+#' \emph{CSV} files, with R scripts being the default format.
+#'
+#' @export
 select_file <- function(path.list, pattern, type = c("R", 'csv')) {
   if (!all(file.exists(path.list)))
     stop("One or more paths do not exist")
