@@ -223,10 +223,6 @@ test_that("not_multichoice detects appropriate variables", {
   expect_false(not_multichoice(chkd))
 })
 
-# test_that("Labels are applied to variable values", {
-#
-# })
-
 test_that("A single list colum is unnested", {
   dtest <- readRDS(here("tests/testthat", "testdata/list_col_test.rds"))
 
