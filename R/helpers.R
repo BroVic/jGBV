@@ -64,13 +64,12 @@ make_dir_tree <- function()
 #'
 #' @export
 fetch_all_filepaths_named <- function(dir, file.ext = "R") {
-  stopifnot(is.character(dir))
-
-  pattern <- sprintf(".+\\.%s$", file.ext)
+  stopifnot(is.character(file.ext))
 
   if (!dir.exists(dir))
     stop('The directory does not exist')
 
+  pattern <- sub("(\\.?)([[:alnum:]]+$)", "\\1\\2", file.ext)
   the.list <- list_files_pattern(dir, pattern)
 
   if (identical(the.list, character(0)))
@@ -273,7 +272,8 @@ create_named_vector <- function(vec.list) {
     vectorVersion <- vec %>%
       str_split(" ") %>%
       unlist
-
+    if (length(vectorVersion) < 2)
+      stop("Object of length < 2 cannot produce a label-value pair")
     odd.num <- odd_even_seq(vectorVersion, 'odd')
     even.num <- odd_even_seq(vectorVersion, 'even')
 
@@ -300,19 +300,25 @@ create_named_vector <- function(vec.list) {
 #' @param type The file format. The functions only support \emph{.R} and
 #' \emph{CSV} files, with R scripts being the default format.
 #'
+#' @return If successful, the path of the selected file.
+#'
 #' @export
 select_file <- function(path.list, pattern, type = c("R", 'csv')) {
   if (!all(file.exists(path.list)))
     stop("One or more paths do not exist")
   type <- match.arg(type)
   pattern <- sprintf("%s.*\\.%s$", pattern, type)
-  path <- grep(pattern,
-               path.list,
-               ignore.case = TRUE,
-               value = TRUE)
-  stopifnot(length(path) == 1L)
+  path <- grep(pattern, path.list, ignore.case = TRUE, value = TRUE)
+  numfiles <- length(path)
+
+  if (numfiles > 1L)
+    stop("Expected to select only 1 file, but now ",
+         as.character(numfiles),
+         " were selected")
+
   if (!file.exists(path))
     stop("Path ", sQuote(path), " does not exist")
+
   path
 }
 
@@ -571,12 +577,14 @@ manually_check_filenames <- function(directory) {
         "Check the opened File Explorer to manually rename the file.When done, press <ENTER> to continue."
       )
 }
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
+#
+#
 #' Retrieve Word Files (containing transcripts)
 #'
 #' @param dir A diretory path
@@ -591,60 +599,8 @@ fetch_only_word_files <- function(dir) {
     include.dirs = TRUE
   )
 }
-
-
-
-
-
-#' Add some codes to the RQDA project
-#'
-#' @param codes A character vector of the new codes that are to be added.
-#' @param rqdafile An RQDA project file
-#'
-#' @note The rationale behind creating this function is the fact that merging
-#' the binary RQDA in Git version control is not feasible. Thus, codes can be
-#' added to the existing ones and represented in the R session for further
-#' uses downstream.
-#'
-#' @importFrom RQDA RQDA
-#' @importFrom magrittr %>%
-#'
-#' @export
-add_rqdacodes <- function(codes, rqdafile) {
-  openProject(rqdafile)
-  on.exit(closeProject())
-
-  cd <- getCodingTable()$codename %>%
-    c(codes) %>%
-    unique %>%
-    sort
-  class(cd) <- "LocalCodes"
-  cd
-}
 #
 #
-#
-#
-#
-#
-#
-#' Save New Codes To Disk
-#'
-#' Saves a local representation of the codes of the RQDA project for viewing
-#' and easy sharing in version control
-#'
-#' @param codes An object of class \code{LocalCodes} which are created by the
-#' function \code{add_rqdacodes}.
-#' @param dir Path to the directory to which to save the persistent data.
-#' Defaults to the folder containing the RQDA project file.
-#'
-#' @export
-store_rqdacodes <- function(codes, dir) {
-  stopifnot(inherits(codes, "LocalCodes"))
-  stopifnot(is.character(codes), dir.exists(dir))
-  saveRDS(codes, file = file.path(dir, "CODES.rds"))
-  cat(codes, file = file.path(dir, ".CODES"), sep = "\n")
-}
 #
 #
 #
@@ -660,12 +616,13 @@ view_rqdacodes <- function(dir) {
   codes <- readRDS(file.path(dir, "CODES.rds"))
   cat(codes, sep = "\n")
 }
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
+#
 #' Selectively transform a variable into a factor
 #'
 #' @import labelled
@@ -902,28 +859,6 @@ extend_single_listcol <- function(data, var, chr) {
       !!colname := map(!!var, str_detect, chr) %>%
         map_lgl(any)
     )
-}
-
-
-
-
-#' Check whether a question is found across the sectors
-#'
-#' @param quest The question asked in the survey (acutally a regular expression)
-#' @param table A list where each element is a character vector of all the
-#' questions - extracted from the data frame labels.
-#'
-#' @return A named logical vector for all the sectors checked.
-#'
-#' @export
-question_in_all_sectors <- function(quest, table) {
-  map_lgl(table, function(labels) {
-    labels %>%
-      str_trim %>%
-      str_squish %>%
-      str_detect(quest) %>%
-      any
-  })
 }
 
 
