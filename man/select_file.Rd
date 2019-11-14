@@ -14,6 +14,9 @@ select_file(path.list, pattern, type = c("R", "csv"))
 \item{type}{The file format. The functions only support \emph{.R} and
 \emph{CSV} files, with R scripts being the default format.}
 }
+\value{
+If successful, the path of the selected file.
+}
 \description{
 Selects a file from a vector of file names based on a regex pattern
 }
