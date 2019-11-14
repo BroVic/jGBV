@@ -1,5 +1,4 @@
 globalVariables(c(".",
-                  "lgas_nigeria",
                   "name",
                   "value",
                   "new"))
@@ -760,7 +759,12 @@ transform_checked <- function(data, vec) {
 pickout_cols_and_transform <- function(data, chklist) {
   columnnames <- colnames(data)
   varsIndex <- grep(chklist$regex, columnnames)
-  stopifnot(length(varsIndex) == length(chklist$opts))
+  if (length(varsIndex) != length(chklist$opts)) {
+    stop("The indices of the data frame are ",
+         sQuote(paste(varsIndex, collapse = " ")),
+         " while the options for matching are ",
+         sQuote(chklist$opts))
+  }
 
   ## Fetch the name and label of variable #1
   firstIndex <- varsIndex[1]
@@ -927,61 +931,6 @@ question_in_all_sectors <- function(quest, table) {
 
 
 
-
-
-#' Manipulate Data with Multiple Choice Questions
-#'
-#' @param data A data frame with the collaped column
-#' @param variable A character vector of length 1 representing the
-#' name of the column to ve extended
-#' @param options The would-be levels of the resulting factor column
-#' @param multisectoral Logical. Whether work is on combined data frame
-#' @param notReferral Logical. Whether not Referral Directory data
-#'
-#' @importFrom stats reorder
-#' @importFrom tidyr pivot_longer
-#'
-#' @return  A modified data frame with the choices now appearing as
-#' levels of a factor.
-#'
-#' @export
-prepare_extended_col <-
-  function(data,
-           variable,
-           options,
-           multisectoral = TRUE,
-           notReferral = multisectoral) {
-    selected <-
-      c(lgas = "lgas",
-        sector = "sector",
-        variable = variable)
-
-    if (isFALSE(multisectoral))
-      selected <- selected[-2]     # Test this!
-
-    start <- if (isFALSE(notReferral))
-      2L
-    else
-      3L
-
-    data %>%   # handle exception for when sector column is not appropriate
-      select(!!selected) %>%
-      {
-        for (i in seq_along(options)) {
-          . <- extend_single_listcol(., variable, options[i])
-        }
-        .
-      } %>%
-      select(-variable) %>%
-      pivot_longer(start:ncol(.)) %>%
-      mutate(name = factor(name)) %>%
-      mutate(name = reorder(name, desc(value))) %>%
-      filter(value)
-  }
-
-
-
-
 #' Basic bar plot
 #'
 #' @param data The data frame
@@ -1076,35 +1025,6 @@ get_service_data <- function(data, ques, options) {
   prepare_extended_col(data, col, options, multisectoral = FALSE)
 }
 
-
-
-
-
-
-
-
-
-#' Plot the Services for a Single Sector Selected
-#'
-#' @param data The data frame
-#'
-#' @import ggplot2
-#' @importFrom magrittr %>%
-#'
-#' @export
-single_sector_services_plot <- function(data) {
-  (data %>%
-     ggplot(aes(name, fill = name)) +
-     geom_bar() +
-     theme(axis.text = element_text(
-       angle = 20,
-       vjust = 1,
-       hjust = 1
-     ),
-     axis.title.x = element_blank(),
-     axis.text.x = element_blank())
-  )
-}
 
 
 
@@ -1224,19 +1144,3 @@ compute_percent <- function(num) {
   stopifnot(is.numeric(num))
   round(num, 4) * 100
 }
-
-
-
-#' List Local Government Areas
-#'
-#' @param state State in the Federation of Nigeria
-#'
-#' @import naijR
-#' @export
-lgas_ng <- function(state = NULL) {
-  if (!is.null(state))
-    lgas_nigeria$lga[lgas_nigeria$state == state]
-  else
-    lgas_nigeria$lga
-}
-
