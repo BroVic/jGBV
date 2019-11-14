@@ -982,6 +982,8 @@ get_service_data <- function(data, ques, options) {
 #' accessed directory, they will all be extracted and merged into one
 #' single table. No further transformation is carried out, thereafter.
 #'
+#' @import DBI
+#' @import RSQLite
 #' @importFrom RQDA closeProject
 #' @importFrom RQDA getCodingTable
 #' @importFrom RQDA openProject
