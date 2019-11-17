@@ -109,36 +109,6 @@ fetch_all_data <-
 
 
 
-#' Extract Code from an R script
-#'
-#' @param rgx A reguar expression
-#' @param txt A portion of text, supplied as a character vector
-#'
-#' @import stringr
-#'
-#' @return A character vector with the extracted code
-#'
-#' @export
-extract_code <- function(rgx, txt) {
-  stopifnot(is.character(rgx))
-  stopifnot(is.character(txt))
-
-  txt %>%
-    str_subset(rgx) %>%
-    str_replace(rgx, "\\2")
-}
-
-
-
-#' Extract Vector Code
-#'
-#' @param str A string containing the code
-#'
-#' @return A vector from the evaluated code
-#' @export
-extract_vector <- function(str)
-  eval(parse(text = str))
-
 
 
 
