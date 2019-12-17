@@ -1,5 +1,8 @@
 library(raampGBV)
 
+str <- quote("c(\"no.space\", \"has. space\")")
+v <- extract_vector(str)
+
 test_that("'extract_vector()` validates input", {
   expect_type(v, "character")
   expect_is(v, "character")
@@ -11,9 +14,6 @@ test_that("'extract_vector()` validates input", {
 })
 
 test_that("extracted vector has no spaces", {
-  str <- quote("c(\"no.space\", \"has. space\")")
-  v <- extract_vector(str)
-
   expect_false(any(grepl("\\s+", v)))
   expect_length(v, 2L)
 })
