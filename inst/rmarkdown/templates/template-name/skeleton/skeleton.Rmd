@@ -1,0 +1,2009 @@
+---
+title: "RAAMP Gender-Based Violence Assessment"
+output:
+  html_document: default
+  word_document: default
+params:
+  state: NULL
+editor_options:
+  chunk_output_type: console
+---
+
+# Data Analysis Report for `r params$state` State
+## Introduction
+
+```{r setup, include=FALSE}
+
+# TODO: Write conditional for use of this file outside of RStudio
+library(knitr)
+opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9L,
+  fig.height = 9L,
+  dev = "png",
+  fig.path = "figures"
+)
+
+pkgs <-
+  c(
+    "kfigr",
+    "AMR",
+    "cowplot",
+    "flextable",
+    "ggrepel",
+    "glue",
+    "knitr",
+    "labelled",
+    "officer",
+    "raampGBV",
+    "tidyverse"
+  )
+invisible(lapply(pkgs, library, character.only = TRUE))
+
+source(here::here("src", "utility", "objects.R"))
+source(here::here("src", "utility", "funs.R"))
+
+#################  Dataset and Objects  ############################
+raampDir <- make_dir_tree()
+dfList <- fetch_all_data(params$state, raampDir$quant, tool.sectors)
+dfList_minus <- dfList
+dfList_minus$Referral <- NULL
+
+health.data <- dfList$Health
+social.data <- dfList$Social
+legal.data <- dfList$Legal
+judicial.data <- dfList$Judicial
+security.data <- dfList$Security
+temp.data <- dfList$Temporary
+refdir.data <- dfList$Referral
+
+common.data <-
+  readRDS(
+    file.path(
+      raampDir$quant,
+      "Akwa Ibom",
+      "combined_data_common_quest_Akwa Ibom_.rds"
+    )
+  )
+
+optslist <- list(gbv.occur,
+                 gbv.addressed.extra,
+                 presenting.issues,
+                 age.range,
+                 mthly.compile,
+                 yesno,
+                 pay.services,
+                 all.day = yesno,
+                 daysoftheweek, 
+                 local.coord = yesno,
+                 partcp.coord = yesno)
+varslist <- colnames(common.data) %>% { .[!(. %in% c("lgas", "sector"))]}
+
+y.axis.freq <- "No. of respondents"
+total.respondents <- sum(map_dbl(dfList_minus, nrow))
+
+pinky <- "#F8766D"
+bluey <- "#00BFC4"
+greeny <- "#7CAE00"
+
+# Local Function(s)
+total.lga.cases <- function(lganame) {
+  common.annual.no.na %>% 
+    group_by(lgas) %>% 
+    summarise(total = sum(how_many_gbv_annual)) %>% 
+  filter(lgas == lganame) %>% 
+  pull(total)
+}
+```
+
+Quantitative data were collected and analysed from a total of `r total.respondents` respondents across six (6) sectors - health facilities, social support services, legal aid services, judicial services, law enforcement/security agencies, and temporary shelters (safe homes) in each of the `r length(lgas_ng(params$state))` Local Government Areas (LGAs) of `r params$state` State. Also for the qualitative data, a total of `r length(list.files(glue("data/qual/{params$state}/{transcripts.dir}"), pattern = "\\.txt", recursive = TRUE))` interviews comprising indepth interviews (IDIs) and focus group discussions (FGDs) were conducted, in the same LGAs as well as for selected state-level stakeholders.
+
+In line with the objectives of the assessment, the data were analysed in the following areas:
+
+1. GBV prevention and response service availability across sectors 
+2. Existing referral pathways between services, opportunities for improved coordination, and referral directories with contact information
+3. Facilitators and barriers to survivors seeking post-GBV care
+4. Capacity needs of first responders across sectors
+5. Respondents' recommendations
+
+| S/N|  Sector           | No. of respondents       |
+|:---|:------------------|:-------------------------|
+| 1. | Health            | `r nrow(health.data)`    | 
+| 2. | Law Enforcement   | `r nrow(security.data)`  | 
+| 3. | Legal Aid         | `r nrow(legal.data)`     | 
+| 4. | Judicial          | `r nrow(judicial.data)`  | 
+| 5. | Social support    | `r nrow(social.data)`    |
+| 6. | Temporary shelter | `r nrow(temporary.data)` |
+|    | **Total**         |**`r total.respondents`** |
+
+The analysis of facilities visited per LGA is as follows:
+
+```{r table_facilities_visited}
+my_flextable(common.data, "Facilities visited in each LGA for each sector") %>%
+  set_header_labels(
+    lgas = "LGA",
+    Health = "Health (10)*",
+    Judicial = "Judicial (3)",
+    Legal = "Legal (2)",
+    Security = "Security (5)",
+    Shelter = "Shelter (5)",
+    Social = "Social (10)"
+  )
+```
+
+For the quantitative data, the questionnaire had fields related to the facility being surveyed; multi-option, check-list style questions;  straightforward all-or-none questions; and open-ended questions. Thus, for several variables studied, the sampling frame exceeds the actual number of the respondents, which were harnessed in the course of data transformation. For instance, the health facility data collection tool had 144 data fields of which 11 were introductory/overview questions (e.g. location of facility, age of respondent), followed by fields addressing the research questions (e.g. GBV in a given community, GBV case load in the facility, etc). There was considerable overlap in the line of questioning across the sectors, which allowed for inter-sectoral comparative analyses.
+
+Quantitative data were downloaded from REDCap server in comma-separated-values (CSV) file format and then cleaned, transformed and analysed using R, a programming language and environment for statistical computing. Along with the data, the metadata were downloaded from REDCap. These were machine-generated by the REDCap server and after download, were parsed to extract variable labels and other important values.
+
+For qualitative data, IDIs were conducted with community leaders, local government officials, officials from each of the surveyed sectors as well as key stakeholders operating at the State level. The FGDs were held at the community level and dichotomised along the line of participants' gender i.e. one FGD for women and another exclusively for men. All sessions were fully recorded and transcribed by trained field workers prior to being subjected to the analysis.
+
+### GBV occurrence, prevention and response service availability across sectors  
+```{r table_all_sectors_gbv_occurence, anchor = "table", tab.cap = "Distribution of GBV Occurrence"}
+gbv.occur.data <- common.data %>%
+  prepare_extended_col("gbv_occur", gbv.occur) %>%
+  filter(name != oth) %>%  # "Others" category not useful
+  mutate(name = droplevels(name)) %>%
+  mutate(name = factor(name, levels = levels(name), replace_dots_with_spc(name)))
+
+tbl <- gbv.occur.data %>% 
+  split_dot_names %>% 
+  freq(name) 
+
+
+tbl %>%
+  format %>%
+  filter(item != "NA") %>%
+  flextable %>%
+  set_caption("Table 4: Distribution of GBV Occurrence") %>%
+  set_header_labels(
+    item = "Type of GBV",
+    count = "Count",
+    percent = "Percent",
+    cum_count = "Cum. Count",
+    cum_percent = "Cum. Percent"
+  )
+
+gbvs <- unique(tbl$item)
+
+for (i in seq_len(nrow(tbl))) {
+  val <- tbl$percent[tbl$item == gbvs[i]]
+  obj <- paste0("percent.", tolower(abbreviate(gbvs[i])))
+  assign(obj, compute_percent(val))
+}
+```
+
+From Table 4 above, `r tbl$item[which.max(tbl$count)]` was identified as the commonest form of GBV in `r params$state` State (`r tbl$percent[which.max(tbl$count)] %>% compute_percent`%). This was followed by `r tbl$item[2]` (`r tbl$percent[2] %>% compute_percent`%),  `r tbl$item[3]` (`r tbl$percent[3] %>% compute_percent`%),  `r tbl$item[4]` (`r tbl$percent[4] %>% compute_percent`%) and  `r tbl$item[5]` (`r tbl$percent[5] %>% compute_percent`%).  `r tbl$item[which.min(tbl$count)]` was reported the least occurring form of GBV (`r tbl$percent[which.min(tbl$count)] %>% compute_percent`%) in the state. These findings were corroborated by FGDs and IDIs as respondents highlighted the following as forms of GBV that occur in their communities.
+
+IPV was identified as a growing problem by interviewees, mostly being
+
+**Rape**
+
+**Child Sexual Abuse**  
+
+
+```{r table_proportions_gbv_occur, tab.cap = "Occurrence of GBV by LGA (%)", anchor = "table"}
+tbl <- with(
+  gbv.occur.data, table(lgas, name)
+) %>% 
+  prop.table(1) %>% 
+  compute_percent()
+
+tbl %>% 
+  data.matrix() %>% 
+  as.data.frame() %>% 
+  pivot_wider(names_from = name, values_from = Freq) %>% 
+  flextable %>% 
+  colformat_num(j = dimnames(tbl)$name, digits = 1) %>% 
+  set_caption("Table 5: Occurrence of GBV by types per LGA (%)") %>% 
+  set_header_labels(lgas = "LGA")
+```
+
+```{r inline_gbv_occur_by_lga}
+this.lgas <- lgas_ng(params$state)
+indices <- apply(tbl, 1, which.max)
+max.gbv <- dimnames(tbl)$name[indices]
+lga <- dimnames(tbl)$lga
+levenshtein <- mapply(adist, lga, this.lgas)
+
+if (any(levenshtein > 3))
+  stop("Possible mismatch between the two LGA lists")
+
+max.is.inpv <- max.gbv == "Intimate Partner Violence"
+max.is.rape <- max.gbv == "Rape"
+max.gbv.matrix <- cbind(max.gbv, lga = this.lgas)
+
+# Function definition
+fetch_tbl_vals <- function(t, x, nth = 1, state = params$state) {
+  dimnames(t)$lgas <- naijR::lgas_ng(state)
+  vals <- sort(t[, x], decreasing = TRUE)
+  res <- vals[nth]
+  list(
+    name = names(res),
+    value = unname(round(res))
+  )
+}
+
+for (g in gbvs[1:3]) {
+  for (i in 1:3) {
+    obj <- fetch_tbl_vals(tbl, g, nth = i)
+    nm <- abbreviate(g)
+    assign(paste0(nm, i), value = obj)
+  }
+}
+
+```
+
+Table 5 shows the occurrence of various forms of GBV as reported by study participants in the `r length(this.lgas)` LGAs. Participants reported the occurrence of rape, IPV and child sexual abuse as forms of GBV in their localities. IPV was reported as the commonest occurring GBV in `r sum(max.is.inpv)` LGAs: `r this.lgas[max.is.inpv]`. LGAs with most participants reporting the occurrence of IPV were `r InPV1$name` (`r InPV1$value`%), `r InPV2$name` (`r InPV2$value`%) and `r InPV3$name` (`r InPV3$value`%). The preponderance of rape over IPV was reported in `r dimnames(tbl)$lgas[which(tbl[, 1] < tbl[, 2])]`. Respondents from `r Rape1$name` reported the highest rape (`r Rape1$value`%), followed by `r Rape2$name` and `r Rape3$name` (`r Rape2$value`% and `r Rape3$value`%, respectively), while those in `r dimnames(tbl)$lgas[which.min(tbl[, 2])]` reported the least (`r min(tbl[, 2])`%). 
+
+Sexual coercion, forced marriage (FM) and female genital mutilation (FGM) were not reported as forms of GBV in one, two and five LGAs, respectively. LGAs that reported high occurrence of these forms of GBV were:  Umuahia North and South (22% and 20%, respectively) for sexual coercion; Ugwunnagbo (16%) and Ukwa West (14%) forced marrriage, while the highest reported FGM occurence was in Obingwa (12%).
+
+### Types of GBV addressed across different sectors
+Respondents in the various facilities were asked about the types of GBV they address at their workplaces.
+
+```{r table_gbv_addressed, anchor = "table", tab.cap = "Proportion of GBV case being addressed by respective sectors"}
+gbv.addressed.data <- common.data %>%
+  prepare_extended_col("gbv_addressed", gbv.addressed.extra) %>%
+  filter(name != oth) %>%
+  filter(name != "Kidnapping") %>% 
+  filter(name != "Prostitution") %>% 
+  mutate(name = droplevels(name)) %>%
+  mutate(name = factor(
+    name,
+    levels = levels(name),
+    labels = replace_dots_with_spc(name)
+  ))
+
+tbl <- with(gbv.addressed.data, table(name, sector))
+
+ptbl <-
+  with(gbv.addressed.data, prop.table(tbl, 2)) %>% compute_percent
+
+ptbl %>%
+  as.data.frame %>%
+  pivot_wider(name, names_from = sector, values_from = Freq) %>%
+  flextable() %>% 
+  colformat_num(j = c("Health", "Judicial", "Legal", "Security", "Shelter", "Social"), digits = 1) %>% 
+  set_header_labels(name = "")
+```
+
+**Figure 2: Types of GBV addressed by facilities**
+```{r plot_occuradressed, anchor = "figure", fig.cap="GBV Types Addressed by Sectors", fig.width=10L, fig.height=10L}
+gbv.addressed.data %>% 
+  ggplot(aes(sector, fill = name)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", col = "blue") +
+  xlab("Sector") +
+  scale_fill_brewer(name = "Type of GBV", palette = "Paired") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ylab("Percentage") + 
+  theme(axis.text = element_text(face = "bold"))
+```
+  
+From Figure xx and Table xx above, physical assault is the commonest form of GBV addressed by the health sector (25%), followed by IPV (22%) and sexual assault (19%). Although, all the six sectors assessed in `r params$state` State address child sexual abuse, temporary shelters surveyed to not have such cases; they also did not address any forced marriage or FGM cases. Rather, up to 1/2 of the cases seen in these facilities were IPV. 
+
+## GBV Services
+### Case Load
+<!-- Respondents were asked how many GBV cases they had encountered in their facilities/agencies in the last 12 months (Table 7). -->
+
+```{r table_case_load_by_LGA_and_sector, tab.cap = "GBV Cases Reported in last 12 months by LGA", anchor = "table"}
+
+to_char_add_dash <- function(x) {
+  x %>% as.character %>% { ifelse(is.na(.), "-", .) }
+}
+
+common.annual.no.na <- 
+  common.data %>% 
+  filter(!is.na(how_many_gbv_annual))
+
+df <- common.annual.no.na %>%
+  select(lgas, how_many_gbv_annual, sector) %>%
+  group_by(lgas, sector) %>%
+  summarise(case.load = sum(how_many_gbv_annual, na.rm = TRUE)) %>%
+  pivot_wider(names_from = sector, values_from = case.load) %>%
+  mutate(Total = pmap_dbl(
+    list(Health, Judicial, Legal, Security, Shelter, Social),
+    sum,
+    na.rm = TRUE
+  )) %>%
+  ungroup()
+
+df %>% 
+  mutate_if(is.numeric, to_char_add_dash) %>% 
+  flextable() %>% 
+  set_caption("Table 7: GBV Cases Reported in last 12 months by Sectors across LGAs") %>% 
+  set_header_labels(lgas = "LGA")
+```
+
+Table 7 above, shows number of GBV cases seen by respondents in their various sectors across `r nrow(df)` LGAs in the last 12 months. Umuahia North LGA appears to have seen the highest number of GBV cases (693), followed by Ikwuano (494), Ukwa West (382) and Aba South (307). The social support sector was the overall dominant source of cases - in Aba South (154), Umu Nneochi (147), and Umuahia North (90). The health sector attended to the bulk of cases in Umuahia North (530). Overall, the LGAs with the lowest case loads were Ukwa East (55) and Osisioma (90).
+
+```{r snippet for text}
+annual.cases <- common.annual.no.na$how_many_gbv_annual
+```
+
+Figure 3: GBV Services Case Load by LGAs
+```{r textplot_cases_12months, fig.cap="GBV cases attended to in last 12 months (by LGA)", anchor = "figure", eval=FALSE}
+common.annual.no.na %>% 
+  group_by(lgas) %>% 
+  summarise(total = sum(how_many_gbv_annual)) %>% 
+  mutate(lgas = reorder(lgas, total)) %>% 
+  ggplot(aes(lgas, total, label = lgas)) +
+  geom_point(col = "red", size = 2, shape = 2) +
+  geom_label_repel(col = "navyblue", label.size = .5) +
+  xlab("Local Government Area") +
+  ylab("No. of cases") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        plot.title = element_text(hjust = .5))
+```
+
+```{r boxplot:cases 12 months, include=FALSE}
+logtrans <- "log2"
+
+gg <- common.annual.no.na %>%
+  ggplot(aes(sector, how_many_gbv_annual)) +
+  geom_hline(
+    yintercept = with(common.annual.no.na, median(how_many_gbv_annual, na.rm = TRUE)),
+    linetype = "dotted",
+    size = 1.2,
+    col = "blue"
+  ) +
+  scale_y_continuous(trans = logtrans) +
+  ylab(glue("No. of cases ({logtrans})")) +
+  xlab("Sector") +
+  theme(plot.subtitle = element_text(hjust = .5))
+
+gg1 <- 
+  gg +
+  geom_boxplot(aes(fill = sector))  +
+  theme(
+    axis.ticks.x = element_blank(),
+    plot.title = element_text(hjust = .5),
+    legend.position = "none"
+  )
+```
+
+```{r boxplot: cases 12 months, include = FALSE}
+gg2 <- 
+  gg +
+  geom_boxplot() +
+  geom_jitter(col = "purple", width = .1) +
+  theme(
+    axis.title.y = element_text(colour = "purple", face = "bold"),
+    plot.title = element_text(hjust = .5),
+    plot.subtitle = element_text(hjust = .5, face = "italic", size = 8),
+    axis.title.y.left = element_blank()
+  )
+```
+
+Figure 4: GBV Services Case Load by Sectors
+```{r combo_for_boxplots}
+plot_grid(gg1, gg2)
+```
+
+```{r inline_data_case_load}
+med <- median(common.data$how_many_gbv_annual, na.rm = T)
+top5 <- sort(common.data$how_many_gbv_annual, decreasing = T) %>%
+  head %>% 
+  range
+
+
+# TODO: Revisit
+median.sector <- function(x) {
+  common.data %>%
+    filter(sector == x) %>%
+    pull(how_many_gbv_annual) %>%
+    median(na.rm = TRUE)
+}
+
+other.sectors <- c("Health", "Social", "Legal", "Judicial", "Security", "Shelter")
+
+sapply(other.sectors, function(x) {
+  obj <- paste0("med.", abbreviate(x))
+  assign(obj, median.sector(x), envir = globalenv())
+})
+```
+
+From the chart above (Figure 4), there is a median case load of `r med` for `r params$state` State 12 months prior to this assessment. However, there were some outlier facilities that recorded between `r paste0(top5[1], "-", top5[2])` cases cases during the period under review. On the other hand, the median number of cases seen by social support services, legal aid services, security agencies, judicial services were `r med.Socl`, `r med.Legl`, `r med.Scrt` and `r med.Jdcl`, respectively. The median case load for the health sector and shelter homes were `r med.Hlth` and `r med.Shlt`, respectively
+
+
+#### Reporting or seeking care for GBV  
+Qualitative findings from interviews with members of the communities, indicate that logistic difficulties play a role in the survivors' decision to report GBV or seek care. Some of the challenges cited include distance to the facility and the cost attached to services. For example, one respondent had this to say:
+
+
+#### Payment made for GBV services
+
+**Figure 5: Payment for GBV Services by Sectors**  
+```{r barplot_payment, anchor = "figure"}
+payment.data <-
+  if (identical(params$state, "Bauchi") ||
+      identical(params$state, "Abia")) {
+    short_merge(dfList, common.questions["pay_services"]) %>%
+      filter(!is.na(response))
+  } else {
+    common.data %>%
+      prepare_extended_col("pay_services", pay.services) %>%
+      rename(response = name)
+  }
+
+tbl <- with(payment.data, table(response, sector))
+
+payment.data %>%
+  mutate(response = factor(response, levels = c("Yes", "No"))) %>%
+  ggplot(aes(sector, fill = response)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", col = "red", width = .7) +
+  xlab("Sector") +
+  ylab("Percentage") +
+  theme(legend.title = element_blank(),
+        plot.title = element_text(hjust = .5)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_brewer(palette = "Accent")
+```
+
+Figure xx above shows that close to 3/4 of health facilities demand payment for GBV services. This is followed by legal aid, where about 1/4 of the facilities confirmed that payment is required. About 14% of law enforcement agencies require payments while a much smaller number of social support facilities do (7%). However, all the temporary shelters seem to all be offering free services.
+
+### Age Range of GBV Survivors
+```{r table_age_range, tab.cap = "Age range of GBV survivors (percentages by sector)", anchor = "table"}
+dtbl <- common.data %>%
+  prepare_extended_col("age_range", age.range) %>%
+  mutate(name = ordered(
+    name,
+    levels = c(
+      "X..5.yrs",
+      "X5.9.yrs",
+      "X10.14.yrs",
+      "X15.19.yrs",
+      "X..20.yrs"),
+    labels = age.range
+  ))
+
+with(dtbl, prop.table(table(name, sector), 2)) %>%
+  round(3) %>%
+  compute_percent %>%
+  as.data.frame %>%
+  pivot_wider(names_from = sector, values_from = Freq) %>%
+  flextable() %>%
+  colformat_num(
+    j = c("Health", "Judicial", "Legal", "Security", "Shelter", "Social"),
+    digits = 1
+  ) %>%
+  set_caption("Age range of GBV survivors that seek care (%)") %>%
+  set_header_labels(name = "")
+```
+Table 7 reveals that fewer number of under-5 GBV survivors seek care across all sectors. This is more pronounced in the legal aid sector (4.2%). Overall, the number of cases attended to increased with age across all sectors.
+
+### OverView of GBV Service Sectors
+#### Health Sector
+##### a.	Services provided by Health facilities
+```{r data_serices_provided, include=FALSE}
+plot.service <- function(data)
+{
+  data %>%
+    ggplot(aes(name, fill = name)) +
+    geom_bar(aes(y = (..count../sum(..count..)))) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    xlab("Service categories") +
+    ylab( "Facilities offering service") +
+    theme(legend.title = element_blank())
+}
+
+part.caption <- "Services provided by the %s sector" 
+x.axis.lab <- "Available services"
+y.axis.lab <- "No. of facilities"
+```
+
+**Figure 6: `r sprintf(gettext(part.caption), "health")`**
+```{r plot_services_provided_health, fig.cap="Services: Health", anchor = "figure"}
+health.data.services <-
+  get_service_data(
+    health.data,
+    "What services do you provide to GBV survivors in this facility?",
+    services.provided
+  ) %>% 
+  filter(name != "Others") %>% 
+  mutate(name = droplevels(name))
+
+health.data.services %>%
+  mutate(name = factor(
+    name,
+    levels = levels(name),
+    labels = c(
+      "Health",
+      "Psycho-\nsocial",
+      "Child\nprotection",
+      "Legal\nAid",
+      "Shelter",
+      "Economic\nempowerment"
+    )
+  )) %>%
+  plot.service()
+  
+```
+
+```{r inline_health_services}
+hlth.serv.tbl <- make_ptbl(health.data.services)
+```
+Of the services rendered at health faclities in the State, 35% are psychosocial support services. Only 4.9% of services rendered are targeted at protection childhood GBV survivors, while 3.6% is legal aid/law enforcement interventions. About 2% of of the Facilities offer shelter to victims. as well as economic empowerment.
+
+
+##### b.	Policies, Protocols and Data Management in The Health Sector
+```{r caption_text_sops}
+sops_cap <- function(str)
+  sprintf(gettext("Policies, protocols, SOPs available for use at %s"), str)
+```
+
+```{r plot_official_docs_available, fig.cap="Availability of Policies, Protocols in Health Facilities", anchor = "figure"}
+policies.data.health <-
+  get_service_data(
+    health.data,
+    "Does this facility have the following as relate to responding to sexual violence or other types of GBV?",
+    official.docs
+  )
+
+plot1 <- policies.data.health %>%
+  ggplot(aes(name)) +
+  geom_bar(fill = "brown") +
+  ggtitle("Documents Available") +
+  ylab("No. of facilities") +
+  theme(
+    axis.text.x = element_text(
+      vjust = 1,
+      hjust = .5
+    ),
+    axis.title.x.bottom = element_blank()
+  ) +
+  scale_x_discrete(
+    breaks = c(
+      "Standard.Operating.Procedures",
+      "Quality.assurance.standards",
+      "Flow.charts",
+      "Policies",
+      "Protocols",
+      "Algorithms",
+      "Job.aids"
+    ),
+    labels = c(
+      "SOPs",
+      "QA\nStandards",
+      "Flow\ncharts",
+      "Policies",
+      "Protocols",
+      "Algorithms",
+      "Job\naids"
+    )
+  )
+```
+
+```{r plot_forms_included, fig.cap="Standard forms available in Health Facilities", anchor = "figure"}
+forms.included <- health.data %>%
+  prepare_extended_col("q12a___1", available.forms, multisectoral = FALSE)
+
+plot2 <- forms.included %>% 
+  rename(Forms = name) %>% 
+ggplot(aes(Forms, fill = Forms)) +
+  geom_bar(col = "red") +
+  ggtitle("Standard forms available") +
+  xlab("Types of Forms") +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = .5),
+        axis.title.y = element_blank(),
+        axis.title.x = element_blank()) +
+  scale_x_discrete(
+    breaks = c(
+      "Client.intake.assessment.form",
+      "Consent.form.for.HIV.testing",
+      "Consent.form.for.GBV.examination.and.care",
+      "Safety.assessment.forms"
+    ),
+    labels = c("Client\nIntake", "HIV\nConsent", "GBV\nConsent", "Safety\nAssessment"))
+```
+
+**Figure 10: `r sops_cap("health facilities")`** 
+```{r combo_plot_forms_sops, fig.width=12, fig.height=9}
+plot_grid(plot1, plot2)
+```
+
+```{r data_tabulation_docs}
+ptbl <- make_ptbl(policies.data.health)
+
+forms.tbl <- make_ptbl(forms.included)
+```
+
+**Figure 10c: Figure 10c: Policies, protocols, SOPs available for use at health facilities**
+```{r plot_sectoral_SOPs_health, fig.cap= "Health Facilities", anchor = "figure"}
+x.axis.lab <- "SOP categories"
+y.axis.lab <- "No. of facilities"
+
+cats <- c(
+      "Providing.referrals.or.coordination.with.other.sectors.and.actors",
+      "Data.collection..management.and.sharing",
+      "Special.Provision.for.children.friendliness"
+    )
+
+health.data %>% 
+  select(lgas, q14___1) %>% 
+  filter(q14___1 != oth) %>% 
+  filter(q14___1 != "") %>% 
+  prepare_extended_col(
+    "q14___1", 
+    basic.sops[basic.sops != oth], 
+    multisectoral = FALSE) %>%
+    rename(SOPs = name) %>%
+    ggplot(aes(SOPs)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), fill = "darkgreen") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_x_discrete(
+    breaks = cats,
+    labels = c(
+      "Referral/\nCoordination",
+      "Data collection/\nmanagement",
+      "Child\nFriendliness"
+    )
+  ) +
+  xlab(x.axis.lab) +
+  ylab("Responses")
+```
+
+Of the available policies, protocols and/or guidelines in the health facilities, SOPs were most commonly encountered in `r ptbl["Standard.Operating.Procedures"]`% of cases, followed closely by Policies and Protocols  (`r ptbl["Policies"]`% and `r ptbl["Protocols"]`%, respectively). Quality assurance standards (`r ptbl["Quality.assurance.standards"]`%) and algorithms (`r ptbl["Algorithms"]`%) were the least commonly encountered (Figure 10a). Of the standard forms assessed, Client Intake, HIV Consent, GBV Consent and Safety Assessment forms were found in `r forms.tbl["Client.intake.assessment.form"]`%, `r forms.tbl["Consent.form.for.HIV.testing"]`%, `r forms.tbl["Consent.form.for.GBV.examination.and.care"]`% and `r forms.tbl["Safety.assessment.forms"]`% of the facilities, respectively (Figure 10b).
+
+Of the available SOPs in the health facilities, those for referral and coordination were most commonly available, while those for child-friendliness were the least commonly available (Figure 10c).
+
+##### c.	Challenges of Service Provision in the Health Sector
+
+##### d.	Infrastructure and Equipment in the Health Sector
+
+```{r scoring_hf_resources}
+make_scale <- function(x) 
+  ifelse(x == "Yes" & !is.na(x), 1, 0)
+
+hf_supplies_all <- health.data %>%
+  select(lgas, hf_name, hf_level, starts_with("q16")) %>%
+  mutate_at(vars(starts_with("q16")), ~ make_scale(.)) %>%
+  mutate(score = pmap_dbl(
+    list(
+      q16a1, q16a2, q16a3, q16a4, q16a5, q16a6, q16a7, q16a8,
+      q16a9, q16a10, q16a11, q16a12, q16a13, q16a14, q16a15, q16a16,
+      q16b1, q16b2, q16b3, q16b4, q16b5, q16b6, q16b7, q16b8, q16b9,
+      q16b10, q16b11, q16b12, q16b13, q16b14, q16b15, q16b16, q16b17,
+      q16b18, q16b19,
+      q16c1, q16c2, q16c3, q16c4, q16c5, q16c6, q16c7, q16c8, q16c9
+    ), sum
+  )) %>% 
+  mutate_at(vars(starts_with("q16")),
+            ~ ifelse(. == 1, "Available", "Not Available")) %>%
+  mutate(score = as.integer(score)) %>% 
+  setNames(
+    c(
+      "LGA",
+      "HF Name",
+      "HF Level",
+      infrstruct$label,
+      clinic.supplies$label,
+      essential.drugs$label,
+      "Score"
+    )
+  )
+```
+
+**Figure 25: Health facility readiness in terms of equipment**  
+```{r health_readiness_functions}
+fetch_health_sys_data <- function(start.pattern, new.var.names) {
+  health.data %>%
+    select(lgas, starts_with(start.pattern)) %>%
+    setNames(c("lgas", new.var.names)) %>%
+    pivot_longer(cols = new.var.names) %>%
+    mutate(value = as.character(value)) %>%
+    drop_na()
+}
+
+plot_health_sys_reqmts <-
+  function(start.pattern,
+           new.var.names,
+           new.axis.text,
+           colours = c("red", "green"))
+  {
+    fetch_health_sys_data(start.pattern, new.var.names) %>%
+      ggplot(aes(fct_infreq(name), fill = value)) +
+      geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", col = "blue") +
+      scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+      ylab("Percentage") +
+      theme(
+        axis.text.x = element_text(hjust = 1, vjust = 1),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title.y = element_blank()
+      ) +
+      scale_x_discrete(breaks = new.var.names,
+                       labels = new.axis.text) +
+      scale_fill_manual(
+        values = colours,
+        breaks = c("Yes", "No"),
+        labels = c("Available", "Not Available")
+      ) +
+      coord_flip()
+  }
+```
+
+```{r adjusted_plot_equipment}
+new.names <- infrstruct$code
+df <- health.data %>%
+    select(lgas, starts_with("q16a")) %>%
+    setNames(c("lgas", new.names)) %>%
+    pivot_longer(cols = new.names) %>%
+    mutate(value = as.character(value)) %>%
+    drop_na()
+
+df %>% 
+  filter(name != "forensic.store") %>% 
+  ggplot(aes(fct_infreq(name), fill = value)) +
+  geom_bar(position = "fill", col =  "blue") + 
+  ylab("Proportion") +
+      theme(
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        axis.title.y = element_blank()
+      ) +
+      scale_x_discrete(breaks = new.names[-length(new.names)],
+                       labels = infrstruct$label[-nrow(infrstruct)]) +
+      scale_fill_manual(
+        values = c("red", "green"),
+        breaks = c("Yes", "No"),
+        labels = c("Available", "Not Available")
+      ) +
+  coord_flip()
+  
+```
+
+```{r proportions_table_equipment, include=FALSE}
+equip.data <- fetch_health_sys_data("q16a", infrstruct$code)
+equip_tbl <- equip.data %>% with(table(name, value)) %>% prop.table(1) %>% compute_percent()
+```
+
+From figures xx above, although significant gaps exist in the availability of medical equipment for GBV services, there are existing infrastructures to leverage on to strengthen these services. For example, a good number of the facilities visited had consulting, waiting and private rooms with toilet facilities, furniture and examination tables. However, other equipment, such as computer and electricity were grossly inadequate (86% and 48%, respectively. Water supply was also not available in up to 44% of the facilities.
+
+**Figure 26: Health facility readiness in terms of clinical supplies**  
+```{r plot_clinial_supplies, anchor = "figure"}
+plot_health_sys_reqmts(
+  "q16b",
+  clinic.supplies$code,
+  clinic.supplies$label,
+  colours = c("orange", "green")
+)
+```
+
+**Figure 27: Health facility readiness in terms of Essential drugs**
+```{r plot_essential_drugs, anchor = "figure"}
+tbl <- fetch_health_sys_data("q16c", essential.drugs$label) %>% 
+  with(table(name, value)) %>%
+  prop.table(1) %>% 
+  compute_percent
+
+plot_health_sys_reqmts(
+  "q16c",
+  essential.drugs$code,
+  essential.drugs$label,
+  colours = c("purple", "green")
+)
+```
+
+Figure 27 is the output of essential drugs available at the health facilities. Analgesics and tetanus toxoid vaccines were available in most (95% and 93%, respectively) of the facilities; and more than 80% of them had Pregnancy test kits, emergency contraceptives (77%) and antibiotics (85%). Although HIV test kits were found in 88.5% of the facilities, 63% of them had drugs for HIV post-exposure prophylaxis (HIV-PEP) and sexually transmitted infections (STIs). The least available items in the health sector for GBV service delivery were female hygiene materials such as sanitary pads as well as resuscitation material/equipment (Figure 26).
+
+```{r table_min_post_gbv_care, tab.cap = "Availability of Minimum Post-GBV Care Package in Health Facilities", anchor = "table", include = FALSE}
+convert_to_yn <- function(data) {
+  mutate(data, has.min = ifelse(has.min, "Yes", "No"))
+}
+
+min.gbv <- postgbv.care[c(2:7, 10)]
+
+minimum <- health.data %>%
+  select(lgas, hf_name, hf_level, q23___1) %>% 
+  mutate(q23___1 = str_split(q23___1, "_")) %>% 
+  mutate(
+    has.min = map(q23___1, function(x) all(min.gbv %in% x)) %>% 
+      unlist
+  ) %>%
+  mutate(
+    scored.min = map(q23___1, function(x) sum(min.gbv %in% x)) %>% 
+      unlist
+  )
+
+minimum %>%
+  select(-q23___1, hf_level) %>%
+  convert_to_yn %>%
+  flextable() %>%
+  set_header_labels(
+    lgas = "LGA",
+    hf_name = "HF Name",
+    hf_level = "HF Level",
+    has.min = "Has Minimum\nPackage",
+    scored.min = "Score"
+  )
+```
+
+```{r plot_gbv_minimum, anchor = "figure"}
+minimum %>% 
+  convert_to_yn %>% 
+  filter(!is.na(hf_level)) %>% 
+  mutate(has.min = factor(has.min, c("No", "Yes"))) %>% 
+  ggplot(aes(hf_level, fill = has.min)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", col = "brown") +
+  xlab("Health Facility Level") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_discrete(name = "Has\nMinimum\nPackage")
+  
+tbl_min_hflevel <- minimum %>% 
+  with(table(has.min, hf_level)) %>% 
+  prop.table(2) %>% 
+  compute_percent()
+```
+
+Post-GBV Care offered by health care facilities was equally assessed, covering a range of service and intervention areas:
+
+None of the tertiary health facilities surveyed had the minimum GBV care package of treatment of acute injuries; HIV PEP; emergency contraception; HIV testing, counselling, linkage to treatment; STI testing and treatment; and psychosocial counselling. 3% of primary and 33% of secondary health facilities offer the minimum package.
+
+##### e.	Capacity Needs of First Responders in the Health Sector
+
+```{r function def}
+get_training.data <- function(data, ques) {
+   ind <- data %>%  find_var_with_ques(ques)
+  data[, ind]
+}
+```
+
+```{r table_health sector staff training, tab.cap = "Health sector staff capacities - State-wide (%)", anchor = "table", error=FALSE}
+regex <- c(
+  "Does this facility have provider/s who have received training .+ clinical management of rape \\(CMR\\) and other post-GBV services\\?",
+  "Are there providers who can provide CMR services to children?",
+  "Does this facility have a certified/trained provider capable of providing a medico-legal report",
+  "Does this facility have a psychologist, social worker or health provider who can offer basic psychosocial counseling",
+  "Does this facility have a social worker or other personnel properly trained who can provide client empowerment counseling and social reintegration services?",
+  "Do specialized staff receive regular supervision\\?",
+  "Are specialized staff trained/equipped to testify in court as appropriate\\?",
+  "Are they professionals who have been trained to work with child survivors?"
+)
+
+names.training <-
+  c(
+    "Providers trained on how to offer CMR and\nother post-GBV services",
+    "Providers who can provide CMR services to children",
+    "Providers capable of providing medico-legal report",
+    "Psychologist, social worker or health provider who can offer psychosocial counseling",
+    "Social worker or other trained in empowerment counseling and social reintegration",
+    "Specialized staff receive regular supervision",
+    "Specialized staff trained/\nequipped to testify in court",
+    "Professionals trained to work with child survivors"
+  )
+training.health <- 
+  map_dfc(regex, function(x) get_training.data(health.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.health, 2, function(x)
+    round(prop.table(table(x)), 3) * 100) %>% 
+  as.data.frame %>% 
+  {
+    rownames(.) <- c("No", "Yes")
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "train") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  flextable 
+```
+
+**Figure 29: Health facility Staff Capacity to provide GBV services**  
+```{r plot_health sector staff training, anchor = "figure"}
+training.health %>%
+  mutate(
+    `Psychologist, social worker or health provider who can offer psychosocial counseling` = factor(
+      `Psychologist, social worker or health provider who can offer psychosocial counseling`,
+      levels = c("NO", "Yes"),
+      labels = c("No", "Yes")
+    )
+  ) %>%
+  pivot_longer(everything()) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(name, fill = value)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  ylab("Percentage") +
+  theme(
+    plot.title = element_text(hjust = .5),
+    axis.title.y = element_blank(),
+    plot.caption = element_text(hjust = .1, face = "italic", size = 6)
+  ) +
+  scale_fill_brewer(name = "Trained staff", palette = "Dark2") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_x_discrete(
+    breaks = names.training,
+    labels = c(
+      "CMR",
+      "CMR Providers\nExist",
+      "Can do Med-Leg\nReport",
+      "Psychologist for\ncounseling",
+      "Social Worker for\nEmpowerment",
+      "Regular\nSupervision" ,
+      "Testify in Court",
+      "For Child survivors"
+    )
+  ) +
+  coord_flip()
+```
+
+#### Legal Aid Sector 
+##### a. Services provided by Legal Aid Services
+```{r data_services_provided_legal, anchor = "figure"}
+legal.data.services <- get_service_data(
+  legal.data,
+  "What forms of legal aid do you provide to GBV survivors?",
+  services.legl) %>% 
+  filter(name != "Others") %>% 
+  mutate(name = droplevels(name))
+```
+
+```{r table_legal_data_services, anchor = "table"}
+summ <- legal.data.services %>% 
+  pull(name) %>%
+  table %>%
+  prop.table %>%
+  compute_percent()
+```
+
+**Figure 7: `r sprintf(gettext(part.caption), "legal aid")`**
+```{r plot_legal_data_services, fig.cap="Services: Legal Aid", anchor = "figure"}
+# TODO: Make a function out of this.
+plot.service(legal.data.services)
+```
+
+According to Figure 7, the legal aid services mostly carried out legal advice for GBV victims (35.7%), followed by supporting litigation (23.8%). Seeking compensation for victims was the least used intervention (7.1%).
+
+
+
+##### b. 	Policies, Protocols and Data Management in The Legal Aid Sector
+**Figure 12: `r sops_cap("legal aid organisations")`**  
+```{r plot_sectoral_SOPs_legal_aid, fig.cap="Legal Aid Services", anchor = "figure"}
+
+legal.data.sops <- legal.data %>% 
+  prepare_extended_col("q_10___1", sops.legl, multisectoral = FALSE) %>% 
+  adjust_levels_for_prepared_data(c(
+      "Data collection/\nmanagement",
+      "Interviewing\nsurvivors",
+      "Referrals",
+      "Child\nFriendliness"
+    ))
+
+ plot_sectoral_sops(legal.data.sops, "orange") 
+```
+
+```{r data_tabulation_legal_sops}
+leg.sops.tbl <- make_ptbl(legal.data.sops)
+```
+
+In the legal aid services, data collection, management, and sharing was effectively in place in `r leg.sops.tbl["Data collection/\nmanagement"]`% of cases, while SOPs for special provision for child friendliness were found `r leg.sops.tbl["Child\nFriendliness"]`% of the time (Figure 12). Legal Aid Services tend to rely principally on extant laws and codes as standard documents to guide their service delivery to GBV survivors.
+
+
+##### c. Challenges of Service Provision in the Legal Aid Sector
+
+##### d. Capacity Needs of First Responders in the Legal Aid Sector
+```{r plot_legal aid staff training, fig.cap="Legal Aid staff capacities - State-wide (%)", anchor = "figure", error=FALSE}
+
+regex <- c(
+  "Do all new officers receive training regarding GBV prevention/response\\?",
+  "Do specialized officers receive regular training and supervision\\?",
+  "Are specialized officers trained/equipped to testify in court as appropriate\\?"
+)
+
+names.training <-
+  c("New officers receive training in GBV response",
+    "Specialized officers receive regular training and supervision",
+    "Specialized officers equipped to testify in court")
+  
+
+training.legal <- 
+  map_dfc(regex, function(x) get_training.data(legal.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.legal, 2, function(x)
+    round(prop.table(table(x)), 3) * 100) %>% 
+  as.data.frame %>% 
+  {
+    rownames(.) <- c("No", "Yes")
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "train") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  flextable %>% 
+  set_caption("Table 9: Trainings received by Legal Aid Service Providers") %>% 
+  set_header_labels(train = "Training Received")
+```
+
+```{r plot_legal_aid_staff, anchor = "figure"}
+training.legal %>%
+  pivot_longer(everything()) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(name, fill = value)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  ylab("Percentage") +
+  theme(
+    plot.title = element_text(hjust = .5),
+    axis.title.y = element_blank(),
+    plot.caption = element_text(hjust = .1, face = "italic", size = 6)
+  ) +
+  scale_fill_brewer(
+    name = "Trained staff",
+    palette = "Dark2"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_x_discrete(
+    breaks = names.training,
+    labels = c(
+      "Train new Officers",
+      "GBV Specialized training",
+      "Can testify in court"
+    )
+  ) + 
+  coord_flip()
+```
+
+In the legal aid facilities, in as few as 39% of them, new officers receive training on responding to GBV cases. Only 62% of the respondents stated that they have specialised officers that are equipped to testify in court on behalf of GBV victims, while 69% said that their officers receive regular traiing and supervision.
+
+#### Social Support Services Sector
+##### a. Services provided by Social Support Services
+**Figure 8: `r sprintf(gettext(part.caption), "social support")`**
+```{r plot_services_provided_social, fig.cap="Services: Social Support", anchor = "figure"}
+social.data.services <-
+  get_service_data(
+    social.data,
+    "What services do you provide to GBV survivors in this facility?",
+    services.socl
+  ) %>%
+  mutate(name = factor(
+    name,
+    levels = levels(name),
+    labels = c(
+      "Psycho-\nsocial",
+      "Economic\nempower-\nment",
+      "Child\nprotection",
+      "Health",
+      "Law\nEnforcement",
+      "Legal Aid",
+      "Shelter",
+      "Others"
+    )
+  )) %>%
+  filter(name != "Others") %>%
+  mutate(name = droplevels(name))
+
+plot.service(social.data.services)
+```
+
+Social support facilities in `r params$state` State primarily offer psychosocial, economic empowerment and child protection interventions to GBV survivors (Figure 8). The social services mostly delivered psychosocial GBV interventions (27.59%), economic empowerment (17.24%) and child protection services (14.37%). Very few actually shelter GBV victims (4.02%). According to one of the respondents, they offer the aforementioned services and refer survivors to other facilities as needed.
+
+##### b. 	Policies, Protocols and Data Management in The Social Support Services
+**Figure 14: `r sops_cap("Social Support Services")`**   
+```{r plot_sectoral_SOPs_social_support, fig.cap="Social Support Services", anchor = "figure"}
+social.data.sops <- social.data %>%
+  prepare_extended_col("q10___1", sops.socl, multisectoral = FALSE) %>% 
+  adjust_levels_for_prepared_data(c(
+      "Data collection/\nmanagement",
+      "For child survivors",
+      "Child Friendliness"
+    ))
+
+plot_sectoral_sops(social.data.sops, "red") 
+```
+
+```{r}
+socl.sops.tbl <- make_ptbl(social.data.sops)
+```
+
+In the social support services surveyed, of the available SOPs half of them were on data collection, management and sharing and `r socl.sops.tbl["For child survivors"]`% for working with child GBV survivors, while `r socl.sops.tbl["Child Friendliness"]`% were on special provisions for child-friendliness (Figure 14). 
+
+##### c. Challenges of Service Provision in the Social Support Sector
+
+Lack of transport features as a significant challenge in this sector:
+
+
+##### d. Capacity Needs of First Responders in the Social Support Sector
+```{r data_social sector staff training}
+regex <- c(
+  "Does this organization have a trained counsellor or social worker who offers psychosocial support services",
+  "Do specilialized staff receive regular supervision",
+  "Are specialised staff trained/equippied to testify in court as appropriate"
+)
+
+names.training <-
+  c("Has trained counsellor or social worker",
+    "Specialized staff receive regular supervision",
+    "Specialized staff equipped to testify in court")
+
+training.social <- 
+  map_dfc(regex, function(x) get_training.data(social.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.social, 2, function(x)
+    round(prop.table(table(x)), 3) * 100) %>% 
+  as.data.frame %>% 
+  {
+    rownames(.) <- c("No", "Yes")
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "train") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  flextable %>% 
+  set_caption("Table 10: Trainings received by Social support Service Providers") %>% 
+  set_header_labels(train = "Training Received")
+```
+
+**Figure 31: Social support services Staff Capacity to provide GBV services**  
+```{r plot_social sector staff training, error=FALSE}
+training.social %>%
+  pivot_longer(everything()) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(name, fill = value)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  ylab("Percentage") +
+  theme(
+    plot.title = element_text(hjust = .5),
+    axis.title.y = element_blank(),
+    plot.caption = element_text(hjust = .1, face = "italic", size = 6)
+  ) +
+  scale_fill_brewer(
+    name = "Trained staff",
+    palette = "Dark2"
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_x_discrete(
+    breaks = names.training,
+    labels = c("Trained counsellor",
+    "GBV Specialized training",
+    "Can testify in court")
+  )  + 
+  coord_flip()
+```
+
+#### Temporary Shelters
+##### a. Services provided by Temporary Shelters
+```{r table_services_provided_temp, tab.cap = "Frequency Table for Service Provision by Temporary Shelters", anchor = "table", include=FALSE}
+
+## TODO: REFACTOR BIKO!!!
+labels <- if (params$state == "Ogun") {
+  c(
+    "Shelter",
+    "Psychosocial",
+    "Economic\nempowerment",
+    "Child\nprotection",
+    "Health",
+    "Legal Aid",
+    "Law\nenforcement\nservices"
+  )
+} else if (params$state == "Abia") {
+  c(
+    "Economic\nempowerment",
+    "Shelter",
+    "Psychosocial",
+    "Health",
+    "Child\nprotection",
+    "Law\nenforcement\nservices",
+    "Legal Aid",
+    "Others"
+  )
+} else if (params$state == "Bauchi") {
+  c(
+    "Temporary.Shelter.Safe.Homes",
+    "Child.protection.services",
+    "Psychosocial.support.services",
+    "Economic.empowerment..Livelihood.services",
+    "Health.services",
+    "Legal.aid",
+    "Law.enforcement.services",
+    "Others"
+  )
+} else {
+  c(
+    "Shelter",
+    "Psychosocial",
+    "Economic\nempowerment",
+    "Child\nprotection",
+    "Health",
+    "Legal Aid"
+  )
+}
+
+temporary.data.services <-
+  get_service_data(
+    temporary.data,
+    "What services do you provide to GBV survivors in this facility?",
+    services.socl
+  ) %>%
+  mutate(name = factor(
+    name, 
+    levels = levels(name), 
+    labels = labels
+  )) %>%
+  filter(name != "Others") %>%
+  mutate(name = droplevels(name))
+``` 
+
+**Figure 9: `r sprintf(gettext(part.caption), "temporary shelter")`**  
+```{r plot_services_provided_temp, anchor = "figure"}
+plot.service(temporary.data.services) 
+```
+
+**[Re-examine]**
+Temporary shelter homes provide shelter or safe homes for GBV survivors in 32.43% of cases while providing other services, including psychosocial services (21.62%) and economic empowerment (16.22%). 8.11% of such services were focused on child protection (Figure 9). 
+
+##### b. Policies, Protocols and Data Management in Temporary Shelters
+**Figure 15: `r sops_cap("Temporary Shelter Homes")`**  
+```{r plot_sectoral_SOPs_temporary_shelters, fig.cap="Services: Temporary Shelters", anchor = "figure"}
+
+
+labels <- if (params$state == "Abia") {
+  c(
+    "Referrals",
+    "For GBV survivors",
+    "Data collection/\nmanagement",
+    "For child survivors"
+  )
+} else {   # May not be tenable sha...
+  c(
+    "For child survivors",
+    "Data collection/\nmanagement",
+    "Referrals",
+    "For GBV survivors"
+  )
+}
+temporary.data.sops <- temporary.data %>% 
+  prepare_extended_col("q_10___2", sops.shlt, multisectoral = FALSE) %>% 
+  adjust_levels_for_prepared_data(labels)
+
+plot_sectoral_sops(temporary.data.sops, "violet") 
+```
+
+```{r}
+shlt.sops.tbl <- make_ptbl(temporary.data.sops)
+```
+
+From Figure 15, the following SOPs were found in the temporary shelters/safe homes visited: For working with child survivors (50%); for data collection, management and sharing (28.57%); for working with GBV survivors i.e. adults (14.29%); and for providing referrals for post-GBV services (7.14%). **[NB: No. of observations = 2!]**
+
+##### c. Challenges of Service Provision in Temporary Shelters
+**[Quotes]**
+  
+##### d. Infrastructure and Supplies in Temporary Shelters
+**Figure 29: Temporary Shelter readiness in terms of infrastructure and equipment**  
+```{r plot_shelter_homes_admin_supplies, anchor = "figure"}
+shelter.equip <- temporary.data %>%
+    select(lgas, private_room:fire_extinguisher) %>%
+    pivot_longer(cols = private_room:fire_extinguisher) %>%
+    mutate(value = as.character(value)) %>%
+    drop_na()
+
+shelter.equip %>%
+  ggplot(aes(name, fill = value)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  xlab("Items checked") +
+  ylab("Percentage") +
+  theme(legend.title = element_blank()) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_x_discrete(
+    breaks = c(
+      "private_room",
+      "toilets",
+      "water_supply",
+      "electricity_supply",
+      "television",
+      "air_conditioner",
+      "furniture",
+      "bed",
+      "mattress",
+      "pillows",
+      "bed_covers",
+      "security",
+      "toys_for_children",
+      "drawing_supplie",
+      "educational_material",
+      "chair",
+      "table",
+      "food_items",
+      "bathroom",
+      "blanket",
+      "first_aid_box",
+      "fire_extinguisher"
+    ),
+    labels = shlt.admin.supplies$label
+  ) +
+  scale_fill_discrete(breaks = c("No", "Yes"),
+                      labels = c("Not Available", "Available")) +
+  coord_flip()
+```
+
+##### e. Capacity Needs of First Responders in Temporary Shelter
+
+```{r table_shelter homes staff training, tab.cap = "Temporary shelter staff capacities - State-wide (%)", anchor = "table", error=FALSE}
+regex <- c("Do you have trained psychosocial support counselors for GBV survivors",
+           "Does this facility have a social worker or other personnel properly trained who can provide social reintegration services\\?",
+           "Do specilialized staff receive regular supervision?",
+           "Are specialised staff trained/equippied to testify in court as appropriate\\?",
+           "Are they professionals who have been trained to work with child survivors\\?")
+
+names.training <- c(
+  "Psychosocial support",
+  "GBV counsellor",
+  "Social reintegration",
+  "Testify in court",
+  "Work with child survivors"
+)
+
+training.temp <- 
+  map_dfc(regex, function(x) get_training.data(temporary.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.temp, 2, function(x)
+    round(prop.table(table(x)), 3) * 100) %>% 
+  as.data.frame %>% 
+  {
+    rownames(.) <- c("No", "Yes")
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "train") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  flextable %>% 
+  set_caption("Table 11: Trainings received by Temporary Shelter Providers") %>% 
+  set_header_labels(train = "Training Received")
+```
+
+**Figure 32: Temporary shelter services Staff Capacity to provide GBV services**
+```{r plot_trained_staff, anchor = "figure"}
+training.temp %>%
+  pivot_longer(everything()) %>%
+  filter(!is.na(value)) %>%
+  ggplot(aes(name, fill = value)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  ylab("Percentage") +
+  theme(
+    plot.title = element_text(hjust = .5),
+    axis.title.y = element_blank(),
+    plot.caption = element_text(hjust = .1, face = "italic", size = 6)
+  ) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_fill_brewer(
+    name = "Trained staff",
+    palette = "Dark2"
+  ) +
+  coord_flip()
+```
+
+**[Qualitative findings]**
+
+#### Judicial Services Sector
+##### a. Policies, Protocols and SOPs available for judicial sector
+**Figure 11: `r sops_cap("judicial sector")`**  
+```{r plot_sectoral_SOPs_judiciary, fig.cap= "Services: Judicial sector", anchor = "figure"}
+sops.court <- setup_court_sops(params$state)
+
+labels <- 
+  c(
+      "Evidence collection\nand storage",
+      "Coordination",
+      "Referrals",
+      "Job Aids/\nStandards",
+      "Don't know",
+      "Efficient GBV response"
+    )
+if (params$state == "Abia" || params$state == "Bauchi") {
+  labels <- labels[-c(3, 6)]
+  labels[2] <- "Coordination/\nReferrals"
+}
+
+judicial.sops <- judicial.data %>% 
+  prepare_extended_col('qq_10___1', sops.court, multisectoral = FALSE) %>% 
+  adjust_levels_for_prepared_data(labels)
+
+plot_sectoral_sops(judicial.sops, "brown")
+```
+
+```{r data_tabulation_judicial_sops}
+jud.sops.tbls <- make_ptbl(judicial.sops)
+```
+
+In the judicial sector, there were SOPs for GBV evidence collection and storage; coordination with other GBV referral sectors and for providing referrals with other sectors and actors; and for job aids and standards in `r jud.sops.tbls["Evidence collection\nand storage"]`%, `r jud.sops.tbls["Coordination/\nReferrals"]`% and `r jud.sops.tbls["Job Aids/\nStandards"]`% of survey data, respectively (Figure 11).
+
+##### b. Challenges of Service Provision in the Judicial Sector
+
+
+
+##### c. Capacity Needs of the Judicial Sector
+```{r}
+regex <- c(
+  "Do judges/ magistrate, clerks, lawyers and other staff receive training on national laws and practices relevant to GBV",
+  "Does the court conduct training and continuing education for court staff"
+)
+
+names.training <- c(
+  "Judges/magistrates, clerks, lawyers and others receive training on GBV laws & practices",
+  "Court conducts training and continuing education for staff"
+)
+
+training.judicial <- 
+  map_dfc(regex, function(x) get_training.data(judicial.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.judicial, 2, function(x)
+    round(prop.table(table(x)), 3) * 100)
+
+opts <- c("Dont know", "No", "Yes")
+
+newtbl <- lapply(newtbl, function(x) {
+  x <- as.double(x)
+  if (length(x) < 3)
+    x <- c(0.0, x)
+  names(x) <- opts
+  x
+})
+
+
+newtbl <- newtbl %>% 
+  as.data.frame() %>% 
+  {
+    rownames(.) <- opts
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "train") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  mutate(train = str_replace(train, "\\.", ", ")) %>%
+  flextable %>% 
+  colformat_num(j = c("Dont know", "No", "Yes"), digits = 1) %>% 
+  set_header_labels(train = "Training conducted", `Dont know`= "Don't know")
+```
+
+In the judicial services, majority of respondents (71%) were in the affirmative on regular training of judges, magistrates and other judicial officers on GBV laws and practices. In 76% of cases, the court conducts regular training and continuing education for staff.
+
+From the interview, one respondent had this to say: 
+
+#### Law Enforcement Sector
+##### a. Policies, Protocols and SOPs available for Law Enforcement Ssector
+**Figure 13: `r sops_cap("law enforcement agencies")`**
+```{r plot_sectoral_SOPs_law_enforcement, fig.cap = "Services: Law Enforcement Agencies", anchor = "figure"}
+labels <- if (params$state == "Abia") {
+  c(
+      "Detaining\nsuspects",
+      "Investigating\nGBV cases",
+      "Referrals",
+      "Data collection/\nmanagement",
+      "Child\nFriendliness",
+      "Others"
+    )
+} else {
+  c(
+      "Detaining\nsuspects",
+      "Investigating\nGBV",
+      "Data collection/\nmanagement",
+      "Referrals",
+      "Child\nFriendliness",
+      "Others"
+    )
+}
+
+security.data.sops <-
+  security.data %>% 
+  prepare_extended_col("q_14___1", sops.lawenf, multisectoral = FALSE) %>% 
+  adjust_levels_for_prepared_data(labels) %>% 
+  drop_others()
+  
+plot_sectoral_sops(security.data.sops, "navyblue") 
+```
+
+```{r data_tabulation_lawenf_sops}
+lawenf.sops.tbl <- make_ptbl(security.data.sops)
+```
+
+The law enforcement agencies in the survey (Figure 13) had SOPs for detaining suspects (`r lawenf.sops.tbl["Detaining\nsuspects"]`%), for investigating GBV cases (`r lawenf.sops.tbl["Investigating\nGBV cases"]`%), for referrals (`r lawenf.sops.tbl["Referrals"]`%), for data collection, management and sharing (`r lawenf.sops.tbl["Investigating\nGBV cases"]`) and for providing child-friendly services (`r lawenf.sops.tbl["Child\nFriendliness"]`%). 
+
+##### b. Challenges of Service Provision in the Law Enforcement Sector
+
+
+Some, however, disagree that logistical difficulties are posing the real challenge to law enforcement, rather the fear of stigmatization:
+
+##### c. Capacity Needs of the Law Enforcement Sector
+```{r }
+regex <- c(
+  "Is there a gender desk officer in this station",
+  "Do all new officers receive training regarding GBV prevention/response",
+  "Are specialized officers trained to testify in court as appropriate"
+)
+
+names.training <- c(
+  "Gender officer at the station",
+  "New officers receive training regarding GBV prevention/response",
+  "Specialized officers trained to testify in court"
+)
+
+training.lawenf <- 
+  map_dfc(regex, function(x) get_training.data(security.data, x)) %>%
+  setNames(names.training)
+
+newtbl <-
+  apply(training.lawenf, 2, function(x)
+    round(prop.table(table(x)), 3) * 100) %>% 
+  as.data.frame %>% 
+  {
+    rownames(.) <- c("No", "Yes")
+    .
+  } %>% 
+  rownames_to_column
+
+newtbl %>% 
+  pivot_longer(-rowname, names_to = "Training") %>% 
+  pivot_wider(names_from = rowname, values_from = value) %>% 
+  flextable 
+
+```
+
+44% of police stations visited have a gender officer, while only 54% of new officers receive GBV-specific training. Up to 74% stated that they have specially trained officers to testify in court for GBV survivors.
+
+> "Yes we do conduct seminars and information orientation seminar too. We invite the police, the army and other security experts and other organizations that partner with police to fight crime to train our men. At times I myself will attend course, like the one week course I attended at Police College under intelligence" -- IDI Law Enforcement
+
+> "When training and retraining training and retraining continuous training program no be small thing no it is not a small thing oh Okay look at this forms now that I am filling  Maybe by by latest next week this forms you are seeing; this is my own (he mentions his first name and last name) you can see ND HND, Cpct miss constable, corporal to Sergeant promotion course the number 6 is refresher course this refresher course I went to Port Harcourt for it 6 months all these other ones is just 2 months then this one is criminology course at enugu six months all this one's also at enugu then this one is Inspector confirmation exams also enugu so these are the causes so you continue going for courses " -- IDI Law Enforcement
+
+
+#### Services for GBV Survivors with Disability
+```{r}
+disability.data <- get_disability_data(dfList)
+tabulate_disability_data(disability.data)
+plot_disability_data(disability.data, c(greeny, pinky))
+```
+
+### Data Management
+None of the facilities visited in `r params$state` State were making monthly compilations of GBV cases attended to.
+
+**Figure 16: Data Management across sectors**   
+```{r plot_data_protection, fig.cap="Protects confidentiality and data of GBV survivors", anchor = "figure"}
+confidentiality.data <- common.data %>%
+  prepare_extended_col("data_confidential", yesno) %>%
+  rename(Response = name) %>% 
+  rename(Sector = sector)
+
+gg <- confidentiality.data %>%
+  ggplot(aes(Sector, fill = Response)) +
+  geom_bar(position = "fill", col = "black") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+  ylab("Percentage")
+gg
+```
+
+
+```{r}
+sum_up_percentages <- function(data, sector) {
+  data %>%
+    filter(sector == sector) %>%
+    pull(Response) %>%
+    table() %>%
+    prop.table() %>%
+    compute_percent()
+}
+# summ_h <- sum_up_percentages(confidentiality.data, "Health")
+# summ_t <- sum_up_percentages(confidentiality.data, "Temporary")
+
+confid.tbl <- with(confidentiality.data, table(Response, Sector)) %>% 
+  prop.table(2) %>% 
+  compute_percent() %>% 
+  round(1)
+```
+
+In comparing the sectors, health did relatively well in protecting the confidentiality of GBV survivors, according to `r confid.tbl["Yes", "Health"]`% of those surveyed, followed by `r confid.tbl["Yes", "Shelter"]`% of temporary shelters. However, most of the other were in the affirmative on the confidentiality and protection of the data of GBV survivors (Figure 16). Some of the measures taken by some facilities to ensure confidentiality of GBV victims include locking records away, maintaining a special unit, etc. Here are some quotes from the interviews done in a particular LGA.
+
+When asked to volunteer information on what happened to GBV cases attended to respondents had these to say during the qualitative interviews across sectors.
+
+### Provision of 24/7 Services
+```{r plot_24_7_services, fig.cap="Offers 24-7 services to GBV survivors", anchor = "figure"}
+
+all.day <- if (params$state == "Abia") {
+  short_merge(dfList, common.questions["all_day"]) %>% 
+    filter(!is.na(response))
+} else {
+  common.data %>%
+    prepare_extended_col("all_day", yesno)%>% 
+    rename(response = name)
+}
+
+tbl <- with(all.day, table(response, sector))
+
+allday.plot <- all.day %>% 
+  ggplot(aes(sector, fill = response)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill", col = "blue") + 
+  ggtitle("Offer 24-7 services") +
+  xlab("Sector") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme(legend.title = element_blank(),
+        plot.title = element_text(hjust = .5),
+        legend.position = "top")
+```
+
+```{r plot_days_of_operation, fig.cap = "Days of the week operating", anchor = "figure"}
+# Combine the following 3 plots into one plane
+open.days.plot <- common.data %>%
+  prepare_extended_col("days_of_week", daysoftheweek) %>%
+  mutate(name = factor(
+    name,
+    levels = c(
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday"
+    ),
+    labels = c(
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    )
+  )) %>%
+  basic_bar("Days Operating") +
+  xlab("Days of the Week") +
+  ylab("No. of facilities")
+```
+
+
+**Figure 17. Provision of 24/7 Services across sectors**  
+
+```{r comboplot_days_operating, fig.width=12, fig.height=9}
+plot_grid(allday.plot, open.days.plot)
+```
+
+**Figure 18: Provision of 24/7 Services across sectors**  
+
+```{r plot_Operating_days_weekdays_ends, fig.cap="Day[s of the Week Operating", anchor = "figure"}
+mod.week.dat <- common.data %>%
+  prepare_extended_col("days_of_week", daysoftheweek) %>%
+  mutate(day.cat = ifelse(name == "Sunday" |
+                            name == "Saturday", "Weekends", "Weekdays")) 
+
+daysoftheweek.table <- mod.week.dat %>% 
+  {
+    table(.$day.cat, .$sector) 
+  }
+
+(plot.mod.week <- mod.week.dat %>%
+    select(-name) %>% 
+    rename(name = day.cat) %>% 
+  basic_bar("") +
+    ylab("No. of facilities") +
+    theme(axis.title.x.bottom = element_blank(),
+          legend.position = "right",
+          legend.title = element_blank()) +
+    facet_wrap(~ sector))
+```
+
+24/7 services are being offered by as many as 54.6% of surveyed facilities. Many of the facilities not offering round-the-clock service are in the social support service sector, followed by the legal aid services. Plotting the graph by proportions reveals that the majority of health and social support services are not always open for business. Those not offering services round-the-clock worked mostly on weekdays as shown in (Figure 18) above.
+
+## Existing Referral Pathways between Services, Opportunities for Improved Coordination, and Referral Directories with Contact Information
+### Referral Pathways and Directory
+As part of efforts to determine the existing services and ensure improved and coordinated Gender based violence (GBV) service delivery in each state, detailed contact information of organizations and facilities where GBV survivors are referred to in each of the LGAs was collected and collated.  Research Assistants collected as many information as possible from each of the six key sectors providing GBV services such as health, legal aid, court, law enforcement, social support and temporary shelter. Names and addresses of referral organizations, name and phone number of contact person, hours of operation as well as type of GBV services offered were also collected. Upon collection of data, some of the facilities were visited to confirm if they actually provide such services as reported by the respondents. After data cleaning and removal of duplicates, sorting of records with complete contact information, especially phone numbers led to a further reduction of the records 104. After the data cleaning, a desk review and verification was conducted through phone calls to all the facilities listed. During this process, the enlisted contact persons were asked questions on the type of GBV services they provide to validate the information on our records. Corrections were also made to incomplete or wrong addresses.
+
+#### `r params$state` State
+A total of `r numReferralCentres` referral records were collated across all LGAs in the state. However, after cleaning and removal of duplicates, the records were reduced and sorting of records with complete contact information, especially phone numbers led to a further reduction of the records. After the data cleaning, a desk review and verification were conducted through phone calls to all the facilities listed. During this process, the enlisted contact persons were asked questions on the type of GBV services they provide to validate the data gathered from the field. Corrections were also made to incomplete or wrong addresses. Findings from the phone call verification showed the facilities provide GBV services. <!-- Update with data relevant to cleaning/validation carried out for a given state -->
+
+### Referral pathways for Health Services
+```{r data_referral health}
+referral.health <- get_referral_data(health.data)
+
+ref.health.tbl <- report_table(referral.health, "q_48")
+
+ref.health.lga.tbl <- 
+  report_table(referral.health, "lgas", "q_48")
+```
+
+Data were also collected on the patterns of referrals conducted across the different sectors. For instance, out of the `r nrow(referral.health)` health facilities surveyed, `r nrow(subset(referral.health, q_48 == "Yes"))` refer GBV victims to law enforcement.
+
+**Figure 19: Referrals from health facility to law enforcement**  
+```{r plot_referral_health, anchor = "figure"}
+referral.health %>%
+  drop_na() %>%
+  mutate(q_48 = factor(q_48, levels = c("No", "Yes"))) %>% 
+  ggplot(aes(q_48, fill = q_48)) +
+  geom_bar() +
+  xlab("Response") +
+  ylab("No. of facilities") +
+  theme(plot.title = element_text(hjust = .5),
+        legend.position = "none")
+```
+
+
+
+### Referral Pathway for Judicial Services and Legal Aid services
+```{r plot_referrals_from_judiciary, anchor = "figure"}
+referral.judicial <- judicial.data %>%
+  get_referral_data %>%
+  prepare_extended_col("q_50___1", ref.services.jud, multisectoral = FALSE)
+
+ref.jud.plot <- referral.judicial %>%
+  ggplot(aes(name, fill = name)) +
+  geom_bar(aes(y = (..count..)/sum(..count..))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+  scale_x_discrete(
+    breaks = levels(referral.judicial$name),
+    labels = str_replace(levels(referral.judicial$name), "\\.", "\n")
+  ) +
+  ggtitle("Judicial") +
+  ylab("Percentage of respondents") +
+  xlab("Sectors to which Referrals are made") +
+  theme(axis.title.x.bottom = element_blank(),
+        legend.position = "none")
+```
+
+```{r plot_referrals_from_legal, anchor = "figure"}
+referral.legal <- legal.data %>% get_referral_data
+
+prop <- sum(referral.legal$q_48 == "Yes", na.rm = TRUE) / nrow(referral.legal)
+
+
+ref.leg.plot <- referral.legal %>% 
+  drop_na %>% 
+  mutate(q_48 = factor(q_48, levels = c("No", "Yes"))) %>% 
+  ggplot(aes(q_48, fill = q_48)) + 
+  geom_bar(aes(y = (..count..)/sum(..count..)), col = "black") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+  ggtitle("Legal Aid") +
+  theme(axis.title.x.bottom = element_blank(),
+        plot.title = element_text(hjust = .5),
+        legend.position = "none", 
+        axis.title.y = element_blank())
+```
+
+**Figure 20a & 20b: Referral Pathways from Judicial Sector and Legal Services**  
+```{r}
+plot_grid(ref.jud.plot, ref.leg.plot)
+```
+
+Judicial services make most of their referrals to the health sector and to the Police (44% and 38%), while the `r prop`% of legal aid services make referrals to the Police.
+
+### Referral Pathway for Social Support Services
+```{r plot_social_services_referrals, anchor = "figure"}
+referral.social <- social.data %>% 
+  get_referral_data
+
+referral.social <- referral.social %>%   
+  drop_na() %>% 
+  mutate(q50 = factor(q50, levels = c("No", "Yes")))
+
+soc.to.police <- referral.social %>%
+  ggplot(aes(q50, fill = q50)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), col = "brown") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+  ggtitle("To Police") +
+  ylab("Percentage facilities") +
+  xlab("Response") +
+  theme(plot.title = element_text(hjust = .5),
+        legend.position = "none") 
+```
+
+```{r plot_referrals_social_services, anchor = "figure"}
+soc.to.others <- referral.social %>% 
+  mutate(q26 = factor(q26, levels = c("No", "Yes"))) %>% 
+  ggplot(aes(q26, fill = q26)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), col = "brown") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1L)) +
+  ggtitle("To other Social Services") +
+  xlab("Response") +
+  theme(plot.title = element_text(hjust = .5), 
+        legend.position = "none",
+        axis.title.y = element_blank()) 
+```
+
+**Figure 21: "Referrals from Social Support Services**  
+```{r}
+plot_grid(
+  soc.to.police,
+  soc.to.others
+  # ,
+  # labels = paste0("21", c("a", "b")),
+  # label_y = 0.1,
+  # label_x = 0.5
+)
+```
+
+```{r}
+ref.soc.pol.tbl <- report_table(referral.social, "q50")
+ref.soc.other.tbl <- report_table(referral.social, "q26")
+```
+
+`r ref.soc.pol.tbl["Yes"]`% of social support services make regular referrals to the police. However, less of them make referrals to other social service sector players (`r ref.soc.other.tbl["Yes"]`%). The qualitative data paint a similar picture:
+
+**[Quote(s)]**
+
+### Referral Pathway for Shelter Homes
+**Figure 22: Referrals from Temporary Shelter homes**  
+```{r plot_shelter_homes_referrals, anchor = "figure"}
+referral.temp <- temporary.data %>%
+  get_referral_data
+
+new.level.order <- c("No", "Yes, accept and use", "Yes, accept but dont use")
+
+refs.to.police <- referral.temp %>%
+  drop_na() %>%
+  mutate(q_60 = factor(q_60, levels = c("No", "Yes"))) %>%
+  mutate(q_61 = factor(
+    q_61,
+    levels = new.level.order
+  ))
+
+pinky <- "#F8766D"
+bluey <- "#00BFC4"
+greeny <- "#7CAE00"
+
+p1 <- refs.to.police %>% 
+  ggplot(aes(q_60, fill = q_60)) +
+  geom_bar() +
+  ylab("No. of facilities") +
+  xlab("Refers to Police") +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = .5)) +
+  scale_fill_manual(values = c(pinky, bluey))
+
+y.scale <- c(0, 2, 4, 6, 8)
+
+p2 <- refs.to.police %>% 
+  ggplot(aes(q_61, fill = q_61)) +
+  geom_bar() +
+  ylim(0, 8) +
+  xlab("Survivors' Accept Referral") +
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        axis.title.y = element_blank()) +
+  scale_fill_manual(
+    values = c(pinky, bluey, greeny)
+  ) +
+  scale_x_discrete(
+    breaks = new.level.order,
+    labels = c("No", "Yes, accept\nand use", "Yes, accept\nbut don't use")
+  ) 
+
+plot_grid(p1, p2)
+```
+
+**[Narrative needed here]**
+
+## Existence of Local Coordination
+```{r data_local_coordination}
+coord.data <- common.data %>% 
+  prepare_extended_col("local_coord", yesno) 
+```
+
+**Figure 23: Existence of Local Coordination**  
+```{r plot_local_coordination, anchor = "figure"}
+gg <- coord.data %>% basic_bar("") +
+  theme(axis.title.x.bottom = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+gg + theme(legend.position = "right", legend.title = element_blank())
+```
+
+```{r plot_local_coordination_by_sector, anchor = "figure"}
+exists.plot <- gg + 
+  facet_wrap(sector ~ .) + 
+  ggtitle("Existence") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+```
+
+```{r table_participation_in_coordination, tab.cap = "Participation in Local GBV Coordination", anchor = "table"}
+partic.data <- common.data %>%
+  prepare_extended_col("partcp_coord", yesno)
+
+tbl <- with(partic.data, table(sector, name))
+
+prop.table(tbl, 1) %>%
+  compute_percent %>%
+  as.data.frame %>%
+  pivot_wider(names_from = name, values_from = Freq) %>%
+  flextable
+```
+
+**Figure xxa & xxb: Existence and Participation in local GBV coordination meetings**  
+```{r plot_percentage_particpation_in_coord, anchor = "figure"}
+participates.plot <- partic.data %>%
+  ggplot(aes(fct_infreq(sector), fill = name)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "fill") +
+  ggtitle("Participation ") +
+  xlab("Sector") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme(plot.title = element_text(hjust = .5),
+        legend.title = element_blank())
+```
+
+```{r}
+plot_grid(exists.plot, participates.plot)
+```
+
+Analyzing GBV coordination by sectors, most of the health facilities surveyed participate in such activities in their various communities. Participation in local coordination meetings was the lowest from the law enforcement and security agencies, and up to 20% of health facilities did not participate either. There is 100% participation in these meetings from the social support services surveyed.
+
+## Facilitators and barriers to survivors seeking post-GBV care
+
+### Facilitators
+#### Local Support Systems
+
+
+#### Financial constraints
+
+
+#### Community Dynamics and Power-play
+
+
+#### Stigma
+
+#### Poor Funding of Service Providers
+
+## Respondents' Recommendations
+### Government & Stakeholders
+
+
+### The Community
+
+---
+
+---
+
+# DISCUSSION
+
+## GBV prevention and response service availability across sectors
+
+Across the state, IPV, rape and child abuse were the commonest form of GBV. This is in line with findings from several studies conducted in other states in Nigeria such as the 2017 GBV assessment conducted by MCSP in Kogi and Ebonyi states which found sexual abuse to be the commonest form of GBV. Also, findings from NDHS 2013 shows that 3 out of 10 girls have experienced one form of sexual abuse. 
+
+The GBV types that were being addressed by the various sectors link directly to the GBV cases reported/presented at the sectors/facilities. The preponderance of cases associated with physical violence and assault are being addressed in the health sector. This links directly to the data on most common GBV presenting issues in the health sector being physical injuries, all of which are all related to physical violence and assault. This direct link between reported and addressed cases cuts across all the sectors.
+
+When viewed across the LGAs, it is noted that Umuahia North is the LGA with the highest number of recorded GBV cases (693 cases).  Its emergence as the LGA with the highest report of GBV cases could be related to its urbanized nature. Studies have shown that industrialization and urbanization can power GBV. The low case load of GBV case load in the health sector when relative to other sectors suggests a relatively lower utilization of health facilities when compared to other sectors such as the legal aid sector which had the highest relative cased load of GBV cases in the last 12 months. This is contrary to what obtains based on previous studies. According to Fawole et al, 2019, In settings where the criminal justice sector is weak or victim-blaming is high such as in Nigeria, survivors of GBV are often more likely to visit a health facility than report to a police station or other sectors in the aftermath of an assault. Additionally, health providers are often respected, objective arbiters, particularly in settings where women may fear the police (García-Moreno C, Hegarty K, d’Oliveira AFL, et al. 2014). Therefore, this relatively low case load may be due to the fact that most of the payment required for GBV services based on the data from this study came from the health sector relative to the other sector addressed such as Legal aid and social services sectors whose services required no payments. User fees has been established as a deterrent to the use of services. Qualitative findings from the FGDs also shows that logistic difficulties play a role in the survivors’ decision to report GBV or seek care. Some of the challenges cited include distance to the facility and the cost attached to services.
+
+Many health facilities (58.4%) did not have the standard forms for managing GBV cases. Client Intake, HIV Consent, GBV Consent and Safety Assessment forms were found in 20.14%, 17.71%, 16.67% and 14.93% of the facilities, respectively. Of the available SOPs in the health facilities, those for referral and coordination were most commonly available, those for child-friendliness were the least commonly available. The dire absence of child friendly documents as well as materials was also noted across all the other sectors
+
+On a general note, the use of standard documents to guide care-givers in rendering GBV services, was inadequate state-wide. Across all sectors, documentation is poor. Also, the availability of child friendly guides/documents for child survivor is notably low. This finding is in line with a report by the Federal Ministry of Health in 2014 which pointed out that adolescent girls aged 10-19 years are especially vulnerable to GBV and experience elevated risks of sexual violence, exploitation and early and forced marriage, but are often not specifically targeted for provision of sexual and reproductive health care due to gender and social norms and sometimes healthcare provider bias. Children are more vulnerable than adults to abuse, due to their age, size and limited participation in decision-making. Specific measures should be implemented to protect girls and boys from the risk of child sexual abuse at home, school and in the community. Health service providers, teachers, parents, caregivers and others should be aware of the signs and symptoms of child sexual abuse, as girls and boys will often remain silent. Services should be provided in a non-discriminatory manner, with the informed assent and/or consent of the child or consent of their caregiver. Child survivors and their families have specific needs and require a tailored response and specialized services
+
+Across all the sectors, the respondents highlighted issues like lack of equipment, consumables, lack of working materials as well as lack of funds as some of the challenges that currently plagues the provision of GBV services within the state.
+
+Existing referral pathways between services, opportunities for improved coordination, and referral directories with contact information
+
+Despite pockets of GBV prevention and response efforts scattered all over the state, there remains an apparent lack of coordination and at times total lack of co-ordination to prevent and respond to GBV survivors within minimum standards. Respondents in some of the sectors expressed some concerns with inter-agency referrals such as cases of survivors being molested in some sectors such as in the law enforcement. Local co-ordination among key players in the law enforcement and security agencies is also particularly low. 
+
+Notably, there is a dearth of shelter/safe home services in Abia State, as evidenced by the low sample size as well as expression of need by many of the respondents in the IDIs and FGDs.
+
+## Facilitators and barriers to survivors seeking post-GBV care
+
+Some of the barriers to seeking care includes Stigma, threats and intimidation by powerful people in the society and financial/logistical constraints affecting survivors, members of the community and service providers. Some of the facilitators of GBV survivors seeking care identified by respondents includes increased awareness and sensitisation, strong community support structures such as women and youth associations as well as government interventions.
+
+## Capacity needs of first responders across sectors
+
+Only 14 (8.2%) health facilities of the 170 facilities surveyed across the state had the capacity to provide all the minimum post GBV care package; none of these were tertiary centres. The data also show that majority of health care facilities do not have adequate trained staff equipped with the requisite skills for offering post-GBV care to survivors. Across all service areas, less than 1/3 had the capacity to provide services such as clinical management of rape, training on how to care for Child survivors, training on testifying in court etc.
+
+There are minimum standards for prevention and response of gender-based violence particularly for medical and psychosocial services to strengthen existing health and protection systems and these standards provide guidance on working with survivors. However, when healthcare providers are not trained on the guiding principles of working with survivor’s protocols may not be adhered to. Also, survivors may be at heightened risk of additional harm or violence from partners, family and/or community members if confidentiality, respect and safety are not adhered to. Furthermore, healthcare workers should provide necessary, life-saving care, such as post-exposure prophylaxis (PEP) for HIV; emergency contraception; treatment for sexually transmitted infections (STIs); mental health and psychosocial support; and appropriate referrals for legal and other services that can support survivors and prevent their re-victimization. (WHO, 2014). Also survivors may fail to seek services ; if the health facility does not have private spaces for consultation, protocols for provision of health care to survivors, essential medicine and supplies or confidential mechanisms for documentation and referrals; if communication materials in the facility do not make clear the types of services that are available, and that they are available for all; or if the provider states or implies that the disclosure of GBV will not be met with respect, sympathy and confidentiality.
+
+# Annex 1: Referral Directory
+
+---
+
+# Annex 2: Table of Facility GBV Service Readiness
