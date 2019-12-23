@@ -12,7 +12,6 @@ Description: Developed for the purpose of reproducible research and for project
 Depends: 
     R (>= 3.6),
     DBI (>= 1.0.0),
-    RGtk2 (>= 2.20.36),
     RSQLite (>= 2.1.2)
 Imports:
     Hmisc (>= 4.2.0),
