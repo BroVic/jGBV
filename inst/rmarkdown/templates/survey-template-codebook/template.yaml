@@ -1,0 +1,4 @@
+name: Survey Template Codebook
+description: >
+   A template for creating quantitative codebooks
+create_dir: TRUE

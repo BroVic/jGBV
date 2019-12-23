@@ -1,0 +1,64 @@
+---
+title: "Codebook"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    code_folding: 'hide'
+    self_contained: true
+params:
+  state: NULL
+  toolType: NULL
+---
+
+```{r setup}
+knitr::opts_chunk$set(
+  warning = TRUE,
+  message = TRUE,
+  error = TRUE, 
+  echo = FALSE
+)
+ggplot2::theme_set(ggplot2::theme_bw())
+pander::panderOptions("table.split.table", Inf)
+```
+
+Codebook for the **`r params$state` `r params$toolType`** Tool
+
+```{r prepare_codebook}
+library(codebook)
+library(raampGBV)
+
+raampDir <- make_dir_tree()
+
+codebook_data <-
+  readRDS(file.path(
+    raampDir$quant,
+    params$state,
+    sprintf(
+      "fullyLabelledData__%s_%s.rds",
+      params$state,
+      params$toolType
+    )
+  ))
+
+
+codebook_data <- detect_missing(
+  codebook_data,
+  only_labelled = TRUE,
+  negative_values_are_missing = FALSE,
+  ninety_nine_problems = TRUE,
+)
+
+# codebook_data <- detect_scales(codebook_data)
+```
+
+
+## Codebook proper
+
+```{r codebook_proper}
+codebook(codebook_data)
+```
