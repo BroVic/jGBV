@@ -25,7 +25,7 @@ generate_all_codebooks <- function(states, sectors) {
 
     map_chr(sectors, function(sector) {
       cat(sprintf("%s sector... ", sector))
-      fpath <- build_single_codebook(state, sector)
+      fpath <- build_codebook(state, sector)
       cat("Done\n")
       fpath
     })
@@ -40,27 +40,43 @@ generate_all_codebooks <- function(states, sectors) {
 
 
 
-#' Build codebook
+#' Build Quantitative Codebook
 #'
 #' Render an individual codebook for a given State and Tool
 #'
 #' @param state The State where the Assessment was conducted
 #' @param tool The specific category of tool that was administered
-#' @param rmdfile The template Rmarkdown file for building the codebook
-#' @param outputdir The output directory
+#' @param outdir The output directory
 #'
+#' @importFrom naijR states
 #' @importFrom rmarkdown render
 #'
-#' @return The path of the rendered Rmarkdown file.
+#' @return The path of the rendered Rmarkdown file i.e. the return value for
+#' \code{rmarkdown::render}. If building the document is interrupted by a
+#' condition, the function fails silently and the condition object is returned.
 #'
 #' @export
-build_single_codebook <- function(state, tool, rmdfile, outputdir) {
-  render(
-    input = rmdfile,
-    output_format = "html_document",
-    output_dir = outputdir,
-    output_file = sprintf("codebook_%s_%s.html", tool, state),
-    params = list(state = state, toolType = tool),
-    quiet = TRUE
-  )
+build_codebook <- function(state, tool, outdir) {
+  stopifnot(is_project_state(state))
+  tmpl <-
+    system.file(
+      "rmarkdown",
+      "templates",
+      "survey-template-codebook",
+      "skeleton",
+      "skeleton.Rmd",
+      package = "raampGBV"
+    )
+  if (identical(tmpl, ""))
+    stop("Codebook template not found")
+  try({
+    render(
+      input = tmpl,
+      output_format = "html_document",
+      output_dir = outdir,
+      output_file = sprintf("codebook_%s_%s.html", tool, state),
+      params = list(state = state, toolType = tool),
+      quiet = TRUE
+    )
+  }, silent = TRUE)
 }

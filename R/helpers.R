@@ -13,6 +13,8 @@ globalVariables(c(".",
 #' @export
 make_dir_tree <- function()
 {
+  if (!identical(basename(here()), "RAAMP_GBV"))
+    stop("You are not in the 'RAAP_GBV' working directory or repository")
   dList <-
     map(c("data", "src", "downloads", "doc", "tools"), here)
   dList <-
@@ -986,4 +988,41 @@ find_var_across_datasets <- function(data.list, ques) {
 compute_percent <- function(num) {
   stopifnot(is.numeric(num))
   round(num, 4) * 100
+}
+
+
+
+
+
+
+#' Test For RAAMP-GBV Project State
+#'
+#' Checks whether a string represents a RAAMP-GBV project state
+#'
+#' @importFrom naijR states
+#'
+#' @param str A character vector of length 1.
+#'
+#' @return A boolean value \code{TRUE} or \code{FALSE}
+#'
+#' @export
+is_project_state <- function(str)
+{
+  stopifnot(is.character(str))
+  allStates <- naijR::states()
+  if (!str %in% allStates) {
+    if (str %in% tolower(allStates)) {
+      warning(sprintf(
+        "Possible typo. Did you mean to type %s?",
+        sQuote(tools::toTitleCase(str))
+      ))
+      return(FALSE)
+    }
+    else
+      stop(sQuote(str), " is not a Nigerian State")
+  }
+  if (!str %in% c("Abia", "Akwa Ibom", "Bauchi", "Ogun"))
+    return(FALSE)
+
+  TRUE
 }

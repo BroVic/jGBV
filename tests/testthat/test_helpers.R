@@ -1,6 +1,16 @@
 library(raampGBV)
 library(here)
 
+
+test_that("Project directory tree is established", {
+  expect_error(make_dir_tree(),
+               "You are not in the 'RAAP_GBV' working directory or repository")
+})
+
+
+
+
+
 test_that("Proper type of file naming input as provided when saving RDS", {
   x <- 1
   expect_error(save_as_rds(x),
@@ -258,4 +268,24 @@ test_that("Input is validated for 'compute_percent'", {
   expect_error(compute_percent(TRUE))
   expect_error(compute_percent("a"),
                "is.numeric\\(num\\) is not TRUE")
+})
+
+
+
+test_that("RAAMP States can be checked", {
+  nochrErr <- "is.character\\(str\\) is not TRUE"
+  nostateErr <- "is not a Nigerian State"
+
+  expect_false(is_project_state("Borno"))
+  expect_error(is_project_state("NoExist"), nostateErr)
+  expect_error(is_project_state(NULL), nochrErr)
+  expect_error(is_project_state(999), nochrErr)
+  expect_error(is_project_state(NA), nochrErr)
+  expect_error(is_project_state(TRUE), nochrErr)
+  expect_error(is_project_state(FALSE), nochrErr)
+  expect_true(is_project_state("Abia"))
+  expect_false(suppressWarnings(is_project_state("abia")))
+  expect_warning(is_project_state("abia"),
+                 "Possible typo. Did you mean to type")
+
 })
