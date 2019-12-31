@@ -37,8 +37,9 @@ tool.sectors <-
 #' Print the \code{tool.sectors} object in an easy to read format.
 #'
 #' @param x A \code{Tools} object
+#' @param ... Additional arguments passed on to \code{print.default}
 #'
 #' @export
 print.Tools <- function(x, ...) {
-  print(unclass(unname(x)))
+  print(unclass(unname(x)), ...)
 }
