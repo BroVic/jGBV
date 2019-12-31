@@ -1021,7 +1021,7 @@ is_project_state <- function(str)
     else
       stop(sQuote(str), " is not a Nigerian State")
   }
-  if (!str %in% c("Abia", "Akwa Ibom", "Bauchi", "Ogun"))
+  if (!str %in% raampStates)
     return(FALSE)
 
   TRUE
