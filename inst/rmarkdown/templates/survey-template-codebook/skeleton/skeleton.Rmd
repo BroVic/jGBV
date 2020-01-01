@@ -1,5 +1,5 @@
 ---
-title: "Codebook"
+title: "RAAMP-GBV Assessment"
 output:
   pdf_document:
     toc: yes
@@ -26,12 +26,17 @@ ggplot2::theme_set(ggplot2::theme_bw())
 pander::panderOptions("table.split.table", Inf)
 ```
 
-Codebook for the **`r params$state` `r params$toolType`** Tool
-
-```{r prepare_codebook}
+```{r pkg-loading, message=FALSE}
 library(codebook)
 library(raampGBV)
+```
 
+Codebook for data collected from administration of survey questionnaire:
+
+**State**: `r params$state`
+**Sector or Tool type**: `r params$toolType`
+
+```{r prepare_codebook}
 raampDir <- make_dir_tree()
 
 codebook_data <-
@@ -56,9 +61,7 @@ codebook_data <- detect_missing(
 # codebook_data <- detect_scales(codebook_data)
 ```
 
-
-## Codebook proper
-
-```{r codebook_proper}
+  
+```{r build-codebook}
 codebook(codebook_data)
 ```
