@@ -289,3 +289,26 @@ test_that("RAAMP States can be checked", {
                  "Possible typo. Did you mean to type")
 
 })
+
+
+
+
+test_that("show_codebook() validates input", {
+  statesErr <- "is.character\\(state\\) is not TRUE"
+
+  expect_error(show_codebook(),
+               "argument \"state\" is missing, with no default")
+  expect_error(show_codebook(999), statesErr)
+  expect_error(show_codebook(NA), statesErr)
+  expect_error(show_codebook("Borno", "Health"),
+               "is_project_state\\(state\\) is not TRUE")
+  expect_error(show_codebook("Abia", "NonSector"),
+               "sector %in% tool.sectors is not TRUE")
+})
+
+
+test_that("spaces are removed from filenames", {
+  output <- .removeSpaceForFilepath("Akwa Ibom")
+  expect_match(output, "-")
+  expect_false(grepl("\\s", output))
+})

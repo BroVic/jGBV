@@ -1026,3 +1026,12 @@ is_project_state <- function(str)
 
   TRUE
 }
+
+
+
+# Remove space in State's name for use with filepaths
+.removeSpaceForFilepath <- function(state) {
+  state <- state[1]
+  stopifnot(is_project_state(state))
+  sub("\\s", "-", state)
+}

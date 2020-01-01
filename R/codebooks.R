@@ -1,5 +1,14 @@
 
 
+
+# Internal function to generate a codebook's filename
+.getCodebookFileName <- function(state, sector) {
+  stopifnot(is_project_state(state))
+  stopifnot(sector %in% tool.sectors)
+  state <- .removeSpaceForFilepath(state)
+  sprintf("codebook_%s_%s.html", sector, state)
+}
+
 #' Generate codebooks
 #'
 #' Automated generation of ALL the quantitative codebooks
@@ -48,6 +57,7 @@ generate_all_codebooks <- function(states, sectors) {
 #' @param tool The specific category of tool that was administered
 #' @param outdir The output directory
 #'
+#' @importFrom here here
 #' @importFrom naijR states
 #' @importFrom rmarkdown render
 #'
@@ -56,8 +66,10 @@ generate_all_codebooks <- function(states, sectors) {
 #' condition, the function fails silently and the condition object is returned.
 #'
 #' @export
-build_codebook <- function(state, tool, outdir) {
+build_codebook <- function(state, tool, outdir, quietly = TRUE)
+{
   stopifnot(is_project_state(state))
+  stopifnot(tool %in% tool.sectors)
   tmpl <-
     system.file(
       "rmarkdown",
@@ -69,14 +81,42 @@ build_codebook <- function(state, tool, outdir) {
     )
   if (identical(tmpl, ""))
     stop("Codebook template not found")
+  outputFile <- .getCodebookFileName(state, tool)
+  if (missing(outdir)) {
+    if (!identical(basename(here()), "RAAMP_GBV"))
+      stop("Wrong project root. Navigate to RAAMP_GBV project directory")
+    outdir <- here("doc/output", state)
+  }
   try({
     render(
       input = tmpl,
       output_format = "html_document",
       output_dir = outdir,
-      output_file = sprintf("codebook_%s_%s.html", tool, state),
+      output_file = outputFile,
       params = list(state = state, toolType = tool),
-      quiet = TRUE
+      quiet = quietly
     )
   }, silent = TRUE)
+}
+
+
+
+
+
+#' View a codebook
+#'
+#' Opens up a quantitative codebook into the default web browser.
+#'
+#' @param state One of the project states
+#' @param sector The sector of interest as defined by \code{tool.sectors}
+#'
+#' @export
+show_codebook <- function(state, sector) {
+  stopifnot(is.character(state))
+  stopifnot(is.character(sector))
+  fname <- .getCodebookFileName(state, sector)
+  fpath <- here::here("doc", "output", state, fname)
+  if (!file.exists(fpath))
+    stop(sprintf("The file '%s' does not exist", fpath))
+  shell.exec(fpath)
 }
