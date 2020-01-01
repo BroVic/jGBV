@@ -4,7 +4,7 @@
 \alias{build_codebook}
 \title{Build Quantitative Codebook}
 \usage{
-build_codebook(state, tool, outdir)
+build_codebook(state, tool, outdir, quietly = TRUE)
 }
 \arguments{
 \item{state}{The State where the Assessment was conducted}
