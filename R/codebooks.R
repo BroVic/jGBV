@@ -81,13 +81,15 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
     )
   if (identical(tmpl, ""))
     stop("Codebook template not found")
-  outputFile <- .getCodebookFileName(state, tool)
+
   if (missing(outdir)) {
     if (!identical(basename(here()), "RAAMP_GBV"))
       stop("Wrong project root. Navigate to RAAMP_GBV project directory")
     outdir <- here("doc/output", state)
   }
-  try({
+  message(sprintf("Building %s codebook for %s State... ", tool, state))
+  outputFile <- .getCodebookFileName(state, tool)  # also removes any spaces
+  tryCatch({
     render(
       input = tmpl,
       output_format = "html_document",
@@ -96,7 +98,8 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
       params = list(state = state, toolType = tool),
       quiet = quietly
     )
-  }, silent = TRUE)
+    message("Done")
+  }, )
 }
 
 
