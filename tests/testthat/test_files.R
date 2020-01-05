@@ -5,12 +5,14 @@ test_that("Project directory tree is established", {
 
 
 
-
+"argument \"state\" is missing, with no default"
 
 test_that("Proper type of file naming input as provided when saving RDS", {
-  x <- 1
-  expect_error(save_as_rds(x),
-               "argument \"state\" is missing, with no default")
+  x <- "No-exist"
+  expect_error(save_as_rds(1), "invalid filename argument")
+  expect_error(save_as_rds(x), "No directory called")
+  expect_error(save_as_rds(".", 42, "testdata", state = "Borno"),
+               "is_project_state\\(state\\) is not TRUE")
 })
 
 

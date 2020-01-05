@@ -264,7 +264,7 @@ fetch_all_filepaths_named <- function(dir, file.ext = "R") {
 #' This is a custom wrapper for \code{saveRDS}.
 #'
 #' @param dir The directory to which to save the RDS file
-#' @param obj The object to be save.
+#' @param obj The object to be saved.
 #' @param filelabel A label to be applied to the filename.
 #' @param state The State for whose data we are saving (specific to
 #' RAAMP-GBV project)
@@ -273,13 +273,13 @@ fetch_all_filepaths_named <- function(dir, file.ext = "R") {
 #'
 #' @export
 save_as_rds <- function(dir, obj, filelabel, ..., state) {
-
-  saveRDS(obj,
-          file.path(
-            dir,
-            state,
-            paste0(filelabel, "_", state, "_", ..., ".rds")
-          ))
+  if (!dir.exists(dir))
+    stop("No directory called ", sQuote(dir))
+  stopifnot(is_project_state(state))
+  if (any(grepl("\\s", state)))
+    state <- .removeSpaceForFilepath(state)
+  pth <- file.path(dir, state, paste0(filelabel, "_", state, "_", ..., ".rds"))
+  saveRDS(obj, pth)
 }
 
 

@@ -9,7 +9,7 @@ save_as_rds(dir, obj, filelabel, ..., state)
 \arguments{
 \item{dir}{The directory to which to save the RDS file}
 
-\item{obj}{The object to be save.}
+\item{obj}{The object to be saved.}
 
 \item{filelabel}{A label to be applied to the filename.}
 
