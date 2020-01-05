@@ -45,7 +45,7 @@ codebook_data <-
     params$state,
     sprintf(
       "fullyLabelledData__%s_%s.rds",
-      params$state,
+      .removeSpaceForFilepath(params$state),
       params$toolType
     )
   ))
