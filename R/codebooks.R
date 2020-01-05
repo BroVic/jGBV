@@ -6,7 +6,7 @@
   stopifnot(is_project_state(state))
   stopifnot(sector %in% tool.sectors)
   state <- .removeSpaceForFilepath(state)
-  sprintf("codebook_%s_%s.html", sector, state)
+  sprintf("codebook_%s_%s.html", state, sector)
 }
 
 #' Generate codebooks
@@ -89,7 +89,7 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
   }
   message(sprintf("Building %s codebook for %s State... ", tool, state))
   outputFile <- .getCodebookFileName(state, tool)  # also removes any spaces
-  tryCatch({
+  tryCatch(
     render(
       input = tmpl,
       output_format = "html_document",
@@ -97,9 +97,7 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
       output_file = outputFile,
       params = list(state = state, toolType = tool),
       quiet = quietly
-    )
-    message("Done")
-  }, )
+    ), error = function(e) { message("Failed") })
 }
 
 

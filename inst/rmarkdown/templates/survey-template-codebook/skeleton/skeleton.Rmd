@@ -39,13 +39,15 @@ Codebook for data collected from administration of survey questionnaire:
 ```{r prepare_codebook}
 raampDir <- make_dir_tree()
 
+## TODO: Abstract this operation away from this location
+stateFpath <- .removeSpaceForFilepath(params$state)
 codebook_data <-
   readRDS(file.path(
     raampDir$quant,
-    params$state,
+    stateFpath,
     sprintf(
       "fullyLabelledData__%s_%s.rds",
-      .removeSpaceForFilepath(params$state),
+      stateFpath,
       params$toolType
     )
   ))
