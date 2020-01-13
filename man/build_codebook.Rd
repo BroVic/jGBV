@@ -12,6 +12,9 @@ build_codebook(state, tool, outdir, quietly = TRUE)
 \item{tool}{The specific category of tool that was administered}
 
 \item{outdir}{The output directory}
+
+\item{quietly}{A logical value of \code{TRUE} or \code{FALSE} - whether the
+output of knitting the documents should be printed out or not.}
 }
 \value{
 The path of the rendered Rmarkdown file i.e. the return value for

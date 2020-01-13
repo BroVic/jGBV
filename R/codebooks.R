@@ -56,6 +56,8 @@ generate_all_codebooks <- function(states, sectors) {
 #' @param state The State where the Assessment was conducted
 #' @param tool The specific category of tool that was administered
 #' @param outdir The output directory
+#' @param quietly A logical value of \code{TRUE} or \code{FALSE} - whether the
+#' output of knitting the documents should be printed out or not.
 #'
 #' @importFrom here here
 #' @importFrom naijR states
