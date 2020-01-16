@@ -46,8 +46,18 @@ source(here::here("src", "utility", "objects.R"))
 source(here::here("src", "utility", "funs.R"))
 
 #################  Dataset and Objects  ############################
+# File system
 raampDir <- make_dir_tree()
 stateForPaths <- .removeSpaceForFilepath(params$state)
+transcripts.dir <-
+  switch(params$state,
+         `Akwa Ibom` = "transcripts/Akwa Ibom",
+         Ogun = "RAAMP GBV Qualitative Transcripts - Ogun State",
+         Abia = "Abia Transcripts",
+         Bauchi = "RAAMP Transcrips_Bauchi")
+# Consider this:
+# transcripts.dir <- .removeSpaceForFilepath(transcripts.dir)
+
 dfList <- fetch_all_data(stateForPaths, raampDir$quant, tool.sectors)
 dfList_minus <- dfList
 dfList_minus$Referral <- NULL
