@@ -179,40 +179,42 @@ From Table 4 above, `r tbl$item[which.max(tbl$count)]` was identified as the com
 
 IPV was identified as a growing problem by interviewees, mostly being prepetrated against women:
 
-> "...intimate partner violence, it is on the increase in this community. That is the husband beating his wife"  -- IDI Healthcare Worker
-
-> "two fighting, mostly husband and wife ( partner violence) this is the form of gender-based violence that we normally see here most often, not minding the rules and laws set aside for any member of the community to involve into fighting that has to do with husband and wife, not minding the dangers attached towards these offenders by the community they also fail to uphold and to avoid."  -- IDI Healthcare Worker
+<!--
+QUOTES
+-->
 
 Another kind of IPV identified was that directed toward domestic helpers and in non-marital relationships:
 
-> "Masters or madam beating their maid or house helps too much (over flogging) and giving them bodily injuries. Sometimes we also hand over to the police husbands who maltreat their wives and house helps especially when they is blood or injury" -- IDI Legal Aid Service
-
-> "The husband and the wife, one will come and complain, especially the women, all these young young girls that are newly married. They are the ones that normally come here to complain that the husband is beating or that her husband has abandoned her to marry another wife and when you look into the matter you see that the man has not even paid for the bride price of the lady. They are just cohabiting one with another. And it is prevalent among Akwa Ibom girls in this community, you know this local government shares common boundary with a community in Akwa Ibom. Girls are the mostly the victims" -- IDI Legal Aid Service
+<!--
+QUOTES
+-->
 
 Some cases of IPV have been attributed to financial problems in families: 
 
-> "There have been so many as I said when we handle here Is between the husband and the wife then it happened that the the wife her challenges is husband is not taking care is in fact, he's not taking his responsibilities as a man in the home, he doesn't care about their upkeep what he's after at the end of the day when he comes back to ask for food. Then the woman Who have been struggling who's out there labor to make sure that there is food on the man's desk and still at the end the man we still turn back to beat her."  -- IDI Law Enforcement
+<!--
+QUOTES
+-->
 
 **Rape**
 Cases of rape to occur, but less commonly than IPV:
 
-> "We have attended to rape once and some of intimate partner violence" -- IDI Healthcare worker
+<!--
+QUOTES
+-->
 
 Persons with disability have been identified as being particular at risk as occured in this instance:
 
-> "Like the rape case was done by a kindred because the lady in question is disabled. She is dump [sic]. But she was able to point out the person that did that to her. And when she pointed out the person that did it to her. We carried out HIV and Pregnancy test but she was negative for HIV but she was positive for pregnancy. So that was when we now asked her if she will want to take the case to social welfare because the person was denying at first. She said yes, so now they now took it to the local government welfare and the person was now mandated to take care of her even if you don’t want to marry her. And he was taking care of the young lady until she delivered. That is how it was resolved."
+<!--
+QUOTES
+-->
 
 **Child Sexual Abuse**  
 
 This form occurs in the communities as well and is referred to as *defilement*:
 
-> "As I told that we don’t normally have it much here but from time to time we do have defilement, so it’s defilement" -- IDI Legal Aid Service
-
-However, community members identify child exploitation as a form of GBV:
-
-> "From my understanding I can see that it is child abuse, so child abuse in such a way that, our children who are supposed to be in school, both our parents neglect responsibilities and force them to go fetch for them what they will used to cater for the family. So from my own observations, I can say that child abuse is what eh… what that is rampant in this environment."  -- Men FGD
-
-
+<!--
+QUOTES
+-->
 
 ```{r table_proportions_gbv_occur, tab.cap = "Occurrence of GBV by LGA (%)", anchor = "table"}
 tbl <- with(
@@ -441,8 +443,9 @@ From the chart above (Figure 4), there is a median case load of `r med` for `r p
 #### Reporting or seeking care for GBV  
 Qualitative findings from interviews with members of the communities, indicate that logistic difficulties play a role in the survivors' decision to report GBV or seek care. Some of the challenges cited include distance to the facility and the cost attached to services. For example, one respondent had this to say:
 
-> "They are also supposed to go to the council, there is a social welfare department in the local government council but distance could be a barrier why they don’t go there" -- IDI Community Leader
-
+<!--
+QUOTES
+-->
 
 #### Payment made for GBV services
 
@@ -683,9 +686,9 @@ Of the available SOPs in the health facilities, those for referral and coordinat
 
 ##### c.	Challenges of Service Provision in the Health Sector
 
-> "I think ehm we need to be trained and retrained on the GBV yea, adequate training, day to day per head" -- IDI Healthcare Worker
-
-> "Funds, drugs, most people don't open up, social economic standard urban community, we need staffs, we need equipment like furniture, material to work with, security and staff quarters." -- IDI Healthcare Worker
+<!--
+QUOTES
+-->
 
 ##### d.	Infrastructure and Equipment in the Health Sector
 
@@ -1033,9 +1036,9 @@ In the legal aid services, data collection, management, and sharing was effectiv
 
 ##### c. Challenges of Service Provision in the Legal Aid Sector
 
-> "Well in the first place the challenge we normally have is the office, we don’t have a good office. As you can see the office of a director. Then my workers too they don’t have office. You can see 10 – 20 persons in one office. So during counseling session, you find out sometimes they feel shy to express their feelings, which at the end of the day be a problem to the judgment. Now sometimes, lack of awareness, those people in the communities they don’t know that they can bring up their cases to government without spending much and nobody will take sides and they will get judgment the way it ought to be" -- IDI Legal Aid Service
-
-> "The first thing which may not be a challenge is that it is not within our jurisdiction to prosecute such cases. That is the only thing here. But we have other challenges in carrying out our assignment as assigned by the law. Law we need a vehicle for patrol, that one over there is old and disappoints quiet often. We also need fund to fuel the vehicle, modern riffles and gadgets for communications, good office space and the rest of them." -- IDI Legal Aid Service
+<!--
+QUOTES
+-->
 
 ##### d. Capacity Needs of First Responders in the Legal Aid Sector
 ```{r plot_legal aid staff training, fig.cap="Legal Aid staff capacities - State-wide (%)", anchor = "figure", error=FALSE}
@@ -1104,7 +1107,9 @@ training.legal %>%
 
 In the legal aid facilities, in as few as 39% of them, new officers receive training on responding to GBV cases. Only 62% of the respondents stated that they have specialised officers that are equipped to testify in court on behalf of GBV victims, while 69% said that their officers receive regular traiing and supervision.
 
-> "Yes, we do go for training. They are gadgets for the training because this training sometimes International body sponsors the sponsors and we go series of training to ensure that the staff are well equipped" -- IDI Legal Aid Services
+<!--
+QUOTES
+-->
 
 #### Social Support Services Sector
 ##### a. Services provided by Social Support Services
@@ -1162,9 +1167,9 @@ In the social support services surveyed, of the available SOPs half of them were
 
 Lack of transport features as a significant challenge in this sector:
 
-> "Some challenges are that we don't have standby vehicles to move quickly to arrest situations. in the juvenile section, we need an equipped office, materially financially and otherwise"  -- IDI Social Support Service
-
-> "Yes we are having challenges just as I said in the area of mobility, we are having challenges in the area of emm non-attachment of security or law enforcement personnel cause sometimes our staff, we go to serve invitation, they would attack that person, they will beat the person, need that, then in area of funding too, we are not being fund so even some other allowances that is even needed for the services to motivate officers is not there" -- IDI Social Support Service
+<!--
+QUOTES
+-->
 
 ##### d. Capacity Needs of First Responders in the Social Support Sector
 ```{r data_social sector staff training}
@@ -1228,9 +1233,9 @@ training.social %>%
   coord_flip()
 ```
 
-> "We don’t have computer. The resources are not enough. We usually get free will donation to attend to some matters. The church at times helps to us to be trained so we can be equipped to provide some skill acquisition for victims like soap making, perfumes etc. We do have some training on how to counsel and advise people from time to time." -- IDI Social Support Service
-
-> "We get some sort of training from time to time. We are trained to get the knowledge of what to do and what not to do when cases are reported here" -- IDI Social Support Service
+<!--
+QUOTES
+-->
 
 #### Temporary Shelters
 ##### a. Services provided by Temporary Shelters
@@ -1486,12 +1491,15 @@ In the judicial sector, there were SOPs for GBV evidence collection and storage;
 
 Political interference is idendified as a major challenge being confronted by judicial officers: 
 
-> "If somebody who assaults a girl, take for instance, has somebody who is a politician, most times they influence these cases… yes… take for instance, if a politician a well-known politician, maybe his brother, cousin or friend commit such a crime, (sigh) most times they tend to influence the matter." -- IDI Judical Service
+<!--
+QUOTES
+-->
 
 Some interviewees express frustration at levity of sentences given to GBV offenders:
 
-> "yeah, see the judiciary have its own challenges as every other agencies or every other arm of government, I gave you an impression when you have somebody before the judiciary and this person has committed a sin you think this person is suppose to back five years at least and all of a sudden he is backing two years or a fine, you know a rich man can easily pay the fine and work away with it so that is the area we look at the judiciary at times with a third eye vetting out the right judgment that will make this man pay for the offence he has committed the law has given them the description to determine at times the law is too wide it will say from this point to this point at times will come self at times you will not get to the extent of getting judgment the case will be strike out technical you know lawyers are very smart. Lawyers are very smart just technically so causing all those miscreant causing problems for us you will see when you have caught up, you will see a guy you know that this guy is bad in the society he is doing this you will catch him you bring him to court before you know it he is out he will pay a fine and come out before you know it he will back three month and come out and after three month you are busy pursuing him in the street again because he hasn’t stop" -- IDI Law Enforcement
-
+<!--
+QUOTES
+-->
 
 ##### c. Capacity Needs of the Judicial Sector
 ```{r}
@@ -1545,7 +1553,9 @@ In the judicial services, majority of respondents (71%) were in the affirmative 
 
 From the interview, one respondent had this to say: 
 
-> "Staff training and development has to be given top priority as staff need to undergo regular update training to equip the properly in carrying out the assignments required of them." -- IDI Judicial Services
+<!--
+QUOTES
+-->
 
 #### Law Enforcement Sector
 ##### a. Policies, Protocols and SOPs available for Law Enforcement Ssector
@@ -1588,13 +1598,15 @@ The law enforcement agencies in the survey (Figure 13) had SOPs for detaining su
 
 ##### b. Challenges of Service Provision in the Law Enforcement Sector
 
-> "I wont say that the government is not trying but I think more still needs to be done. This is the are we are having challenges. Our equipment and gadgets are obsolete. We need to modern ones. The ones needs to be placed (he brought out an old walking talking communication gadget which is not working). That will make us to function effectively." -- IDI Law Enforcement
-
-> "Security operations use a lot of logistics to strife to succeed when I mean a lot of logistics, there are a lot of logistics so that is one of the challenges we have, vehicles, operational vehicles personnel we need more staff to be employed and trained personnel. I'm the head here but I cannot be everywhere now somebody is there representing us there is another place we need to where we have gully erosion we need somebody there to get a post video and snap so that we can, so if we don’t have a enough personnel... we need personnel, we need logistics in terms of vehicle, motor bikes, then we need training and retraining often." -- IDI Law Enforcement
+<!--
+QUOTES
+-->
 
 Some, however, disagree that logistical difficulties are posing the real challenge to law enforcement, rather the fear of stigmatization:
 
-> "To me distance should not be a barrier. Officers are everywhere, even when you are walking on the street there are Army check points in this local government, the police are there, and we the NSCDC are also here so to me distance is not a barrier to reporting gender based violence. People are not just willing to come and report due to stigmatization and fear. For me the security agents works on a 24 hours 7 days operations, no holiday, like tomorrow is 1st October and a public holiday all the security agents will be on duty even when other people are enjoying the public holiday. We work on shift so we operate 24 hours 7 days." -- IDI Law Enforcement
+<!--
+QUOTES
+-->
 
 ##### c. Capacity Needs of the Law Enforcement Sector
 ```{r }
@@ -1633,10 +1645,9 @@ newtbl %>%
 
 44% of police stations visited have a gender officer, while only 54% of new officers receive GBV-specific training. Up to 74% stated that they have specially trained officers to testify in court for GBV survivors.
 
-> "Yes we do conduct seminars and information orientation seminar too. We invite the police, the army and other security experts and other organizations that partner with police to fight crime to train our men. At times I myself will attend course, like the one week course I attended at Police College under intelligence" -- IDI Law Enforcement
-
-> "When training and retraining training and retraining continuous training program no be small thing no it is not a small thing oh Okay look at this forms now that I am filling  Maybe by by latest next week this forms you are seeing; this is my own (he mentions his first name and last name) you can see ND HND, Cpct miss constable, corporal to Sergeant promotion course the number 6 is refresher course this refresher course I went to Port Harcourt for it 6 months all these other ones is just 2 months then this one is criminology course at enugu six months all this one's also at enugu then this one is Inspector confirmation exams also enugu so these are the causes so you continue going for courses " -- IDI Law Enforcement
-
+<!--
+QUOTES
+-->
 
 #### Services for GBV Survivors with Disability
 ```{r}
@@ -2024,57 +2035,53 @@ Analyzing GBV coordination by sectors, most of the health facilities surveyed pa
 #### Local Support Systems
 Generally community structures as well as religious bodies play a supportive role in encouraging reporting of GBV:
 
-> "Yes, there is the community, the church, the homes... 1. They report to their parents. 2. They report to the community 3. When it involves two persons worshiping in the same church, they go to their pastor" -- IDI Community Leader
-
-> " they supposed to go to the King of the community, but in the absence of the community king, the community Chiefs should take over or the village heads in the absence of all the community Youth Organization are there to intervene in any matter to keep the community going they are the true custodian of the community. Some communities also have women and youth associations that specifically work towards addressing GBV" --IDI Healthcare Worker
-
-> "In this our community. I will say that women that are beaten by the wife or girls that are raped go to Oganihu women association (Progressive women association). We also have the general youths and youths by each kindred so these also help in solving the problem any time such things happens." -- Women FGD
+<!--
+QUOTES
+-->
 
 ### Barriers
 #### Lack of Awareness or Non-Availability of Services
 
-> "Financial and institutional failures. The only thing we have here are police stations and magistrate court. People are not aware. Lack of awareness is a challenge, you cannot go when you are not informed. National regulation agencies are not doing their jobs as though they do not exist."  -- Men FGD
+<!--
+QUOTES
+-->
 
 #### Financial constraints
 
-> "As I rightly said, finance, going to hospital to pay the hospital bill can be a barrier. If you don’t have money, then just take a local treatment and leave it for God."  -- IDI Legal Aid Service
-
-> "the first is finance; some of them don't have resources to maybe file their papers or consult their legal practitioners or even officers that assist them in filing their papers" -- IDI Judicial Service
-
-> "Well the barrier they may be facing is money, to go to the hospital and consult a caregiver. So poverty is a problem and lack of money, in most cases I know violence is on the higher side. Just like a woman came to my office and reported these issues she's having with her kinsmen give us some cuts because they came to her compound and try to do one or two things which she objected, the men attacked her. Now the police have given her a kind of form to go to the hospital. In that respect if she doesn't have the money to do that what do you think would happen. Because she need money to get the doctor's report. The doctors also are not helping matters, after the consultation and everything they will still ask her to pay, knowing full well that this is a referral case. So in this case is money is a problem, for them to get that." -- IDI Judicial Service
-
+<!--
+QUOTES
+-->
 
 #### Community Dynamics and Power-play
 
-> "when the defendants are related to a political gladiator, you see them trying to maneuver one way or the other to delay the matter  or just to clamp it down" -- IDI Judicial Service
-
-> "...fear of further violence. Fear of facing the high income family" -- IDI Social Support Service
-
-> "if you are going to the Executive, you may have to bring a bottle of wine or Kola because you cannot talk to them with empty hands, that is you must present something before the King before presenting what you have come for. When you go to the women leader, she may tell you that you have to wait until the day of their meeting, so when you check the process involved in seeking care, you will decide to just swallow it and rest because justice delayed is justice denied." - Women FGD
+<!--
+QUOTES
+-->
 
 #### Stigma
 
-> "I can also say that it is exposure, from the process of going from one place to the other, filling one document or the other, before you will realise it almost everyone has heard what happened." -- Women FGD
+<!--
+QUOTES
+-->
 
 #### Poor Funding of Service Providers
 
-> "Lack of diligent prosecution, it can be as a result of funds and other issues, lack of funding is a general issue in every sector. When there is no fund for the court to use, then there's a problem with the hearing of any case. On the other hand for infrastructure and equipment, there is supposed to be a new electronic gadgets for the magistrate to use and record the the hearing instead of writing, so when he or she goes home or he or she is alone can listen again to the proceedings to enable him proffer a better judgement" -- IDI Judicial service
+<!--
+QUOTES
+-->
 
 ## Respondents' Recommendations
 ### Government & Stakeholders
 
-> "If we have a strong government. If such a thing happens to somebody we should take her to the local government chairman and tell him look at what happened to this person and he can be able to help such a person and support him either financially or materially to console such a person.  
-There is nothing financial support, maybe such a person was beaten because she brings nothing to support the family, and she is unemployed and if she is given small money, she can start a business and will be supporting his husband and her family. Like I said before, this issue gets worse when there is no food at home and the women is not doing anything to support the husband or to bring food such a thing always brings problem between the husband and the wife always.  
-There is nothing like a man comes back and see food to eat. So if we have a strong government should a person will be supported and assisted." -- IDI Community Leader
-
-> " I feel that they should be a sort of maybe creating awareness amongst the mothers, as in enlightening them on the strategies or ways to prevent this (ehnn) sexual harassment and by so doing, they will now pass it unto there various homes. As in teaching their children one how to manage themselves incase if things like that arises" -- Women FGD
+<!--
+QUOTES
+-->
 
 ### The Community
 
-> "We the Oganihu women we are trying. Some time ago we trained up to 5 girls this last August 2019 and we gave our report. Although some of them went there and had a change of course or change of mind.  
-Because we had in mind that they will go and learn how to sew, that is tailoring and when they got there, they saw people fixing nails and painting face, they changed their mind and switched over but that was not our intentions of taking them to that training but that is not the main issue because we have seen it as our own problem.  
-So next time, that thing you were sent to go and learn is what you must learn and that is what we register you to go and learn is what you must learn. The Oganihu women are trying like I told you. Some young girls that gave birth at home and not that they were impregnated we also go and see them and tell them that they are too beautiful to allow this young boys to mess you up.  
-If you have controlled yourself they are good young men that will come and marry you. And we will start from there to counsel them and we also ask them what they think they can be able to do if you are helped. If you are asked to learn a handy work what can you do or what will you like to learn" -- Women FGD
+<!--
+QUOTES
+-->
 
 ---
 
@@ -2083,7 +2090,7 @@ If you have controlled yourself they are good young men that will come and marry
 # DISCUSSION
 
 ## GBV prevention and response service availability across sectors
-
+<!--
 Across the state, IPV, rape and child abuse were the commonest form of GBV. This is in line with findings from several studies conducted in other states in Nigeria such as the 2017 GBV assessment conducted by MCSP in Kogi and Ebonyi states which found sexual abuse to be the commonest form of GBV. Also, findings from NDHS 2013 shows that 3 out of 10 girls have experienced one form of sexual abuse. 
 
 The GBV types that were being addressed by the various sectors link directly to the GBV cases reported/presented at the sectors/facilities. The preponderance of cases associated with physical violence and assault are being addressed in the health sector. This links directly to the data on most common GBV presenting issues in the health sector being physical injuries, all of which are all related to physical violence and assault. This direct link between reported and addressed cases cuts across all the sectors.
@@ -2101,17 +2108,17 @@ Existing referral pathways between services, opportunities for improved coordina
 Despite pockets of GBV prevention and response efforts scattered all over the state, there remains an apparent lack of coordination and at times total lack of co-ordination to prevent and respond to GBV survivors within minimum standards. Respondents in some of the sectors expressed some concerns with inter-agency referrals such as cases of survivors being molested in some sectors such as in the law enforcement. Local co-ordination among key players in the law enforcement and security agencies is also particularly low. 
 
 Notably, there is a dearth of shelter/safe home services in Abia State, as evidenced by the low sample size as well as expression of need by many of the respondents in the IDIs and FGDs.
-
+-->
 ## Facilitators and barriers to survivors seeking post-GBV care
-
+<!--
 Some of the barriers to seeking care includes Stigma, threats and intimidation by powerful people in the society and financial/logistical constraints affecting survivors, members of the community and service providers. Some of the facilitators of GBV survivors seeking care identified by respondents includes increased awareness and sensitisation, strong community support structures such as women and youth associations as well as government interventions.
-
+-->
 ## Capacity needs of first responders across sectors
-
+<!--
 Only 14 (8.2%) health facilities of the 170 facilities surveyed across the state had the capacity to provide all the minimum post GBV care package; none of these were tertiary centres. The data also show that majority of health care facilities do not have adequate trained staff equipped with the requisite skills for offering post-GBV care to survivors. Across all service areas, less than 1/3 had the capacity to provide services such as clinical management of rape, training on how to care for Child survivors, training on testifying in court etc.
 
 There are minimum standards for prevention and response of gender-based violence particularly for medical and psychosocial services to strengthen existing health and protection systems and these standards provide guidance on working with survivors. However, when healthcare providers are not trained on the guiding principles of working with survivor’s protocols may not be adhered to. Also, survivors may be at heightened risk of additional harm or violence from partners, family and/or community members if confidentiality, respect and safety are not adhered to. Furthermore, healthcare workers should provide necessary, life-saving care, such as post-exposure prophylaxis (PEP) for HIV; emergency contraception; treatment for sexually transmitted infections (STIs); mental health and psychosocial support; and appropriate referrals for legal and other services that can support survivors and prevent their re-victimization. (WHO, 2014). Also survivors may fail to seek services ; if the health facility does not have private spaces for consultation, protocols for provision of health care to survivors, essential medicine and supplies or confidential mechanisms for documentation and referrals; if communication materials in the facility do not make clear the types of services that are available, and that they are available for all; or if the provider states or implies that the disclosure of GBV will not be met with respect, sympathy and confidentiality.
-
+-->
 # Annex 1: Referral Directory
 
 ---
