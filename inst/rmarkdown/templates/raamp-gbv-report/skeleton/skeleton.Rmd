@@ -4,7 +4,7 @@ output:
   html_document: default
   word_document: default
 params:
-  state: NULL
+  state: Abia
 editor_options:
   chunk_output_type: console
 ---
@@ -59,16 +59,12 @@ transcripts.dir <-
 # transcripts.dir <- .removeSpaceForFilepath(transcripts.dir)
 
 dfList <- fetch_all_data(stateForPaths, raampDir$quant, tool.sectors)
-dfList_minus <- dfList
-dfList_minus$Referral <- NULL
+dfList$Referral <- NULL
 
-health.data <- dfList$Health
-social.data <- dfList$Social
-legal.data <- dfList$Legal
-judicial.data <- dfList$Judicial
-security.data <- dfList$Security
-temp.data <- dfList$Temporary
-refdir.data <- dfList$Referral
+assign_data <- function(sector.name, df) {
+  assign(paste0(tolower(sector.name), ".data"), df, envir = globalenv())
+}
+mapply(assign_data, names(dfList), dfList)
 
 common.data <-
   readRDS(
