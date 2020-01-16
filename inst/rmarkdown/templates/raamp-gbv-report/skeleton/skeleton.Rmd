@@ -47,7 +47,8 @@ source(here::here("src", "utility", "funs.R"))
 
 #################  Dataset and Objects  ############################
 raampDir <- make_dir_tree()
-dfList <- fetch_all_data(params$state, raampDir$quant, tool.sectors)
+stateForPaths <- .removeSpaceForFilepath(params$state)
+dfList <- fetch_all_data(stateForPaths, raampDir$quant, tool.sectors)
 dfList_minus <- dfList
 dfList_minus$Referral <- NULL
 
@@ -63,8 +64,8 @@ common.data <-
   readRDS(
     file.path(
       raampDir$quant,
-      "Akwa Ibom",
-      "combined_data_common_quest_Akwa Ibom_.rds"
+      stateForPaths,
+      glue("combined_data_common_quest_{stateForPaths}_.rds")
     )
   )
 
@@ -98,7 +99,7 @@ total.lga.cases <- function(lganame) {
 }
 ```
 
-Quantitative data were collected and analysed from a total of `r total.respondents` respondents across six (6) sectors - health facilities, social support services, legal aid services, judicial services, law enforcement/security agencies, and temporary shelters (safe homes) in each of the `r length(lgas_ng(params$state))` Local Government Areas (LGAs) of `r params$state` State. Also for the qualitative data, a total of `r length(list.files(glue("data/qual/{params$state}/{transcripts.dir}"), pattern = "\\.txt", recursive = TRUE))` interviews comprising indepth interviews (IDIs) and focus group discussions (FGDs) were conducted, in the same LGAs as well as for selected state-level stakeholders.
+Quantitative data were collected and analysed from a total of `r total.respondents` respondents across six (6) sectors - health facilities, social support services, legal aid services, judicial services, law enforcement/security agencies, and temporary shelters (safe homes) in each of the `r length(lgas_ng(params$state))` Local Government Areas (LGAs) of `r params$state` State. Also for the qualitative data, a total of `r length(list.files(glue("data/qual/{stateForPaths}/{transcripts.dir}"), pattern = "\\.txt", recursive = TRUE))` interviews comprising indepth interviews (IDIs) and focus group discussions (FGDs) were conducted, in the same LGAs as well as for selected state-level stakeholders.
 
 In line with the objectives of the assessment, the data were analysed in the following areas:
 
