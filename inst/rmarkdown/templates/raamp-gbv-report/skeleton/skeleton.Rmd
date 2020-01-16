@@ -4,7 +4,7 @@ output:
   html_document: default
   word_document: default
 params:
-  state: Abia
+  state: NULL
 editor_options:
   chunk_output_type: console
 ---
@@ -36,6 +36,7 @@ pkgs <-
     "glue",
     "knitr",
     "labelled",
+    "naijR",
     "officer",
     "raampGBV",
     "tidyverse"
@@ -59,6 +60,7 @@ transcripts.dir <-
 # transcripts.dir <- .removeSpaceForFilepath(transcripts.dir)
 
 dfList <- fetch_all_data(stateForPaths, raampDir$quant, tool.sectors)
+numReferralCentres <- nrow(dfList$Referral)
 dfList$Referral <- NULL
 
 assign_data <- function(sector.name, df) {
@@ -89,7 +91,7 @@ optslist <- list(gbv.occur,
 varslist <- colnames(common.data) %>% { .[!(. %in% c("lgas", "sector"))]}
 
 y.axis.freq <- "No. of respondents"
-total.respondents <- sum(map_dbl(dfList_minus, nrow))
+total.respondents <- sum(map_dbl(dfList, nrow))
 
 pinky <- "#F8766D"
 bluey <- "#00BFC4"
@@ -563,6 +565,12 @@ health.data.services %>%
 ```
 
 ```{r inline_health_services}
+# Define a function for generating probabilities for given variable
+make_ptbl <- function(data) {
+  t <- with(data, table(name))
+  round(compute_percent(prop.table(t)), 1)
+}
+
 hlth.serv.tbl <- make_ptbl(health.data.services)
 ```
 Of the services rendered at health faclities in the State, 35% are psychosocial support services. Only 4.9% of services rendered are targeted at protection childhood GBV survivors, while 3.6% is legal aid/law enforcement interventions. About 2% of of the Facilities offer shelter to victims. as well as economic empowerment.
@@ -572,6 +580,24 @@ Of the services rendered at health faclities in the State, 35% are psychosocial 
 ```{r caption_text_sops}
 sops_cap <- function(str)
   sprintf(gettext("Policies, protocols, SOPs available for use at %s"), str)
+```
+
+```{r def_functions_sops}
+
+adjust_levels_for_prepared_data <- function(data, adjusted.label) {
+  data %>% 
+    mutate(name = factor(
+    name,
+    levels = levels(name),
+    labels = adjusted.label
+  ))
+}
+
+drop_others <- function(data) {
+  data %>% 
+    filter(name != "Others") %>% 
+    mutate(name = droplevels(name))
+}
 ```
 
 ```{r plot_official_docs_available, fig.cap="Availability of Policies, Protocols in Health Facilities", anchor = "figure"}
@@ -984,9 +1010,9 @@ The data show that majority of health facilities lack trained staff equipped wit
 
 The qualitative data provided additional insights - majority of health workers from primary health care facilities expressed the lack of training, while those from general hospitals stated that they received regular training; one said:
 
-> “Yes. I am not fully trained to provide the GBV services” – IDI Healthcare Worker
-
-> “Here is not properly equipped. Human resources, staff are not enough. No training” – IDI Healthcare Worker
+<!--
+QUOTES
+-->
 
 #### Legal Aid Sector 
 ##### a. Services provided by Legal Aid Services
