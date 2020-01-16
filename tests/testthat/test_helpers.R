@@ -187,3 +187,15 @@ test_that("show_codebook() validates input", {
 })
 
 
+
+
+test_that("templates can be retrieved", {
+  errmsg <- "is.character\\(dir\\) is not TRUE"
+  errmsg2 <- "Codebook template not found"
+  expect_error(.retrieveDocumentTemplate(999), errmsg)
+  expect_error(.retrieveDocumentTemplate(NULL), errmsg)
+  expect_error(.retrieveDocumentTemplate(NA), errmsg)
+  expect_error(.retrieveDocumentTemplate(NA_character_), errmsg2)
+  expect_error(.retrieveDocumentTemplate(TRUE), errmsg)
+  expect_error(.retrieveDocumentTemplate("fake-directory"), errmsg2)
+})

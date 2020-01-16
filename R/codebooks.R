@@ -72,17 +72,7 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
 {
   stopifnot(is_project_state(state))
   stopifnot(tool %in% tool.sectors)
-  tmpl <-
-    system.file(
-      "rmarkdown",
-      "templates",
-      "survey-template-codebook",
-      "skeleton",
-      "skeleton.Rmd",
-      package = "raampGBV"
-    )
-  if (identical(tmpl, ""))
-    stop("Codebook template not found")
+  tmpl <- .retrieveDocumentTemplate("survey-template-codebook")
 
   if (missing(outdir)) {
     if (!identical(basename(here()), "RAAMP_GBV"))

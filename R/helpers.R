@@ -730,3 +730,24 @@ is_project_state <- function(str)
 
   TRUE
 }
+
+
+
+
+# Bring up an R Markdown for generating a document
+# `dir` is the parent directory of the `skeleton` directory
+.retrieveDocumentTemplate <- function(dir)
+{
+  stopifnot(is.character(dir))
+  tmpl <- system.file(
+    "rmarkdown",
+    "templates",
+    dir,
+    "skeleton",
+    "skeleton.Rmd",
+    package = "raampGBV"
+  )
+  if (identical(tmpl, ""))
+    stop("Codebook template not found")
+  tmpl
+}
