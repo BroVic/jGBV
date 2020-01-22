@@ -27,6 +27,7 @@ build_report <- function(outdir, state, quietly = !interactive())
       output_dir = outdir,
       output_file = outputFile,
       params = list(state = state),
-      quiet = quietly
+      quiet = quietly,
+      envir = globalenv()
     ), error = function(e) { message("Failed") })
 }
