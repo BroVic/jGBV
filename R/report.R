@@ -9,12 +9,13 @@
 #' @param outdir Destination directory of generated report
 #' @param state RAAMP State for which report is generated
 #' @param quietly logical; should output be printed to the console?
+#' @param ... Other arguments passed to \code{rmarkdown::render}.
 #'
 #' @note By default, in interactive mode, the function will print progress
 #' messages to the console, while it is quiet during a scripting session.
 #'
 #' @export
-build_report <- function(outdir, state, quietly = !interactive())
+build_report <- function(outdir, state, quietly = !interactive(), ...)
 {
   stopifnot(state %in% raampStates)
   template <- .retrieveDocumentTemplate("raamp-gbv-report")
@@ -28,6 +29,6 @@ build_report <- function(outdir, state, quietly = !interactive())
       output_file = outputFile,
       params = list(state = state),
       quiet = quietly,
-      envir = globalenv()
+      ...
     ), error = function(e) { message("Failed") })
 }
