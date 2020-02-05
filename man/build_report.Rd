@@ -4,7 +4,7 @@
 \alias{build_report}
 \title{Build A Report}
 \usage{
-build_report(outdir, state, quietly = !interactive())
+build_report(outdir, state, quietly = !interactive(), ...)
 }
 \arguments{
 \item{outdir}{Destination directory of generated report}
@@ -12,6 +12,8 @@ build_report(outdir, state, quietly = !interactive())
 \item{state}{RAAMP State for which report is generated}
 
 \item{quietly}{logical; should output be printed to the console?}
+
+\item{...}{Other arguments passed to \code{rmarkdown::render}.}
 }
 \description{
 Generate a report in MS Word format (\code{.docx} format) from an R Markdown
