@@ -768,7 +768,7 @@ annual.cases <- get_common_annual_no_na(common.data)$how_many_gbv_annual
 ```
 
 Figure 3: GBV Services Case Load by LGAs
-```{r plot_cases_12months, fig.cap="GBV cases attended to in last 12 months (by LGA)", anchor = "figure", eval=FALSE}
+```{r plot_cases_12months, fig.cap="GBV cases attended to in last 12 months (by LGA)", anchor = "figure", include=FALSE}
 get_common_annual_no_na(common.data) %>% 
   group_by(lgas) %>% 
   summarise(total = sum(how_many_gbv_annual)) %>% 
