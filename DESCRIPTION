@@ -1,6 +1,6 @@
 Package: raampGBV
 Title: Helper package for Jhpiego Nigeria's RAAMP-GBV Assessment
-Version: 0.0.6.9001
+Version: 0.0.7
 Authors@R: 
     person(given = "Victor",
            family = "Ordu",
@@ -24,14 +24,13 @@ Imports:
     knitr (>= 1.24),
     labelled (>= 2.2.1),
     magrittr (>= 1.5),
-    naijR (>= 0.0.1),
+    naijR (>= 0.0.6),
     purrr (>= 0.3.2),
     readtext (>= 0.75),
     rlang (>= 0.4.0),
     rmarkdown (>= 1.14),
     stringr (>= 1.4.0),
     tidyr (>= 1.0.0)
-Remotes: BroVic/naijR
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
