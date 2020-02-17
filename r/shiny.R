@@ -18,3 +18,21 @@ load_shiny_data <- function(state)
   file <- list_files_pattern(dir.path, "common.+\\.rds")
   readRDS(file)
 }
+
+
+
+#' Launch the Shiny App
+#'
+#' Lauches the Shiny application in the session, or if not interactive,
+#' in the system's default browser
+#'
+#' @param ... Arguments (other than \code{appDir}) passed to
+#' \code{link[shiny::runApp]{name}}
+#'
+#' @importFrom shiny runApp
+#'
+#' @export
+launch_shiny <- function(...)
+{
+  runApp(make_dir_tree()$shinyApp, ...)
+}
