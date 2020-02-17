@@ -477,8 +477,15 @@ data %>%
   mutate(q_60 = factor(q_60, levels = c("No", "Yes"))) %>%
   mutate(q_61 = factor(
     q_61,
-    levels = new.level.order
+    levels = get_new_level_order()
   ))
+}
+
+
+# Gets the options used in the data on referrals from temporary shelters
+# These are not plain Yes/No responses unlike in other sectors
+get_new_level_order <- function() {
+  c("No", "Yes, accept and use", "Yes, accept but dont use")
 }
 
 
@@ -2127,7 +2134,7 @@ p1
 ```
 
 ```{r plot_referrals_police_accepted, include=FALSE}
-new.level.order <- c("No", "Yes, accept and use", "Yes, accept but dont use")
+new.level.order <- get_new_level_order()
 y.scale <- c(0, 2, 4, 6, 8)
 
 p2 <- refs.to.police %>% 
