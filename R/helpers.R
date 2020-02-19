@@ -751,3 +751,35 @@ is_project_state <- function(str)
     stop("Codebook template not found")
   tmpl
 }
+
+
+
+
+
+#' collect Name of RAAMP State
+#'
+#' Collect the name of a given State for the purpose of using it to build a
+#' given part of the project that is state-dependent.
+#'
+#' @details This function will collect input both from the shell and during
+#' interactive R sessions. Also, if a State's name is supplied as an argument
+#' to \code{Rscript}, it will read it and apply it as required.
+#'
+#' @export
+input_state <- function() {
+  prompt <- "Enter State: "
+
+  state <- if (!interactive()) {
+    args <- commandArgs(trailingOnly = TRUE)
+
+    if (identical(args, character(0))) {
+      cat(prompt)
+      readLines("stdin", n = 1L)
+    }
+    else
+      args
+  } else
+    readline(prompt = prompt)
+
+  paste(state, collapse = " ")
+}
