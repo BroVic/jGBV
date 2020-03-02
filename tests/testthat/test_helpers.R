@@ -199,22 +199,3 @@ test_that("templates can be retrieved", {
   expect_error(.retrieveDocumentTemplate(TRUE), errmsg)
   expect_error(.retrieveDocumentTemplate("fake-directory"), errmsg2)
 })
-
-
-
-
-test_that("Input is validated on custom package attachment", {
-  err <- "is.character(pkgs) is not TRUE"
-  err2 <- "'pkgs' cannot have an empty string"
-
-  expect_error(custom_pkg_attach(),
-               "argument \"pkgs\" is missing, with no default")
-  expect_error(custom_pkg_attach(""), err2)
-  expect_error(custom_pkg_attach(NA), err, fixed = TRUE)
-  expect_error(custom_pkg_attach(NULL), err, fixed = TRUE)
-  expect_error(custom_pkg_attach(42), err, fixed = TRUE)
-  expect_error(custom_pkg_attach(TRUE), err, fixed = TRUE)
-  expect_error(custom_pkg_attach(pi), err, fixed = TRUE)
-  expect_error(custom_pkg_attach(c("", "tools")), err2)
-  # TODO: Test for NA_character
-})

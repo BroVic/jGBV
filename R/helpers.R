@@ -783,30 +783,3 @@ input_state <- function() {
 
   paste(state, collapse = " ")
 }
-
-
-
-
-
-
-#' Customise Package Attachment
-#'
-#' Provides a specific approach to attaching packages project-wide with a
-#' focus on giving useful informative messages.
-#'
-#' @param pkgs A character vector with the names of the packages. An empty
-#' string will yield an error
-#'
-#' @return None. This function is used for its side-effect only.
-#'
-#' @export
-custom_pkg_attach <- function(pkgs) {
-  stopifnot(is.character(pkgs))
-  if (identical(pkgs, character(1)) || any(grepl("", pkgs)))
-    stop("'pkgs' cannot have an empty string")
-  cat("Attaching required packages... ")
-  invisible(lapply(pkgs, function(x) {
-    suppressPackageStartupMessages(library(x, character.only = TRUE))
-  }))
-  cat("Done\n")
-}
