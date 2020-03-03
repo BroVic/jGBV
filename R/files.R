@@ -311,7 +311,7 @@ fetch_all_data <- function(state, dir, sectors)
   dPath <- file.path(dir, statePath)
 
   map(sectors, function(sector) {
-    regex <- glue("transformed.+{state}.+{sector}")
+    regex <- glue("transformed.+{statePath}.+{sector}")
     rds <- list.files(dPath, pattern = regex, full.names = TRUE)
     if (is.null(rds))
       stop("Data file not found")
