@@ -1,18 +1,13 @@
+# Source file: helpers.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 globalVariables(c(".",
                   "name",
                   "value",
                   "new"))
-
-
-
-
-
-
-
-
-
-
-
 
 
 

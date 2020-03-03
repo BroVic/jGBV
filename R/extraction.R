@@ -1,3 +1,9 @@
+# Source file: extraction.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Extracting code from REDCap Script  File
 #'
 #'

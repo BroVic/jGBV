@@ -4,12 +4,15 @@
 \alias{build_report}
 \title{Build A Report}
 \usage{
-build_report(outdir, state, quietly = !interactive(), ...)
+build_report(outdir, state, type = c("findings", "generic"),
+  quietly = !interactive(), ...)
 }
 \arguments{
 \item{outdir}{Destination directory of generated report}
 
 \item{state}{RAAMP State for which report is generated}
+
+\item{type}{character - either \code{basic} or \code{findings}}
 
 \item{quietly}{logical; should output be printed to the console?}
 

@@ -1,3 +1,9 @@
+# Source file: objects.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Builtin Objects For RAAMP-GBV Project
 #'
 #' @rdname RAAMP-GBV

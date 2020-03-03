@@ -1,3 +1,8 @@
+# Source file: files.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
 
 #' Conveniently list files in a directory
 #'
@@ -201,7 +206,8 @@ make_dir_tree <- function()
     utility = file.path(dList$src, "utility"),
     transcripts = file.path(ql, "transcripts"),
     shinyApp = file.path(dList$src, "shiny", "app"),
-    codebooks = file.path(dList$src, cod, "codebooks")
+    codebooks = file.path(dList$src, cod, "codebooks"),
+    reports = file.path(dList$src, "rep")
   )
 }
 

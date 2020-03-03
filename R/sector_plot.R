@@ -1,3 +1,8 @@
+# Source file: sector_plot.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
 
 #' Plot the Services for a Single Sector Selected
 #'

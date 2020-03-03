@@ -1,3 +1,9 @@
+# Source file: transform.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Manipulate Data with Multiple Choice Questions
 #'
 #' There were multiple-choice questions wherein more than one

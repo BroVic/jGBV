@@ -1,4 +1,8 @@
-
+# Source file: codebooks.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
 
 
 # Internal function to generate a codebook's filename

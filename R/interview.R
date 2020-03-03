@@ -1,3 +1,9 @@
+# Source file: interviews.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Interviews
 #'
 #' This function constructs an S3 object called \code{interview}, which

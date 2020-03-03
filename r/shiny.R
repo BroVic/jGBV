@@ -1,3 +1,9 @@
+# Source file: shiny.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Load data for Shiny app
 #'
 #' Loads data that are specifically tailored for the project's Shiny application.
