@@ -170,3 +170,9 @@ test_that("spaces are removed from filenames", {
   expect_match(output, "-")
   expect_false(grepl("\\s", output))
 })
+
+
+test_that("Input is checked when fetching data", {
+  expect_error(fetch_all_data("Borno", ".", tool.sectors),
+               "state %in% raampStates is not TRUE")
+})

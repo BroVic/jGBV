@@ -306,7 +306,9 @@ save_as_rds <- function(dir, obj, filelabel, ..., state) {
 #' @export
 fetch_all_data <- function(state, dir, sectors)
 {
-  dPath <- file.path(dir, state)
+  stopifnot(state %in% raampStates)
+  statePath <- .removeSpaceForFilepath(state)
+  dPath <- file.path(dir, statePath)
 
   map(sectors, function(sector) {
     regex <- glue("transformed.+{state}.+{sector}")
