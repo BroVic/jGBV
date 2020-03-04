@@ -48,7 +48,7 @@ source(here::here("src", "utility", "funs.R"))
 #################  Dataset and Objects  ############################
 # File system
 raampDir <- make_dir_tree()
-stateForPaths <- .removeSpaceForFilepath(params$state)
+
 transcripts.dir <-
   switch(params$state,
          `Akwa Ibom` = "transcripts/Akwa Ibom",
@@ -58,7 +58,7 @@ transcripts.dir <-
 # Consider this:
 # transcripts.dir <- .removeSpaceForFilepath(transcripts.dir)
 
-dfList <- fetch_all_data(stateForPaths, raampDir$quant, tool.sectors)
+dfList <- fetch_all_data(params$state, raampDir$quant, tool.sectors)
 numReferralCentres <- nrow(dfList$Referral)
 dfList$Referral <- NULL
 
@@ -67,6 +67,7 @@ assign_data <- function(sector.name, df) {
 }
 mapply(assign_data, names(dfList), dfList)
 
+stateForPaths <- .removeSpaceForFilepath(params$state)
 common.data <-
   readRDS(
     file.path(
