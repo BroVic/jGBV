@@ -56,3 +56,35 @@ build_report <-
       }
     )
   }
+
+
+
+
+
+#' Create A Clone of the Reporting Template
+#'
+#' @importFrom here here
+#'
+#' @export
+clone_template <- function() {
+  # TODO: Add logic for writing inserting 'state' into clone
+  wd <- getwd()
+  new.tmp <- file.path(wd, 'Untitled.Rmd')
+  if (isFALSE(grepl(here::here(), wd, fixed = TRUE))) {
+    warning("You are not working in the project's directory tree")
+    return(NULL)
+  }
+  file.copy(
+    system.file(
+      "rmarkdown",
+      "templates",
+      "raamp-gbv-report",
+      "skeleton",
+      "skeleton.Rmd",
+      package = 'raampGBV',
+      mustWork = TRUE
+    ),
+    new.tmp
+  )
+  file.edit(new.tmp)
+}
