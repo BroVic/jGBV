@@ -1308,7 +1308,7 @@ According to Figure 7, the legal aid services mostly carried out legal advice fo
 plot_sectoral_sops(get_legal_sops(legal.data), "orange") 
 ```
 
-```{r table__SOPs_legal, include=FALSE}
+```{r table_SOPs_legal, include=FALSE}
 leg.sops.tbl <- make_ptbl(get_legal_sops(legal.data))
 leg.sops.tbl
 ```
