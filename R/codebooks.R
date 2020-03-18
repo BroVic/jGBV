@@ -81,7 +81,7 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
   if (missing(outdir)) {
     if (!identical(basename(here()), "RAAMP_GBV"))
       stop("Wrong project root. Navigate to RAAMP_GBV project directory")
-    outdir <- here("doc/output", state)
+    outdir <- here("doc/output", .removeSpaceForFilepath(state))
   }
   message(sprintf("Building %s codebook for %s State... ", tool, state))
   outputFile <- .getCodebookFileName(state, tool)  # also removes any spaces

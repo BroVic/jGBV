@@ -8,3 +8,9 @@ test_that("input can be validated", {
   expect_identical(testOutput, "codebook_Abia_Health.html")
   expect_false(identical(testOutput, "codebook_Health_Abia.html"))
 })
+
+test_that("States with hyphens in names will not be processed", {
+  expect_error(build_codebook("Akwa-Ibom", "Health", outdir = "."),
+               "'Akwa-Ibom' is not a Nigerian State",
+               fixed = TRUE)
+})
