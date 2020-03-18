@@ -64,6 +64,7 @@ build_report <-
 #' Create A Clone of the Reporting Template
 #'
 #' @importFrom here here
+#' @importFrom utils file.edit
 #'
 #' @export
 clone_template <- function() {
