@@ -79,13 +79,13 @@ build_codebook <- function(state, tool, outdir, quietly = TRUE)
     stop("Non-project sector provided as input")
   if (!is.logical(quietly))
     stop("'quietly' expected a logical input")
-  if (!identical(basename(here()), "RAAMP_GBV"))
-    stop("Wrong project root. Navigate to 'RAAMP_GBV' project directory")
   if (missing(outdir)) {
     outdir <- here("doc/output", .removeSpaceForFilepath(state))
     if (!dir.exists(outdir))
       dir.create(outdir)
   }
+  if (!identical(basename(here()), "RAAMP_GBV"))
+    stop("Wrong project root. Navigate to 'RAAMP_GBV' project directory")
   tmpl <- .retrieveDocumentTemplate("survey-template-codebook")
   message(sprintf("Building %s codebook for %s State... ", tool, state))
   ofile <- .getCodebookFileName(state, tool)  # also removes any spaces

@@ -16,9 +16,10 @@ test_that("check input for template cloning", {
   cwd <- getwd()
   setwd(tempdir())
   expect_warning(clone_template())
-  expect_null(clone_template())
+  expect_null(suppressWarnings(clone_template()))
   setwd(cwd)
 })
 
 # TODO: Add tests to check that the templates code chunks have the
 # appropriate labels. Use regex e.g. (plot|table)_[:alpha:]+\\,
+

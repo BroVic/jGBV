@@ -13,5 +13,4 @@ test_that("States with hyphens in names will not be processed", {
   expect_error(build_codebook("Akwa-Ibom", "Health"),
                "'Akwa-Ibom' is not a Nigerian State",
                fixed = TRUE)
-  expect(build_codebook("Akwa Ibom", "Health", "doc/output/Akwa-Ibom"))
 })
