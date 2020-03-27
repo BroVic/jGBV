@@ -75,26 +75,31 @@ generate_all_codebooks <- function(states, sectors) {
 build_codebook <- function(state, tool, outdir, quietly = TRUE)
 {
   stopifnot(is_project_state(state))
-  stopifnot(tool %in% tool.sectors)
-  tmpl <- .retrieveDocumentTemplate("survey-template-codebook")
-
+  if (!tool %in% tool.sectors)
+    stop("Non-project sector provided as input")
+  if (!is.logical(quietly))
+    stop("'quietly' expected a logical input")
+  if (!identical(basename(here()), "RAAMP_GBV"))
+    stop("Wrong project root. Navigate to 'RAAMP_GBV' project directory")
   if (missing(outdir)) {
-    if (!identical(basename(here()), "RAAMP_GBV"))
-      stop("Wrong project root. Navigate to RAAMP_GBV project directory")
     outdir <- here("doc/output", .removeSpaceForFilepath(state))
+    if (!dir.exists(outdir))
+      dir.create(outdir)
   }
+  tmpl <- .retrieveDocumentTemplate("survey-template-codebook")
   message(sprintf("Building %s codebook for %s State... ", tool, state))
-  outputFile <- .getCodebookFileName(state, tool)  # also removes any spaces
+  ofile <- .getCodebookFileName(state, tool)  # also removes any spaces
   tryCatch(
     render(
       input = tmpl,
       output_format = "html_document",
       output_dir = outdir,
-      output_file = outputFile,
+      output_file = ofile,
       params = list(state = state, toolType = tool),
       quiet = quietly
     ), error = function(e) { message("Failed") })
 }
+
 
 
 
