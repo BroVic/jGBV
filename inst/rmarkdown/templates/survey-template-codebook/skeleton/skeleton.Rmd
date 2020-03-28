@@ -28,7 +28,7 @@ pander::panderOptions("table.split.table", Inf)
 
 ```{r pkg-loading, message=FALSE}
 library(codebook)
-library(raampGBV)
+suppressPackageStartupMessages(library(raampGBV))
 ```
 
 Codebook for data collected from administration of survey questionnaire:
