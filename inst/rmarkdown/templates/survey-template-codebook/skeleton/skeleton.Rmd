@@ -42,7 +42,6 @@ codebook_data <- readRDS(file.path(
     stateFpath,
     sprintf(
       "fullyLabelledData__%s_%s.rds",
-      fname,
       stateFpath,
       params$toolType
     )
