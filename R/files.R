@@ -315,6 +315,7 @@ fetch_all_data <- function(state, dir, sectors)
     rds <- list.files(dPath, pattern = regex, full.names = TRUE)
     if (is.null(rds))
       stop("Data file not found")
+    # TODO: Add try-catch block to handle cases where data file cannot be read
     readRDS(rds)
   }) %>%
     setNames(sectors)
