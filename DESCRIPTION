@@ -1,6 +1,7 @@
 Package: raampGBV
 Title: Helper package for Jhpiego Nigeria's RAAMP-GBV Assessment
-Version: 0.4.3
+Version: 0.4.3.9000
+Date: 2020-06-18
 Authors@R: 
     person(given = "Victor",
            family = "Ordu",

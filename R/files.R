@@ -300,8 +300,9 @@ save_as_rds <- function(dir, obj, filelabel, ..., state) {
 #' @importFrom stats setNames
 #'
 #' @param state The RAAMP Assessment State e.g. Ogun
-#' @param dir The directory where the data are saved.
-#' @param sectors The sectors for which we are retrieving data
+#' @param dir The directory where the data are saved. The data are currently
+#' saved as RDS files.
+#' @param sectors Character; the sectors for which we are retrieving data.
 #'
 #' @export
 fetch_all_data <- function(state, dir, sectors)
