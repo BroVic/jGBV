@@ -11,6 +11,6 @@ test_that("input can be validated", {
 
 test_that("States with hyphens in names will not be processed", {
   expect_error(build_codebook("Akwa-Ibom", "Health"),
-               "'Akwa-Ibom' is not a Nigerian State",
+               paste(sQuote("Akwa-Ibom"), "is not a Nigerian State"),
                fixed = TRUE)
 })

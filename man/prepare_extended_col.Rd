@@ -4,8 +4,13 @@
 \alias{prepare_extended_col}
 \title{Manipulate Data with Multiple Choice Questions}
 \usage{
-prepare_extended_col(data, variable, options, multisectoral = TRUE,
-  notReferral = multisectoral)
+prepare_extended_col(
+  data,
+  variable,
+  options,
+  multisectoral = TRUE,
+  notReferral = multisectoral
+)
 }
 \arguments{
 \item{data}{A data frame that contains the column to be collapsed}

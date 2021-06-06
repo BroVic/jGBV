@@ -6,18 +6,14 @@
 
 #' Builtin Objects For RAAMP-GBV Project
 #'
-#' @rdname RAAMP-GBV
-
-
-
-#' @rdname RAAMP-GBV
+#' @rdname raamp-objects
 #'
 #' @export
 raampStates <- c("Abia", "Akwa Ibom", "Ogun", "Bauchi")
 
 
 
-#' @rdname RAAMP-GBV
+#' @rdname raamp-objects
 #'
 #' @export
 tool.sectors <-
@@ -49,3 +45,6 @@ tool.sectors <-
 print.Tools <- function(x, ...) {
   print(unclass(unname(x)), ...)
 }
+
+
+
