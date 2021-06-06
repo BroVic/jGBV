@@ -1,15 +1,20 @@
-Package: raampGBV
-Title: Helper package for Jhpiego Nigeria's RAAMP-GBV Assessment
-Version: 0.4.3.9001
-Date: 2020-06-18
+Package: jGBV
+Title: Helper package for Jhpiego Nigeria's GBV Studies
+Version: 0.4.3.9002
+Date: 2021-06-06
 Authors@R: 
-    person(given = "Victor",
-           family = "Ordu",
-           role = c("aut", "cre"),
-           email = "victor@outlook.com",
-           comment = c(ORCID = "0000-0003-3716-0668"))
+    c(
+      person(given = "Victor",
+             family = "Ordu",
+             role = c("aut", "cre"),
+             email = "victor@outlook.com",
+             comment = c(ORCID = "0000-0003-3716-0668")),
+      person(given = "Jhpiego Nigeria",
+             role = "cph")
+             )
 Description: Developed for the purpose of reproducible research and for project
-    scale up.
+    scale up across all the different GBV services mapping and assessment
+    activities conducted by Jhpiego Nigeria.
 Depends: 
     R (>= 3.6),
     DBI (>= 1.0.0),
