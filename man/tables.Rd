@@ -7,7 +7,7 @@
 \usage{
 table_multiopt(
   data,
-  dictionary,
+  dictionary = NULL,
   indices,
   use.regex = TRUE,
   data.only = FALSE,

@@ -18,24 +18,31 @@
 #' @import dplyr
 #' @import stringr
 #' @importFrom flextable set_caption
-#' @importFrom userfriendlyscience multiresponse
+#' @importFrom forcats fct_reorder
+#' @importFrom ufs multiResponse
 #'
 #' @export
 table_multiopt <-
   function(data,
-           dictionary,
+           dictionary = NULL,
            indices,
            use.regex = TRUE,
            data.only = FALSE,
            ...) {
-    stopifnot(nrow(dictionary) == ncol(data))
-
+    if (is.null(dictionary)) {
+      dictionary <- makeDictionary(data)
+    }
+    if (nrow(dictionary) != ncol(data))
+      stop(
+        "'data' and 'dictionary' are incompatible:
+             `nrow(dictionary)` is not equal to `ncol(data)`"
+      )
     opts <- get_value_labels(dictionary, indices, use.regex)
 
     mult <- data %>%
       select(all_of(indices)) %>%
       mutate_all(~ ifelse(is.na(.), 0L, 1L)) %>%
-      multiResponse() %>%          # from userfriendlyscience package
+      multiResponse() %>%
       as_tibble
 
     # Separate the totals for later use when drawing tables
@@ -75,9 +82,6 @@ table_multiopt <-
       ft <- set_caption(ft, caption = argslist$caption)
     ft
   }
-
-
-
 
 
 #' Make a frequency tabulation that for variables with Yes/No responses
@@ -135,4 +139,25 @@ myFlextable <- function(data, ...) {
   }
   ft %>%
     theme_box
+}
+
+
+# Generates a data dictionary
+# This function is defined to avoid repetitious calls to `generte_dictonary`
+# and to make room for the eventual implementation of a caching mechanism
+#' @importFrom labelled generate_dictionary
+makeDictionary <- function(dat)
+{
+  stopifnot(is.data.frame(dat))
+  labelled::generate_dictionary(dat)
+}
+
+
+
+# Retrieve the labels from the dictionary
+get_value_labels <- function(dictionary, indices, use.regex = TRUE) {
+  if (use.regex)
+    .extractComponent(dictionary$label[indices], 'value')
+  else
+    dictionary$label[indices]
 }
