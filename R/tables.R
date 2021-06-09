@@ -42,7 +42,7 @@ table_multiopt <-
     mult <- data %>%
       select(all_of(indices)) %>%
       mutate_all(~ ifelse(is.na(.), 0L, 1L)) %>%
-      multiResponse() %>%
+      ufs::multiResponse() %>%
       as_tibble
 
     # Separate the totals for later use when drawing tables
@@ -125,6 +125,7 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 #' @importFrom dplyr rename
 #' @importFrom flextable flextable
 #' @importFrom flextable theme_box
+#' @importFrom flextable width
 myFlextable <- function(data, ...) {
   if (all(!grepl("^(Yes|No)$", colnames(data)))) {
     data <- data %>%
