@@ -15,10 +15,11 @@
 #' 1.
 #'
 #'
-#' @import dplyr
 #' @import stringr
+#' @importFrom dplyr as_tibble
 #' @importFrom flextable set_caption
 #' @importFrom forcats fct_reorder
+#' @importFrom purrr map_dfc
 #' @importFrom ufs multiResponse
 #'
 #' @export
@@ -41,7 +42,7 @@ table_multiopt <-
 
     mult <- data %>%
       select(all_of(indices)) %>%
-      mutate_all(~ ifelse(is.na(.), 0L, 1L)) %>%
+      map_dfc( ~ ifelse(is.na(.x), 0L, .x)) %>%
       ufs::multiResponse() %>%
       as_tibble
 
