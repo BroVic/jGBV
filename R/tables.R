@@ -27,7 +27,7 @@ table_multiopt <-
   function(data,
            dictionary = NULL,
            indices,
-           use.regex = TRUE,
+           use.regex = getOption("use.regex"),
            data.only = FALSE,
            ...) {
     if (is.null(dictionary)) {
@@ -148,10 +148,10 @@ myFlextable <- function(data, ...) {
 # This function is defined to avoid repetitious calls to `generte_dictonary`
 # and to make room for the eventual implementation of a caching mechanism
 #' @importFrom labelled generate_dictionary
-makeDictionary <- function(dat)
+makeDictionary <- function(data)
 {
-  stopifnot(is.data.frame(dat))
-  labelled::generate_dictionary(dat)
+  stopifnot(is.data.frame(data))
+  labelled::generate_dictionary(data)
 }
 
 
@@ -163,3 +163,27 @@ get_value_labels <- function(dictionary, indices, use.regex = TRUE) {
   else
     dictionary$label[indices]
 }
+
+
+
+table_yesno <- function(data, col, data.only = FALSE, ...) {
+  column <- rlang::enquo(col)
+
+  modified <- data %>%
+    select(name_of_lga, !!column) %>%
+    mutate(!!column := unclass(!!column)) %>%
+    drop_na() %>%
+    mutate(name = ifelse(!!column == 1, "Yes", "No")) %>%
+    pivot_wider(names_from = name,
+                values_from = !!column,
+                values_fn = length,
+                values_fill = 0L) %>%
+    summarise_at(c("Yes", "No"), sum)
+
+  if (data.only)
+    return(modified)
+
+  myFlextable(modified, ...)
+  # %>% set_header_labels(name_of_lga = "LGA")
+}
+

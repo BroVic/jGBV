@@ -9,7 +9,7 @@ table_multiopt(
   data,
   dictionary = NULL,
   indices,
-  use.regex = TRUE,
+  use.regex = getOption("use.regex"),
   data.only = FALSE,
   ...
 )
