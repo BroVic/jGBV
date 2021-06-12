@@ -1,9 +1,4 @@
-library(raampGBV)
 library(here)
-
-
-
-
 
 test_that("Odd and even values are properly set", {
   ten <- 1:10

@@ -1,5 +1,3 @@
-library(raampGBV)
-
 test_that("input can be validated", {
   testOutput <- .getCodebookFileName("Abia", "Health")
 

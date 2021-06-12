@@ -1,5 +1,3 @@
-library(raampGBV)
-
 str <- quote("c(\"no.space\", \"has. space\")")
 v <- extract_vector(str)
 
