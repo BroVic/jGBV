@@ -55,8 +55,9 @@ table_multiopt <-
     .abridgeOptions <- function(x) {
       x %>%
         str_remove_all("(or|to|of|in|the|a|by)(\\s)") %>%
-        sub("(([[:alpha:]]+\\s){3})(.+)", "\\1", .) %>%
+        str_replace("(([[:alpha:]]+\\s){3})(.+)", "\\1") %>%
         str_replace('and', '&') %>%
+        str_remove(".+\\s/\\s") %>%
         str_trim %>%
         str_squish %>%
         str_to_title
