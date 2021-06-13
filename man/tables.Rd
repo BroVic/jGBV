@@ -6,7 +6,7 @@
 \title{Make a frequency tabulation of multi-response questions}
 \usage{
 table_multiopt(
-  data,
+  x,
   dictionary = NULL,
   indices,
   use.regex = getOption("use.regex"),
@@ -17,7 +17,7 @@ table_multiopt(
 table_yesno(data, col, data.only = FALSE, ...)
 }
 \arguments{
-\item{data}{The data.}
+\item{x}{The data}
 
 \item{dictionary}{The data dictionary}
 
@@ -29,6 +29,8 @@ what the options should be for the responses}
 \item{data.only}{Return only the \code{data.frame}?}
 
 \item{...}{Additional response options, if they exist.}
+
+\item{data}{The data.}
 
 \item{col}{The column with the responses}
 }

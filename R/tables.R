@@ -2,7 +2,7 @@
 #'
 #' @rdname tables
 #'
-#' @param data The data
+#' @param x The data
 #' @param dictionary The data dictionary
 #' @param indices Numeric vector representing indices of columns chosen
 #' @param use.regex Logical; whether to use label patterns to determine
@@ -24,23 +24,23 @@
 #'
 #' @export
 table_multiopt <-
-  function(data,
+  function(x,
            dictionary = NULL,
            indices,
            use.regex = getOption("use.regex"),
            data.only = FALSE,
            ...) {
     if (is.null(dictionary)) {
-      dictionary <- makeDictionary(data)
+      dictionary <- makeDictionary(x)
     }
-    if (nrow(dictionary) != ncol(data))
+    if (nrow(dictionary) != ncol(x))
       stop(
         "'data' and 'dictionary' are incompatible:
              `nrow(dictionary)` is not equal to `ncol(data)`"
       )
     opts <- get_value_labels(dictionary, indices, use.regex)
 
-    mult <- data %>%
+    mult <- x %>%
       select(all_of(indices)) %>%
       map_dfc( ~ ifelse(is.na(.x), 0L, .x)) %>%
       ufs::multiResponse() %>%
@@ -148,21 +148,24 @@ myFlextable <- function(data, ...) {
 # This function is defined to avoid repetitious calls to `generte_dictonary`
 # and to make room for the eventual implementation of a caching mechanism
 #' @importFrom labelled generate_dictionary
-makeDictionary <- function(data)
+makeDictionary <- function(x)
 {
-  stopifnot(is.data.frame(data))
-  labelled::generate_dictionary(data)
+  stopifnot(is.data.frame(x))
+  labelled::generate_dictionary(x)
 }
 
 
 
 # Retrieve the labels from the dictionary
-get_value_labels <- function(dictionary, indices, use.regex = TRUE) {
-  if (use.regex)
-    .extractComponent(dictionary$label[indices], 'value')
-  else
-    dictionary$label[indices]
-}
+get_value_labels <-
+  function(dictionary,
+           indices,
+           use.regex = getOption("use.regex")) {
+    if (use.regex)
+      .extractComponent(dictionary$label[indices], 'value')
+    else
+      dictionary$label[indices]
+  }
 
 
 

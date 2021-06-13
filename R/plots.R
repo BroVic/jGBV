@@ -1,37 +1,35 @@
+plot_multiopt <- function(x, ...)
+  UseMethod("plot_multiopt")
+
 #' Draw a plot of multi-response questions
 #'
 #' Draw a plot of multi-response questions using the code for creating
 #' the complimentary tables. This construct is used to avoid
 #' repetitions.
 #'
-#' @param expr An expression being captured code from a valid call to
+#' @param x An expression being captured code from a valid call to
 #' \code{table_multiplot}
 #' @param ... left for future expansion of the function
 #'
-#' @import dplyr
-#' @import ggplot2
-#' @importFrom stringr str_replace
-#'
 #' @export
-plot_multiopt <- function(expr, ...) {
-  stopifnot(is.language(expr))
+plot_multiopt.default <- function(x, ...) {
+ stopifnot(is.language(x))
 
-  dd <- .getDataOnlyFromExpression(expr)
+  dd <- .getDataOnlyFromExpression(x)
 
-  gg.col <- dd %>%
-    rename_at(vars(starts_with("Percentage")),
-              ~ str_replace(., "^.+$", "Percentage of Facilities")) %>%
-    ggplot(aes(Variable, `Percentage of Facilities`)) +
-    geom_col()
-
-  .fitIntoLines <- function(x) {
-    gsub("\\s", "\n", x)
-  }
-
-  gg.col +
-    scale_x_discrete(label = .fitIntoLines)
+  .generatePlot(dd)
 }
 
+
+
+
+plot_multiopt.data.frame <- function(x, ...)
+{
+  matchers <- c("Option", "Variable", "Frequency")
+  if (sum(matchers %in% colnames(x)) != 3L)
+    stop("Object is not a data frame of multi-response outputs")
+  .generatePlot(x)
+}
 
 
 
@@ -44,27 +42,24 @@ plot_multiopt <- function(expr, ...) {
 }
 
 
+#'
+#' @import dplyr
+#' @import ggplot2
+#' @importFrom stringr str_replace
+.generatePlot <- function(data)
+{
+  gg.col <- data %>%
+    rename_at(vars(starts_with("Percentage")),
+              ~ str_replace(., "^.+$", "Percentage of Facilities")) %>%
+    ggplot(aes(Variable, `Percentage of Facilities`)) +
+    geom_col()
 
-# Creates an expression from x, the function for building tables,
-# and draws plot as well as produces a matching object
-# of class 'flextable'
-# @param expr An expression that produces the table for the relevant data
-show_output <- function(expr, type = c("multiplot", "yesno"), ...) {
-  exp <- substitute(expr)
+  .fitIntoLines <- function(x) {
+    gsub("\\s", "\n", x)
+  }
 
-  type <- match.arg(type)
-  p <- if (type == "multiplot")
-    plot_multiopt(exp, ...)
-  else if (type == 'yesno')
-    plot_yesno(exp, ...)
-  else
-    stop("No function provided for this type of output")
-
-  # Draw chart
-  print(p)
-
-  # Output flextable
-  eval(exp)
+  gg.col +
+    scale_x_discrete(label = .fitIntoLines)
 }
 
 
