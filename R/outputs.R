@@ -1,5 +1,12 @@
 
-
+#' Display output
+#'
+#' Displays some output such as a plot/
+#'
+#' @param x An object
+#' @param ... Additional arguments
+#'
+#' @export
 show_output <- function(x, ...)
   UseMethod("show_output")
 
