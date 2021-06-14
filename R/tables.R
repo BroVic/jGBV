@@ -2,6 +2,13 @@
 #'
 #' @rdname tables
 #'
+#' @note To control what happens via the \code{use.regex} argument, the
+#' project has to set this option, ideally in the local \code{.Rprofile} to
+#' a desired value. For instance, to set a project-wide default value of
+#' \code{FALSE} for this argument, set \code{options(use.regex = FALSE)}, and
+#' that way, there is no need to set the argument, each time the function
+#' is called.
+#'
 #' @param x The data
 #' @param dictionary The data dictionary
 #' @param indices Numeric vector representing indices of columns chosen
