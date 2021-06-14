@@ -34,8 +34,9 @@ table_multiopt <-
   function(x,
            dictionary = NULL,
            indices,
-           use.regex = getOption("use.regex"),
+           use.regex = TRUE,
            data.only = FALSE,
+           redcap = getOption("data.on.redcap"),
            ...) {
     if (is.null(dictionary)) {
       dictionary <- makeDictionary(x)
@@ -45,7 +46,8 @@ table_multiopt <-
         "'data' and 'dictionary' are incompatible:
              `nrow(dictionary)` is not equal to `ncol(data)`"
       )
-    opts <- get_value_labels(dictionary, indices, use.regex)
+    if (is.null(redcap)) redcap <- TRUE  # for backward compatibility
+    opts <- get_value_labels(dictionary, indices, use.regex, redcap = redcap)
 
     mult <- x %>%
       select(all_of(indices)) %>%
@@ -164,16 +166,96 @@ makeDictionary <- function(x)
 
 
 
-# Retrieve the labels from the dictionary
+#' Retrieve the labels from the dictionary
+#'
+#' @param dictionary A data dictionary
+#' @param indices Numeric vector; indices of the variables whose labels' values
+#' will be used
+#' @param use.regex Whether regular expressions will be used to extract the
+#' value(s)
+#' @param ... Arguments passed to internal functions. These include
+#' \code{redcap}, a logical vector indicating whether the project data are on
+#' REDCap or not. Others are \code{multiresponse} ("are the labels for
+#' multiresponse questions?") and \code{ignore.case} - used as in
+#' \code{base::grep}.
+#'
+#' @details This function is used differently across the various GBV projects.
+#' Specifically, the patterns used in the projects that had data hosted on
+#' REDCap are peculiar. For other projects, we either set
+#' \code{getOption('use.regex')} to \code{FALSE} or specify a pattern for
+#' extraction.
+#'
+#' @return A character vector of the labels, possibly modified internally.
+#'
+#'
+#' @export
 get_value_labels <-
   function(dictionary,
            indices,
-           use.regex = getOption("use.regex")) {
-    if (use.regex)
-      .extractComponent(dictionary$label[indices], 'value')
-    else
-      dictionary$label[indices]
+           use.regex = getOption("use.regex"),
+           ...) {
+    stopifnot(is.data.frame(dictionary))
+    lbls <- dictionary$label[indices]
+    if (!use.regex)
+      return(lbls)
+    .extractComponent(lbls, 'value', ...)
   }
+
+
+
+
+# Extracts various components from a character vector and these components
+# are defined by regular expressions
+.extractComponent <-
+  function(label,
+           component = c('number', 'question', 'value'),
+           ignore.case = TRUE,
+           multiresponse = TRUE,
+           redcap = TRUE) {
+    last <- if (redcap) "\\4" else "\\2"
+    component <- match.arg(component)
+    plc <- switch(component,
+                  number = '\\1',
+                  question = '\\2',
+                  value = last)
+    rgx <- .multichoiceRegex()
+    if (!redcap)
+      return(sub(rgx, plc, label))
+    if (multiresponse) {
+      if (!any(grepl(rgx, label, ignore.case = ignore.case)))
+        stop(
+          sQuote(label),
+          'is not a valid string with multi-response labels used on REDCap'
+        )
+    }
+    else
+      rgx <- substr(rgx, 1, gregexpr("\\(", rgx)[[1]][3] -1)
+
+    sub(rgx, plc, label, ignore.case)
+  }
+
+
+
+
+
+
+# Generates the regular expression patterns that are used to
+# identify/extract labels applicable to the options of
+# multi-response questions
+## So far, guaranteed only to apply to the projects that stored
+## the data on the REDCap servers
+.multichoiceRegex <- function(redcap = getOption("data.on.redcap")) {
+  val <- '(.+)$'
+  if (redcap || is.null(redcap)) {
+    lead <- "(^q\\d{1,2}[a-b]?\\.?|^Organization|^Facility'?\\.?s)"
+    mid <- '(.+)(.choice.)'
+    return(paste0(lead, mid, val))
+  }
+ paste0("(.+\\s/\\s)", val)
+}
+
+
+
 
 
 

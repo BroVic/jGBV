@@ -9,8 +9,9 @@ table_multiopt(
   x,
   dictionary = NULL,
   indices,
-  use.regex = getOption("use.regex"),
+  use.regex = TRUE,
   data.only = FALSE,
+  redcap = getOption("data.on.redcap"),
   ...
 )
 

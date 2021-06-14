@@ -1,6 +1,6 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.4.3.9013
+Version: 0.4.3.9017
 Date: 2021-06-14
 Authors@R: 
     c(
@@ -11,7 +11,7 @@ Authors@R:
              comment = c(ORCID = "0000-0003-3716-0668")),
       person(given = "Jhpiego Nigeria",
              role = "cph")
-             )
+      )
 Description: Developed for the purpose of reproducible research and for project
     scale up across all the different GBV services mapping and assessment
     activities conducted by Jhpiego Nigeria.
@@ -51,3 +51,4 @@ RoxygenNote: 7.1.1
 Suggests: 
     testthat (>= 2.1.0),
     usethis (>= 1.5.0)
+

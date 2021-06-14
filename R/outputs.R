@@ -1,10 +1,11 @@
-
 #' Display output
 #'
 #' Displays some output such as a plot/
 #'
 #' @param x An object
 #' @param ... Additional arguments
+#'
+#' @rdname outputs
 #'
 #' @export
 show_output <- function(x, ...)
@@ -44,22 +45,30 @@ show_output.default <-
 
 
 
+#' @rdname outputs
+#'
 #' @param x An object of class \code{data.frame} that has the data used in the
 #' analysis
 #' @param index Integer vector representing indices for the column(s) of
 #' interest
 #' @param type Either "table" or "plot".
+#' @param use.regex Logical.
+#' @param ...
 #'
 #' @export
 show_output.data.frame <-
   function(x,
            index,
            type = c("both", "plot", "table"),
+           use.regex = TRUE,
            ...)
   {
     if (length(index) == 1L)
       return()
     d <-
-      table_multiopt(x, indices = index, data.only = TRUE, use.regex = FALSE)
-    plot_multiopt(d)
+      table_multiopt(x,
+                     indices = index,
+                     data.only = TRUE,
+                     use.regex = use.regex)
+    plot_multiopt(d, ...)
   }
