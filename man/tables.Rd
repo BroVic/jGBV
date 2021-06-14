@@ -29,6 +29,9 @@ what the options should be for the responses}
 
 \item{data.only}{Return only the \code{data.frame}?}
 
+\item{redcap}{Logical. Is the project where the function is being used one
+for which the data were stored on REDCap?}
+
 \item{...}{Additional response options, if they exist.}
 
 \item{data}{The data.}

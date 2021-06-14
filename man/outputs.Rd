@@ -16,7 +16,7 @@ show_output(x, ...)
 \item{x}{An object of class \code{data.frame} that has the data used in the
 analysis}
 
-\item{...}{}
+\item{...}{Arguments passed on to \code{plot_multopt}.}
 
 \item{type}{Either "table" or "plot".}
 

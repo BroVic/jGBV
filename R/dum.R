@@ -9,6 +9,9 @@
 #' @param ... Other parameters for internal use by the internal function
 #' \code{make_table}
 #'
+#' @import stringr
+#' @import flextable
+#'
 #' @export
 build_dummy_flextable <-
   function(dic = NULL,
@@ -51,3 +54,62 @@ build_dummy_flextable <-
 
     add_header_lines(ft, top.header)
   }
+
+
+
+
+
+# Get column headers
+get_hdrs <- function(dic, rows, use.regex = TRUE)
+{
+  stopifnot(is.data.frame(dic))
+  vec <- dic[['label']][rows]
+  if (use.regex)
+    .extractComponent(vec, 'value')
+  else
+    vec
+}
+
+
+
+
+
+
+# Make table base data frame
+#' @import dplyr
+#' @importFrom rlang ensym
+make_table_df <- function(col.vars, row.vars = proj_lgas(), name = NULL)
+{
+  stopifnot(is.character(col.vars))
+  df <- matrix('', ncol = length(col.vars), nrow = length(row.vars)) %>%
+    data.frame() %>%
+    structure(names = col.vars) %>%
+    bind_cols(as_tibble(row.vars)) %>%
+    relocate(value)
+
+  if (is.null(name)) {
+    name <- if (identical(row.vars, proj_lgas()))
+      'LGA'
+    else {
+      warning("'name' was not supplied, so an arbitrary term was used")
+      "variable"
+    }
+  }
+
+  nm <- rlang::ensym(name)
+
+  df %>%
+    rename(!!nm := value)
+}
+
+
+
+
+
+
+
+make_multiresp <- function(hdrs) {
+  dd <- as.data.frame(as.list(rep(NA, length(hdrs))))
+  names(dd) <- hdrs
+  ufs::multiResponse(dd)
+}

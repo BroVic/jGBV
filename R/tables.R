@@ -1,3 +1,12 @@
+globalVariables(c(
+  "Variable",
+  "Option",
+  "Response",
+  "Frequency",
+  "Option",
+  "name_of_lga"
+))
+
 #' Make a frequency tabulation of multi-response questions
 #'
 #' @rdname tables
@@ -17,6 +26,8 @@
 #' @param data.only Logical; whether to return a \code{data.frame} (\code{TRUE})
 #' or a formatted object for printing in the output document, in this case an
 #' object of class \code{flextable}
+#' @param redcap Logical. Is the project where the function is being used one
+#' for which the data were stored on REDCap?
 #' @param ... Arguments passed from higher level wrapper functions. In this case
 #' the argument expected is \code{caption}, which is a character vector of length
 #' 1.

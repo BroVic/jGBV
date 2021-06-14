@@ -1,3 +1,5 @@
+globalVariables(c("Variable", "Percentage of Facilities"))
+
 plot_multiopt <- function(x, ...)
   UseMethod("plot_multiopt")
 
@@ -42,7 +44,6 @@ plot_multiopt.data.frame <- function(x, ...)
 }
 
 
-#'
 #' @import dplyr
 #' @import ggplot2
 #' @importFrom stringr str_replace

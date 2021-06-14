@@ -53,7 +53,7 @@ show_output.default <-
 #' interest
 #' @param type Either "table" or "plot".
 #' @param use.regex Logical.
-#' @param ...
+#' @param ... Arguments passed on to \code{plot_multopt}.
 #'
 #' @export
 show_output.data.frame <-
