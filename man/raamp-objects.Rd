@@ -5,7 +5,11 @@
 \alias{raampStates}
 \alias{tool.sectors}
 \title{Builtin Objects For RAAMP-GBV Project}
-\format{An object of class \code{character} of length 4.}
+\format{
+An object of class \code{character} of length 4.
+
+An object of class \code{Tools} of length 7.
+}
 \usage{
 raampStates
 

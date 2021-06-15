@@ -9,9 +9,10 @@ fetch_all_data(state, dir, sectors)
 \arguments{
 \item{state}{The RAAMP Assessment State e.g. Ogun}
 
-\item{dir}{The directory where the data are saved.}
+\item{dir}{The directory where the data are saved. The data are currently
+saved as RDS files.}
 
-\item{sectors}{The sectors for which we are retrieving data}
+\item{sectors}{Character; the sectors for which we are retrieving data.}
 }
 \description{
 Fetch All The Data

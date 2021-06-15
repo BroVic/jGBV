@@ -1,5 +1,3 @@
-library(raampGBV)
-
 test_that("Regular expression is created", {
   ob <- interview(c("What are the issue(s)?", "foo[bar]{baz}, boy!"))
 

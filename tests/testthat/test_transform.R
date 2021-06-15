@@ -1,5 +1,4 @@
 library(naijR)
-library(raampGBV)
 
 age.range <- c("< 5 yrs", "5-9 yrs", "10-14 yrs", "15-19 yrs", "> 20 yrs")
 # bad.range <- c(age.range[-5], "20+ yrs")
@@ -16,7 +15,7 @@ for (i in seq_len(no)) {
   nums[i] <- paste0(cats, collapse = "_")
 }
 testdf <- cbind(iris, nums)
-testdf$lgas <- sample(lgas_ng("Kogi"), no, replace = TRUE)
+testdf$lgas <- sample(lgas("Kogi"), no, replace = TRUE)
 
 test_that("transformed column with relevant inputs is created", {
   df <- prepare_extended_col(testdf, "nums", opts, multisectoral = FALSE)
@@ -31,3 +30,4 @@ test_that("transformed column with relevant inputs is created", {
   expect_equal(length(levels(df$name)), 5L)
   expect_equal(length(unique(as.character(df$name))), 5L)
 })
+

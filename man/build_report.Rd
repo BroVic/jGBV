@@ -4,8 +4,13 @@
 \alias{build_report}
 \title{Build A Report}
 \usage{
-build_report(outdir, state, type = c("findings", "generic"),
-  quietly = !interactive(), ...)
+build_report(
+  outdir,
+  state,
+  type = c("findings", "generic"),
+  quietly = !interactive(),
+  ...
+)
 }
 \arguments{
 \item{outdir}{Destination directory of generated report}
