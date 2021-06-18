@@ -33,7 +33,6 @@ globalVariables(c(
 #' 1.
 #'
 #'
-#' @import stringr
 #' @importFrom dplyr as_tibble
 #' @importFrom flextable set_caption
 #' @importFrom forcats fct_reorder
@@ -71,18 +70,6 @@ table_multiopt <-
       select(!last_col()) %>%
       as.character
 
-    # Make a function for creating abridged options
-    .abridgeOptions <- function(x) {
-      x %>%
-        str_remove_all("(or|to|of|in|the|a|by)(\\s)") %>%
-        str_replace("(([[:alpha:]]+\\s){3})(.+)", "\\1") %>%
-        str_replace('and', '&') %>%
-        str_remove(".+\\s/\\s") %>%
-        str_trim %>%
-        str_squish %>%
-        str_to_title
-    }
-
     mult <- mult %>%
       filter(Option != "Total") %>%
       mutate(Option = opts) %>%
@@ -104,6 +91,30 @@ table_multiopt <-
       ft <- set_caption(ft, caption = argslist$caption)
     ft
   }
+
+
+
+
+
+
+# Make a function for creating abridged options
+#' @import stringr
+.abridgeOptions <- function(x) {
+  x %>%
+    str_remove_all("(or|to|of|in|the|a|by)(\\s)") %>%
+    str_replace("(([[:alpha:]]+\\s){3})(.+)", "\\1") %>%
+    str_replace('and', '&') %>%
+    str_remove(".+\\s?/\\s?") %>%
+    str_trim %>%
+    str_squish %>%
+    str_to_title
+}
+
+
+
+
+
+
 
 
 #' Make a frequency tabulation that for variables with Yes/No responses
