@@ -107,7 +107,13 @@ make_table_df <- function(col.vars, row.vars = proj_lgas(), name = NULL)
 
 
 
-
+#' Make a multi-reponse dummy table using established headers
+#'
+#' @param hdrs Character vector with the names of the labels for each response
+#'
+#' @return A data frame with summary of multiple responses
+#'
+#' @export
 make_multiresp <- function(hdrs) {
   dd <- as.data.frame(as.list(rep(NA, length(hdrs))))
   names(dd) <- hdrs

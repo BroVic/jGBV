@@ -33,7 +33,6 @@ globalVariables(c(
 #' 1.
 #'
 #'
-#' @import stringr
 #' @importFrom dplyr as_tibble
 #' @importFrom flextable set_caption
 #' @importFrom forcats fct_reorder
@@ -71,18 +70,6 @@ table_multiopt <-
       select(!last_col()) %>%
       as.character
 
-    # Make a function for creating abridged options
-    .abridgeOptions <- function(x) {
-      x %>%
-        str_remove_all("(or|to|of|in|the|a|by)(\\s)") %>%
-        str_replace("(([[:alpha:]]+\\s){3})(.+)", "\\1") %>%
-        str_replace('and', '&') %>%
-        str_remove(".+\\s/\\s") %>%
-        str_trim %>%
-        str_squish %>%
-        str_to_title
-    }
-
     mult <- mult %>%
       filter(Option != "Total") %>%
       mutate(Option = opts) %>%
@@ -92,18 +79,49 @@ table_multiopt <-
       mutate(Variable = factor(Variable) %>%
                fct_reorder(Frequency, .desc = TRUE)) %>%
       arrange(desc(Frequency)) %>%
-      select(!last_col(offset = 1L))
+      select(!last_col(offset = 1L)) %>%
+      mutate(across(last_col(), ~ round(.x, digits = 1)))
 
     if (data.only)
       return(mult)
 
-    ft <- mult %>%
-      myFlextable(values = tot)
     argslist <- list(...)
-    if ('caption' %in% names(argslist))
-      ft <- set_caption(ft, caption = argslist$caption)
-    ft
+    addedArgs <- names(argslist)
+    if (!('caption' %in% addedArgs))
+      myFlextable(mult, ...)
+    else
+      myFlextable(mult) %>%
+      set_caption(caption = argslist$caption)
   }
+
+
+
+
+
+
+# Make a function for creating abridged options
+#' @import stringr
+.abridgeOptions <- function(x, redcap = getOption('data.on.redcap')) {
+  stopifnot(is.character(x))
+  if (is.null(redcap))
+    redcap <- TRUE
+  nx <- x %>%
+    str_remove_all("(or|to|of|in|the|a|by)(\\s)")
+  if (redcap)
+    nx <- str_replace(nx, "(([[:alpha:]]+\\s){3})(.+)", "\\1")
+  nx %>%
+    str_replace('and', '&') %>%
+    str_remove(".+\\s?/\\s?") %>%
+    str_trim %>%
+    str_squish %>%
+    str_to_title
+}
+
+
+
+
+
+
 
 
 #' Make a frequency tabulation that for variables with Yes/No responses
@@ -149,19 +167,18 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 #' @importFrom flextable theme_box
 #' @importFrom flextable width
 myFlextable <- function(data, ...) {
-  if (all(!grepl("^(Yes|No)$", colnames(data)))) {
-    data <- data %>%
-      select(-Variable) %>%
-      rename(Variable = Option)  # TODO: Use variable name instead??
-  }
+  stopifnot(is.data.frame(data))
+  if (all(!grepl("^(Yes|No)$", colnames(data))))
+    data <- select(data, -Option)
+  if (...length() > 0L)
+    olddef <- set_flextable_defaults(...)
   ft <- flextable(data)
 
-  if (...length() > 0L) {
-    ft <- ft %>%
-      width(j = 1, width = 2)
-  }
-  ft %>%
-    theme_box
+  # if (...length() > 0L) {
+  #   ft <- ft %>%
+  #     width(j = 1, width = 2)
+  # }
+  theme_box(ft)
 }
 
 
