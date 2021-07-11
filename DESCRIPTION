@@ -1,6 +1,6 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.4.3.9026
+Version: 0.4.3.9027
 Date: 2021-06-23
 Authors@R: 
     c(
@@ -34,6 +34,7 @@ Imports:
     labelled (>= 2.2.1),
     magrittr (>= 1.5),
     naijR (>= 0.0.6),
+    officer(>= 0.3.18),
     pander (>= 0.6.3),
     purrr (>= 0.3.2),
     readtext (>= 0.75),
