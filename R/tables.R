@@ -106,7 +106,7 @@ table_multiopt <-
   if (is.null(redcap))
     redcap <- TRUE
   nx <- x %>%
-    str_remove_all("(or|to|of|in|the|a|by)(\\s)")
+    str_remove_all("(\\s)(or|to|of|in|the|a|by)")
   if (redcap)
     nx <- str_replace(nx, "(([[:alpha:]]+\\s){3})(.+)", "\\1")
   nx %>%
@@ -228,6 +228,40 @@ get_value_labels <-
       return(lbls)
     .extractComponent(lbls, 'value', ...)
   }
+
+
+
+
+
+
+#' Get Variable Labels
+#'
+#' Retrieve all the labels of designated columns of a data frame
+#'
+#' @param data A data frame
+#' @param ind A numeric vector representing columns
+#'
+#' @importFrom labelled var_label
+#' @importFrom purrr map_chr
+#'
+#' @return A character vector of label names
+#'
+#' @export
+get_var_labels <- function(data, ind = NA_integer_) {
+  if (!is.data.frame(data))
+    stop("'data' should be of class data.frame")
+  if (!is.numeric(ind))
+    stop("'ind' should be a numeric vector")
+  dfi <- seq_along(data)
+  if (all(is.na(ind)))
+    ind <- dfi
+  if (any(!ind %in% dfi))
+    stop("Out-of-bounds or missing index in 'ind'")
+  purrr::map_chr(ind, ~ var_label(data[[.x]]))
+}
+
+
+
 
 
 
