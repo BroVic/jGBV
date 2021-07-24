@@ -172,13 +172,7 @@ myFlextable <- function(data, ...) {
     data <- select(data, -Option)
   if (...length() > 0L)
     olddef <- set_flextable_defaults(...)
-  ft <- flextable(data)
-
-  # if (...length() > 0L) {
-  #   ft <- ft %>%
-  #     width(j = 1, width = 2)
-  # }
-  theme_box(ft)
+  flextable(data)
 }
 
 
