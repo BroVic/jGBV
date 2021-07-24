@@ -74,7 +74,7 @@ table_multiopt <-
       filter(Option != "Total") %>%
       mutate(Option = opts) %>%
       filter(Option != "None") %>%
-      mutate(Variable = .abridgeOptions(Option)) %>%
+      mutate(Variable = Option) %>%
       relocate(Variable, .after = Option) %>%
       mutate(Variable = factor(Variable) %>%
                fct_reorder(Frequency, .desc = TRUE)) %>%
