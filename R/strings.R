@@ -11,7 +11,6 @@
 #' @export
 spaceAndTitle <- function(str) {
   stopifnot(is.character(str))
-  require(stringr)
   str %>%
     str_replace_all("_", " ") %>%
     str_to_title %>%
