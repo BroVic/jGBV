@@ -78,17 +78,20 @@ get_hdrs <- function(dic, rows, use.regex = TRUE)
 # Make table base data frame
 #' @import dplyr
 #' @importFrom rlang ensym
-make_table_df <- function(col.vars, row.vars = proj_lgas(), name = NULL)
+make_table_df <- function(col.vars, row.vars, name = NULL)
 {
   stopifnot(is.character(col.vars))
+  allAreLgas <- all(naijR::is_lga(row.vars))
+  if (!allAreLgas)
+    stop("'row.vars' must all be valid Nigeria LGAs")
   df <- matrix('', ncol = length(col.vars), nrow = length(row.vars)) %>%
-    data.frame() %>%
+    data.frame %>%
     structure(names = col.vars) %>%
     bind_cols(as_tibble(row.vars)) %>%
     relocate(value)
 
   if (is.null(name)) {
-    name <- if (identical(row.vars, proj_lgas()))
+    name <- if (allAreLgas)
       'LGA'
     else {
       warning("'name' was not supplied, so an arbitrary term was used")
@@ -110,6 +113,8 @@ make_table_df <- function(col.vars, row.vars = proj_lgas(), name = NULL)
 #' Make a multi-reponse dummy table using established headers
 #'
 #' @param hdrs Character vector with the names of the labels for each response
+#'
+#' @importFrom ufs multiResponse
 #'
 #' @return A data frame with summary of multiple responses
 #'

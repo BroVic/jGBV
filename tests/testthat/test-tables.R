@@ -15,6 +15,7 @@ test_that("multi-response table is created successfully", {
 
 
 test_that("When digits argument is set, table is successfully created", {
+   options(data.on.redcap = FALSE)
    ft <- table_multiopt(dat, indices = 2:4, use.regex = FALSE, digits = 1)
 
    expect_s3_class(ft, 'flextable')

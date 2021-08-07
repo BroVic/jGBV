@@ -502,13 +502,13 @@ basic_bar <- function(data, title = "[Title]", xlab = 'x') {
 #' @param ques The question found within the variable label
 #'
 #' @importFrom labelled var_label
-#' @importFrom magrittr %>%
+#' @importFrom stringr str_which
 #'
 #' @export
 # TODO: Unit tests and roxygen2 commenting
 find_var_with_ques <- function(data, ques) {
-  var_label(data) %>%
-    str_which(ques)
+  x <- var_label(data)
+  str_which(x, ques)
 }
 
 
@@ -542,12 +542,9 @@ find_ques_with_var <- function(data, varname) {
 #' @param data The data frame
 #' @param ques The question found in the variable label
 #'
-#' @importFrom magrittr %>%
-#'
 #' @export
 column_from_question <- function(data, ques) {
-  ind <- data %>%
-    find_var_with_ques(ques)
+  ind <- find_var_with_ques(data, ques)
   colnames(data)[ind]
 }
 

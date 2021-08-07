@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2019 Victor Ordu
 
+globalVariables(c("cid", "codecat"))
+
 #' Launch RQDA
 #'
 #' Attach RQDA to the Workspace and start up the GUI
@@ -40,6 +42,8 @@ get_rqda_projs <- function(datafolder = here::here("data/qual/rqda")) {
 #'
 #' @param projects A character vector of the paths of one or more related
 #' RQDA project databases
+#'
+#' @importFrom purrr map_dfr
 #'
 #' @return A data frame containing the data from the combined projects
 #'
