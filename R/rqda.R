@@ -64,10 +64,10 @@ retrieve_codingtable <- function(proj, query = NULL) {
   on.exit(RQDA::closeProject())
 
   tb <- if (is.null(query)) {
-    qry <- "sELECT treecode.cid AS cid,
-            codecat.name AS codecat
-            FROM treecode, codecat
-            WHERE treecode.catid=codecat.catid AND codecat.status=1;"
+    qry <- paste("sELECT treecode.cid AS cid,",
+            "codecat.name AS codecat",
+            "FROM treecode, codecat",
+            "WHERE treecode.catid=codecat.catid AND codecat.status=1;")
     cdt <- RQDA::getCodingTable()
     cats <- RQDA::RQDAQuery(qry) %>%
       group_by(cid) %>%
