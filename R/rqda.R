@@ -122,3 +122,37 @@ get_codecat_dfs <-
 
 
 
+
+
+#' Get Selected Codings
+#'
+#' Fetches the portions of text that were selected i.e. the codings for a
+#' given code in an RQDA project
+#'
+#' @param codedata A data frame containing the codings usually as an output
+#' of \code{\link[RQDA]{getCodingsTable}}.
+#' @param proj An RQDA project.
+#' @param code The coding for which the codings are to be retrieved
+#'
+#' @import RQDA
+#'
+#' @note For this function to work properly, the RQDA GUI needs to have been
+#' opened prior to its being called.
+#'
+#' @return No value is returned but a window with the codings is opened
+#' as a side effect.
+#' @export
+get_quotes <- function(codedata, proj, coding) {
+  RQDA::openProject(proj)
+  on.exit(RQDA::closeProject())
+
+  code <- unique(codedata$cid[codedata$codename == coding])
+  len <- length(code)
+
+  if (len > 1L)
+    warning(paste("cid is ", code, sep = ", ", collapse = ' '), call. = FALSE)
+  else if (len == 0L)
+    stop("Requested code does not exist in this project")
+
+  RQDA::getCodingsByOne(code)
+}
