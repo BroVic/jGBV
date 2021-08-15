@@ -130,13 +130,14 @@ get_codecat_dfs <-
 #' given code in an RQDA project
 #'
 #' @param codedata A data frame containing the codings usually as an output
-#' of \code{\link{[RQDA]getCodingsTable}}.
+#' of \code{\link[RQDA]{getCodingsTable}}.
 #' @param proj An RQDA project.
 #' @param code The coding for which the codings are to be retrieved
 #'
 #' @import RQDA
 #'
-#' @note For this function to work, the RQDA GUI needs to open.
+#' @note For this function to work properly, the RQDA GUI needs to have been
+#' opened prior to its being called.
 #'
 #' @return No value is returned but a window with the codings is opened
 #' as a side effect.

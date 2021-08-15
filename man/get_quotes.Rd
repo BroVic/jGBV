@@ -8,7 +8,7 @@ get_quotes(codedata, proj, coding)
 }
 \arguments{
 \item{codedata}{A data frame containing the codings usually as an output
-of \code{\link{[RQDA]getCodingsTable}}.}
+of \code{\link[RQDA]{getCodingsTable}}.}
 
 \item{proj}{An RQDA project.}
 
@@ -23,5 +23,6 @@ Fetches the portions of text that were selected i.e. the codings for a
 given code in an RQDA project
 }
 \note{
-For this function to work, the RQDA GUI needs to open.
+For this function to work properly, the RQDA GUI needs to have been
+opened prior to its being called.
 }

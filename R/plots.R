@@ -53,7 +53,8 @@ plot_multiopt.data.frame <- function(x, ...)
     rename_at(vars(starts_with("Percentage")),
               ~ str_replace(., "^.+$", "Percentage of Facilities")) %>%
     ggplot(aes(Variable, `Percentage of Facilities`)) +
-    geom_col()
+    geom_col() +
+    theme(axis.text.x = element_text(size = 8))
 
   .fitIntoLines <- function(x) {
     gsub("\\s", "\n", x)
