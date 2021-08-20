@@ -336,3 +336,22 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
   # %>% set_header_labels(name_of_lga = "LGA")
 }
 
+
+
+
+
+#' Generate Auto-numbers for Tables
+#'
+#' @param bookmark A string to represent the bookmark used in a given document
+#' @param ... Other arguments passed on to  \code{officer::run_autonum}.
+#'
+#' @importFrom officer run_autonum
+#'
+#' @return See the documentation for \code{\link[officer]{run_autonum}}.
+#'
+#' @export
+my_autonum <- function(bookmark = NULL, ...) {
+  if (is.null(bookmark))
+    bookmark <- "iufmp"
+  officer::run_autonum('tab', bkm = bookmark)
+}
