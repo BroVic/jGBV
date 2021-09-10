@@ -295,7 +295,6 @@ save_as_rds <- function(dir, obj, filelabel, ..., state) {
 
 #' Fetch All The Data
 #'
-#' @importFrom glue glue
 #' @importFrom purrr map
 #' @importFrom stats setNames
 #'
@@ -311,15 +310,15 @@ fetch_all_data <- function(state, dir, sectors)
   statePath <- .removeSpaceForFilepath(state)
   dPath <- file.path(dir, statePath)
 
-  map(sectors, function(sector) {
-    regex <- glue("transformed.+{statePath}.+{sector}")
+  out <- map(sectors, function(sector) {
+    regex <- sprintf("transformed.+%s.+%s", statePath, sector)
     rds <- list.files(dPath, pattern = regex, full.names = TRUE)
     if (is.null(rds))
       stop("Data file not found")
     # TODO: Add try-catch block to handle cases where data file cannot be read
     readRDS(rds)
-  }) %>%
-    setNames(sectors)
+  })
+  setNames(out, sectors)
 }
 
 

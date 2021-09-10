@@ -15,6 +15,7 @@ test_that("multi-response table is created successfully", {
 
 
 test_that("When digits argument is set, table is successfully created", {
+   options(data.on.redcap = FALSE)
    ft <- table_multiopt(dat, indices = 2:4, use.regex = FALSE, digits = 1)
 
    expect_s3_class(ft, 'flextable')
@@ -43,4 +44,20 @@ test_that("Labels of multi-response questions are stripped of prefixes", {
    expect_identical(.abridgeOptions("Type of Services / Option_2"), "Option_2")
    expect_identical(.abridgeOptions(opts, FALSE), nn.out)
 
+})
+
+
+test_that("Labels of a data frame are retrieved", {
+   dd <- readRDS("testdata/dft-out.rds")
+
+   expect_identical(get_var_labels(dd), c("X", "A", "B", "C", "Y"))
+   expect_identical(get_var_labels(dd, 1), "X")
+   expect_identical(get_var_labels(dd, 5), "Y")
+   expect_identical(get_var_labels(dd, 3), "B")
+   expect_identical(get_var_labels(dd, 3:4), c("B", "C"))
+   expect_error(get_var_labels(pi), "'data' should be of class data.frame")
+   expect_error(get_var_labels(dd, letters[1:2]),
+                "'ind' should be a numeric vector")
+   expect_error(get_var_labels(dd, 5:6),
+                "Out-of-bounds or missing index in 'ind'")
 })

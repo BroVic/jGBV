@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2019 Victor Ordu
 
+globalVariables(c("cid", "codecat"))
+
 #' Launch RQDA
 #'
 #' Attach RQDA to the Workspace and start up the GUI
@@ -41,6 +43,8 @@ get_rqda_projs <- function(datafolder = here::here("data/qual/rqda")) {
 #' @param projects A character vector of the paths of one or more related
 #' RQDA project databases
 #'
+#' @importFrom purrr map_dfr
+#'
 #' @return A data frame containing the data from the combined projects
 #'
 #' @export
@@ -60,10 +64,10 @@ retrieve_codingtable <- function(proj, query = NULL) {
   on.exit(RQDA::closeProject())
 
   tb <- if (is.null(query)) {
-    qry <- "sELECT treecode.cid AS cid,
-            codecat.name AS codecat
-            FROM treecode, codecat
-            WHERE treecode.catid=codecat.catid AND codecat.status=1;"
+    qry <- paste("sELECT treecode.cid AS cid,",
+            "codecat.name AS codecat",
+            "FROM treecode, codecat",
+            "WHERE treecode.catid=codecat.catid AND codecat.status=1;")
     cdt <- RQDA::getCodingTable()
     cats <- RQDA::RQDAQuery(qry) %>%
       group_by(cid) %>%
@@ -118,3 +122,37 @@ get_codecat_dfs <-
 
 
 
+
+
+#' Get Selected Codings
+#'
+#' Fetches the portions of text that were selected i.e. the codings for a
+#' given code in an RQDA project
+#'
+#' @param codedata A data frame containing the codings usually as an output
+#' of \code{\link[RQDA]{getCodingsTable}}.
+#' @param proj An RQDA project.
+#' @param code The coding for which the codings are to be retrieved
+#'
+#' @import RQDA
+#'
+#' @note For this function to work properly, the RQDA GUI needs to have been
+#' opened prior to its being called.
+#'
+#' @return No value is returned but a window with the codings is opened
+#' as a side effect.
+#' @export
+get_quotes <- function(codedata, proj, coding) {
+  RQDA::openProject(proj)
+  on.exit(RQDA::closeProject())
+
+  code <- unique(codedata$cid[codedata$codename == coding])
+  len <- length(code)
+
+  if (len > 1L)
+    warning(paste("cid is ", code, sep = ", ", collapse = ' '), call. = FALSE)
+  else if (len == 0L)
+    stop("Requested code does not exist in this project")
+
+  RQDA::getCodingsByOne(code)
+}

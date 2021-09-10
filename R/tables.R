@@ -74,7 +74,7 @@ table_multiopt <-
       filter(Option != "Total") %>%
       mutate(Option = opts) %>%
       filter(Option != "None") %>%
-      mutate(Variable = .abridgeOptions(Option)) %>%
+      mutate(Variable = Option) %>%
       relocate(Variable, .after = Option) %>%
       mutate(Variable = factor(Variable) %>%
                fct_reorder(Frequency, .desc = TRUE)) %>%
@@ -106,7 +106,7 @@ table_multiopt <-
   if (is.null(redcap))
     redcap <- TRUE
   nx <- x %>%
-    str_remove_all("(or|to|of|in|the|a|by)(\\s)")
+    str_remove_all("(\\s)(or|to|of|in|the|a|by)")
   if (redcap)
     nx <- str_replace(nx, "(([[:alpha:]]+\\s){3})(.+)", "\\1")
   nx %>%
@@ -160,30 +160,20 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 }
 
 
-#' @importFrom dplyr %>%
 #' @importFrom dplyr select
-#' @importFrom dplyr rename
 #' @importFrom flextable flextable
-#' @importFrom flextable theme_box
-#' @importFrom flextable width
 myFlextable <- function(data, ...) {
   stopifnot(is.data.frame(data))
   if (all(!grepl("^(Yes|No)$", colnames(data))))
     data <- select(data, -Option)
   if (...length() > 0L)
     olddef <- set_flextable_defaults(...)
-  ft <- flextable(data)
-
-  # if (...length() > 0L) {
-  #   ft <- ft %>%
-  #     width(j = 1, width = 2)
-  # }
-  theme_box(ft)
+  flextable(data)
 }
 
 
 # Generates a data dictionary
-# This function is defined to avoid repetitious calls to `generte_dictonary`
+# This function is defined to avoid repetitious calls to `generate_dictonary`
 # and to make room for the eventual implementation of a caching mechanism
 #' @importFrom labelled generate_dictionary
 makeDictionary <- function(x)
@@ -228,6 +218,40 @@ get_value_labels <-
       return(lbls)
     .extractComponent(lbls, 'value', ...)
   }
+
+
+
+
+
+
+#' Get Variable Labels
+#'
+#' Retrieve all the labels of designated columns of a data frame
+#'
+#' @param data A data frame
+#' @param ind A numeric vector representing columns
+#'
+#' @importFrom labelled var_label
+#' @importFrom purrr map_chr
+#'
+#' @return A character vector of label names
+#'
+#' @export
+get_var_labels <- function(data, ind = NA_integer_) {
+  if (!is.data.frame(data))
+    stop("'data' should be of class data.frame")
+  if (!is.numeric(ind))
+    stop("'ind' should be a numeric vector")
+  dfi <- seq_along(data)
+  if (all(is.na(ind)))
+    ind <- dfi
+  if (any(!ind %in% dfi))
+    stop("Out-of-bounds or missing index in 'ind'")
+  purrr::map_chr(ind, ~ var_label(data[[.x]]))
+}
+
+
+
 
 
 
@@ -308,3 +332,22 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
   # %>% set_header_labels(name_of_lga = "LGA")
 }
 
+
+
+
+
+#' Generate Auto-numbers for Tables
+#'
+#' @param bookmark A string to represent the bookmark used in a given document
+#' @param ... Other arguments passed on to \link{\code{[officer]{run_autonum}}}.
+#'
+#' @importFrom officer run_autonum
+#'
+#' @return See the documentation for \code{\link[officer]{run_autonum}}.
+#'
+#' @export
+my_autonum <- function(bookmark = NULL, ...) {
+  if (is.null(bookmark))
+    bookmark <- "iufmp"
+  officer::run_autonum('tab', bkm = bookmark)
+}

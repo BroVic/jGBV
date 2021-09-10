@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.4.3.9027
-Date: 2021-06-23
+Version: 0.5.0
+Date: 2021-09-10
 Authors@R: 
     c(
       person(given = "Victor",
@@ -21,21 +21,18 @@ Depends:
     RSQLite (>= 2.1.2)
 Imports:
     Hmisc (>= 4.2.0),
-    RQDA (>= 0.3.1),
+    RQDA (<= 0.3.1),
     codebook (>= 0.8.1),
     dplyr (>= 0.8.3),
     flextable (>= 0.6.6),
     forcats (>= 0.5.1),
     ggplot2 (>= 3.1.1),
-    glue (>= 1.3.1),
     here (>= 0.1),
     kableExtra (>= 1.1.0),
     knitr (>= 1.24),
     labelled (>= 2.2.1),
-    magrittr (>= 1.5),
     naijR (>= 0.0.6),
-    officer(>= 0.3.18),
-    pander (>= 0.6.3),
+    officer (>= 0.3.18),
     purrr (>= 0.3.2),
     readtext (>= 0.75),
     rlang (>= 0.4.0),
@@ -44,7 +41,6 @@ Imports:
     stringr (>= 1.4.0),
     tidyr (>= 1.0.0),
     ufs (>= 0.4.3)
-Remotes: Ronggui/RQDA
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
