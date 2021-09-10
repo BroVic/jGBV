@@ -160,12 +160,8 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 }
 
 
-#' @importFrom dplyr %>%
 #' @importFrom dplyr select
-#' @importFrom dplyr rename
 #' @importFrom flextable flextable
-#' @importFrom flextable theme_box
-#' @importFrom flextable width
 myFlextable <- function(data, ...) {
   stopifnot(is.data.frame(data))
   if (all(!grepl("^(Yes|No)$", colnames(data))))
@@ -177,7 +173,7 @@ myFlextable <- function(data, ...) {
 
 
 # Generates a data dictionary
-# This function is defined to avoid repetitious calls to `generte_dictonary`
+# This function is defined to avoid repetitious calls to `generate_dictonary`
 # and to make room for the eventual implementation of a caching mechanism
 #' @importFrom labelled generate_dictionary
 makeDictionary <- function(x)

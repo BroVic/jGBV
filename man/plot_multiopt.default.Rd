@@ -8,9 +8,10 @@
 }
 \arguments{
 \item{x}{An expression being captured code from a valid call to
-\code{table_multiplot}}
+\code{table_multiplot}.}
 
-\item{...}{left for future expansion of the function}
+\item{...}{arguments to control axis label text via
+\code{\link[ggplot2]{element_text}}.}
 }
 \description{
 Draw a plot of multi-response questions using the code for creating
