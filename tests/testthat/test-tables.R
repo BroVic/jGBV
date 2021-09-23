@@ -61,3 +61,13 @@ test_that("Labels of a data frame are retrieved", {
    expect_error(get_var_labels(dd, 5:6),
                 "Out-of-bounds or missing index in 'ind'")
 })
+
+
+test_that("auto-numbers are generated for tables", {
+   expect_error(my_autonum(999))
+   expect_error(my_autonum(TRUE))
+   expect_error(my_autonum(NA_character_))
+   expect_error(my_autonum(pi))
+   expect_error(my_autonum(matrix(letters, ncol = 2)))
+   expect_error(my_autonum(letters))
+})

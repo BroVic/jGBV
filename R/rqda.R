@@ -132,7 +132,7 @@ get_codecat_dfs <-
 #' @param codedata A data frame containing the codings usually as an output
 #' of \code{\link[RQDA]{getCodingsTable}}.
 #' @param proj An RQDA project.
-#' @param code The coding for which the codings are to be retrieved
+#' @param coding The coding for which the codings are to be retrieved
 #'
 #' @import RQDA
 #'

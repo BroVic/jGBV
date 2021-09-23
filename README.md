@@ -22,7 +22,12 @@ accessible.
 
 ## Installation
 
+The package can be easily downloaded and installed into R from GitHub
+using the code below. Note that the `INSTALL_opts` argument is mandatory
+to enable successful installs on machines that use both 32- and 64-bit
+architectures.
+
 ``` r
 # install.packages("remotes")
-remotes::install_github("BroVic/jGBV")
+remotes::install_github("BroVic/jGBV", INSTALL_opts = c("--no-multiarch"))
 ```

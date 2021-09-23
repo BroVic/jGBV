@@ -339,15 +339,19 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 #' Generate Auto-numbers for Tables
 #'
 #' @param bookmark A string to represent the bookmark used in a given document
-#' @param ... Other arguments passed on to \link{\code{[officer]{run_autonum}}}.
+#' @param ... Other arguments passed on to \code{\link[officer]{run_autonum}}.
 #'
 #' @importFrom officer run_autonum
 #'
-#' @return See the documentation for \code{\link[officer]{run_autonum}}.
+#' @return See the documentation for \code{officer::run_autonum}.
 #'
 #' @export
 my_autonum <- function(bookmark = NULL, ...) {
   if (is.null(bookmark))
     bookmark <- "iufmp"
+  if (!is.character(bookmark) || length(bookmark) != 1L)
+    stop("'bookmark' should be a valid string")
+  if (is.na(bookmark))
+    stop("Cannot use a missing value to create a bookmark")
   officer::run_autonum('tab', bkm = bookmark)
 }

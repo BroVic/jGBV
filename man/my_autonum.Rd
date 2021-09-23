@@ -9,10 +9,10 @@ my_autonum(bookmark = NULL, ...)
 \arguments{
 \item{bookmark}{A string to represent the bookmark used in a given document}
 
-\item{...}{Other arguments passed on to \link{\code{[officer]{run_autonum}}}.}
+\item{...}{Other arguments passed on to \code{\link[officer]{run_autonum}}.}
 }
 \value{
-See the documentation for \code{\link[officer]{run_autonum}}.
+See the documentation for \code{officer::run_autonum}.
 }
 \description{
 Generate Auto-numbers for Tables

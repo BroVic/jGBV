@@ -12,7 +12,7 @@ of \code{\link[RQDA]{getCodingsTable}}.}
 
 \item{proj}{An RQDA project.}
 
-\item{code}{The coding for which the codings are to be retrieved}
+\item{coding}{The coding for which the codings are to be retrieved}
 }
 \value{
 No value is returned but a window with the codings is opened
