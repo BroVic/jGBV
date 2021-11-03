@@ -3,11 +3,6 @@
 
 # jGBV
 
-<!-- badges: start -->
-
-[![R-CMD-check](https://github.com/BroVic/jGBV/workflows/R-CMD-check/badge.svg)](https://github.com/BroVic/jGBV/actions)
-<!-- badges: end -->
-
 Convenience R package for the Jhpiego Nigeria’s Gender-based Violence
 (GBV) Assessments
 
