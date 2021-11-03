@@ -7,8 +7,8 @@
 get_quotes(codedata, proj, coding)
 }
 \arguments{
-\item{codedata}{A data frame containing the codings usually as an output
-of \code{\link[RQDA]{getCodingsTable}}.}
+\item{codedata}{A data frame containing the codings, usually as an output
+of \code{RQDA::getCodingsTable}.}
 
 \item{proj}{An RQDA project.}
 

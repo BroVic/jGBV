@@ -10,10 +10,11 @@ globalVariables(c("cid", "codecat"))
 #'
 #' Attach RQDA to the Workspace and start up the GUI
 #'
-#' @importFrom RQDA RQDA
 #' @export
 launch_rqda <- function() {
-  RQDA()
+  if (!rqda_is_installed())
+    stop("Oops! You have not yet installed 'RQDA'.")
+  RQDA::RQDA()
 }
 
 
@@ -57,9 +58,12 @@ get_codings_master_df <- function(projects) {
 
 
 
-#' @import RQDA
 #' @import dplyr
 retrieve_codingtable <- function(proj, query = NULL) {
+  if (!rqda_is_installed())
+    stop("RQDA has not yet been installed.")
+  if (!endsWith(proj, ".rqda"))
+    stop("'proj' does not look like the name of an RQDA project")
   RQDA::openProject(proj)
   on.exit(RQDA::closeProject())
 
@@ -79,8 +83,12 @@ retrieve_codingtable <- function(proj, query = NULL) {
     }
     cdt
   }
-  else
+  else {
+    if (!is.character(query) ||
+        (length(query) == 1L && !identical(query, character(1))))
+      stop("'query' must be type 'character' length 1L, and non-empty")
     RQDA::RQDAQuery(query)
+  }
 
   ## Get coder's name
   nm <-
@@ -129,12 +137,10 @@ get_codecat_dfs <-
 #' Fetches the portions of text that were selected i.e. the codings for a
 #' given code in an RQDA project
 #'
-#' @param codedata A data frame containing the codings usually as an output
-#' of \code{\link[RQDA]{getCodingsTable}}.
+#' @param codedata A data frame containing the codings, usually as an output
+#' of \code{RQDA::getCodingsTable}.
 #' @param proj An RQDA project.
 #' @param coding The coding for which the codings are to be retrieved
-#'
-#' @import RQDA
 #'
 #' @note For this function to work properly, the RQDA GUI needs to have been
 #' opened prior to its being called.
@@ -143,6 +149,8 @@ get_codecat_dfs <-
 #' as a side effect.
 #' @export
 get_quotes <- function(codedata, proj, coding) {
+  if (!rqda_is_installed())
+    stop("Package 'RQDA' not found")
   RQDA::openProject(proj)
   on.exit(RQDA::closeProject())
 
@@ -155,4 +163,19 @@ get_quotes <- function(codedata, proj, coding) {
     stop("Requested code does not exist in this project")
 
   RQDA::getCodingsByOne(code)
+}
+
+
+
+
+## Performs a check whether RQDA is installed. This function exists to enable
+## conditional imports for functions that require RQDA. This is necessary
+## because this package is supposed to help with installing RQDA in the first
+## place, as well as use it in some of the functions whenever it is available.
+## Otherwise, we can cross the `R CMD check` hurdle.
+rqda_is_installed <- function() {
+  installed <- requireNamespace("RQDA")
+  if (!installed)
+    warning("You may install RQDA with `RQDAassist::install()`")
+  installed
 }

@@ -588,17 +588,15 @@ get_service_data <- function(data, ques, options) {
 #'
 #' @import DBI
 #' @import RSQLite
-#' @importFrom RQDA closeProject
-#' @importFrom RQDA getCodingTable
-#' @importFrom RQDA openProject
 #' @importFrom purrr map_df
 #' @importFrom utils file_test
-#'
 #'
 #' @return The coding table as an R \code{data.frame}.
 #'
 #' @export
 obtain_rqda_codes <- function(path) {
+  if (!rqda_is_installed())
+    stop("Required package 'RQDA' is not installed")
   stopifnot(is.character(path))
   isZipfile <- endsWith(path, ".zip")
   finalDir <-
@@ -610,7 +608,7 @@ obtain_rqda_codes <- function(path) {
     sub("\\.[[:alpha:]]+$", "", path)
   }
   else
-    stop("'path' is incorrect or non-existent")
+    stop("'path' is incorrect or non-existent", call. = FALSE)
 
   rqdafile <-
     if (endsWith(path, ".rqda"))
@@ -626,16 +624,16 @@ obtain_rqda_codes <- function(path) {
               sQuote(finalDir),
               " was removed")
     }
-    stop("RQDA project file not found in ", sQuote(finalDir))
+    stop("RQDA project file not found in ", sQuote(finalDir), call. = FALSE)
   }
   else if (projectsFound > 1L)
     warning("More than one RQDA project file found")
 
  map_df(rqdafile, function(proj) {
     tryCatch({
-      openProject(proj)
-      codes <- getCodingTable()
-      on.exit(closeProject())
+      RQDA::openProject(proj)
+      codes <- RQDA::getCodingTable()
+      on.exit(RQDA::closeProject())
       codes
     }, error = function(e)
       e)

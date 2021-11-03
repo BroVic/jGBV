@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
 Version: 0.5.1
-Date: 2021-09-23
+Date: 2021-11-03
 Authors@R: 
     c(
       person(given = "Victor",
@@ -21,7 +21,6 @@ Depends:
     RSQLite (>= 2.1.2)
 Imports:
     Hmisc (>= 4.2.0),
-    RQDA (<= 0.3.1),
     dplyr (>= 0.8.3),
     flextable (>= 0.6.6),
     forcats (>= 0.5.1),
@@ -45,6 +44,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Suggests: 
+    RQDA (== 0.3.1),
     testthat (>= 2.1.0),
     usethis (>= 1.5.0)
 
