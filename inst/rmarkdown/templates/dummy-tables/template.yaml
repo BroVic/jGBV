@@ -1,0 +1,4 @@
+name: Dummy Tables
+description: >
+   An R Markdown template for creating dummy tables for Jhpiego's GBV assessments
+create_dir: FALSE

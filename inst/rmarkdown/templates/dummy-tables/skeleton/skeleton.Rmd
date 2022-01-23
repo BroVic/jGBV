@@ -1,0 +1,290 @@
+---
+title: "GBV Assessment Dummy Tables"
+author: "First Last"
+date: "Date"
+knit: (function(inputfile, encoding) { rmarkdown::render(inputfile, encoding = encoding, output_dir = here::here("out"))})
+output: 
+  word_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(data.on.redcap = FALSE)
+
+#
+# Dependencies ----
+#
+library(flextable)
+knitr::opts_chunk$set(echo = FALSE, ft.align = 'left')
+library(tidyverse)
+library(here)
+library(naijR)
+library(jGBV)
+
+#
+# Data ----
+#
+
+
+
+#
+# Functions ----
+
+
+```
+
+# 1. Quality, functionality and accessibility of services
+
+## 1.1 Health facility
+
+### 1.1.1 Ability to support the survivor with brief empathetic counseling using the WHO model for first-line support (LIVES: Listen, Inquire, Validate, Ensure Safety, Support through Referrals) and the minimum post-GBV care package
+
+```{r}
+# TODO: This variable not found for now
+# build_dummy_flextable(dic, colpicks$)
+```
+
+Alternatively, and in consonance with the technical proposal, counselling i.e. the LIVES model could be analysed independently of the availability of the minimum post-GBV care package:
+
+**Ability to provide the minimum post-GBV care package**
+
+```{r}
+
+```
+
+### 1.1.2 Availability of a private room for counseling and examination
+
+**Facility readiness**
+
+```{r}
+
+```
+
+
+### 1.1.3 Availability of key drugs and supplies
+
+```{r}
+
+```
+
+
+<!-- ### 1.1.4 Opening hours or providers on call for off-hours or weekend GBV cases. -->
+
+<!-- ```{r} -->
+<!-- yes_no_table('Open and accessible 24 hours a day') -->
+<!-- ``` -->
+
+**Days of the week operating**
+
+```{r}
+
+```
+
+<!-- ### 1.1.5 Documentation -->
+
+<!-- **Available documents** -->
+
+<!-- ```{r} -->
+<!-- yes_no_table("Has policies, protocols or SOPs") -->
+<!-- ``` -->
+
+**Available Policies, Protocols or Standard Operating Procedures**
+
+```{r}
+
+```
+
+
+## 1.2 Shelter or safe homes
+
+### 1.2.1 Availability and functionality of safe homes for temporary accommodation, its quality, privacy and security.
+
+**Number of facilities providing shelter/safe home service**
+
+
+**Shelter amenities**
+
+```{r}
+
+```
+
+
+**Services provided**
+
+```{r}
+
+```
+
+**Safety precautions**
+
+```{r}
+
+```
+
+
+**Has electricity or water**
+
+```{r}
+
+```
+
+
+## 1.3 Law Enforcement
+
+**Number of cases in the last 6 months**
+
+```{r}
+
+```
+
+### 1.3.1 Availability and functionality of law enforcement mechanisms to support a survivor
+
+**Service provided**
+
+```{r}
+
+```
+
+**Availability of specially trained staff**
+
+```{r}
+
+```
+
+### 1.3.2 Law enforcement first responders' attitudes towards GBV survivors, assessed by a brief KAP test of a small sample
+
+<!-- ### 1.3.3 Availability and functionality of a gender desk and gender desk officer at the police stations/posts -->
+
+<!-- ```{r} -->
+<!-- yes_no_table('Gender desk and gender desk officer at police stations/posts') -->
+<!-- ``` -->
+
+### 1.3.5 Availability of resources for investigation and follow-up
+
+```{r}
+
+```
+
+<!-- ### 1.3.6 Appropriate contact and follow-up with survivors -->
+
+<!-- ```{r} -->
+<!-- yes_no_table("Do you make contact with survivors to ensure their wellbeing and follow-up?") -->
+<!-- ``` -->
+
+## 1.4 Legal redress mechanisms
+
+### 1.4.1 Availability and functionality of legal mechanisms to seek redress (scope existing laws and policies and implementation)
+
+**Kind of services offered**
+
+```{r}
+
+```
+
+
+**Outcome when resources inadequate**
+
+```{r}
+
+```
+
+
+<!-- **Offer funding to survivors** -->
+
+<!-- ```{r} -->
+<!-- yes_no_table("Do you offer funds or other material resources to survivors and witnesses for their appearance in court") -->
+<!-- ``` -->
+
+
+
+# 2. Health seeking behaviour and referral processes
+
+*These cut across the LGAs as well as sectors, so tabulation might be somewhat cumbersome*
+
+<!-- ## 2.1 What services are provided to address the health, legal, psychosocial, safety, and economic needs of GBV survivors? -->
+
+<!-- Mostly charts -->
+
+<!-- ## 2.2 When and where are the interventions and services offered? -->
+
+<!-- Mostly charts -->
+
+<!-- ## 2.3 Is psychosocial support available?  -->
+
+<!-- Mostly charts -->
+
+<!-- ## 2.4 Utilization of national tools and protocols in service provision. -->
+
+<!-- Mostly charts -->
+
+<!-- ## 2.5 Availability of standard documentation of service provision -->
+
+<!-- Mostly charts -->
+
+<!-- ## 2.6 Documentation and tracking of referrals -->
+
+<!-- Mostly charts -->
+
+# 3. Institutional capacity assessment
+
+## Health services
+
+```{r}
+
+
+```
+
+<!-- *Key* -->
+
+<!-- ```{r, results="asis"} -->
+<!-- list_trainings(2, 51:64) -->
+<!-- ``` -->
+
+## Law Enforcement
+
+```{r}
+
+```
+
+<!-- *Key* -->
+
+<!-- ```{r, results='asis'} -->
+<!-- list_trainings(4, rows) -->
+<!-- ``` -->
+
+## Legal Aid Organisations
+
+```{r}
+
+```
+
+<!-- *Key* -->
+
+<!-- ```{r, results='asis'} -->
+<!-- list_trainings(6, rows) -->
+<!-- ``` -->
+
+## Psycho-social Support/Economic Empowerment Services
+
+```{r}
+
+```
+
+<!-- *Key* -->
+
+<!-- ```{r, results= 'asis'} -->
+<!-- list_trainings(9, rows) -->
+<!-- ``` -->
+
+## Safe Homes
+
+```{r}
+
+```
+
+<!-- *Key* -->
+
+<!-- ```{r, results= 'asis'} -->
+<!-- cat(list_trainings(11, rows), sep = '\n') -->
+<!-- ``` -->
