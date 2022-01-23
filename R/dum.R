@@ -1,6 +1,7 @@
 #' Make a dummy table
 #'
-#' @param dic A \code{data.frame} containing the data dictionary
+#' @param dic A \code{data.frame} containing the data dictionary, as generated
+#' by \code{\link[labelled]{generate_dictionary}}.
 #' @param rows Numeric vector of the rows of interest in the dictionary
 #' @param cols Character vector of columns that we want to use as focus
 #' @param top.header Additional header row
@@ -38,11 +39,12 @@ build_dummy_flextable <-
       }
     }
     df <- if (is.character(rows))
-      make_table_df(hdrs, rows, ...)
+      make_table_df(cols, rows, ...)
     else if (multiresponse)
       make_multiresp(hdrs)
     else
       make_table_df(hdrs, ...)
+
     ft <- flextable(df) %>%
       theme_box()
 
@@ -78,31 +80,28 @@ get_hdrs <- function(dic, rows, use.regex = TRUE)
 # Make table base data frame
 #' @import dplyr
 #' @importFrom rlang ensym
-make_table_df <- function(col.vars, row.vars, name = NULL)
+make_table_df <- function(cols, rows, name = NULL)
 {
-  stopifnot(is.character(col.vars))
-  allAreLgas <- all(naijR::is_lga(row.vars))
-  if (!allAreLgas)
-    stop("'row.vars' must all be valid Nigeria LGAs")
-  df <- matrix('', ncol = length(col.vars), nrow = length(row.vars)) %>%
+  stopifnot(is.character(cols))
+
+  df <- matrix('', ncol = length(cols), nrow = length(rows)) %>%
     data.frame %>%
-    structure(names = col.vars) %>%
-    bind_cols(as_tibble(row.vars)) %>%
+    structure(names = cols) %>%
+    bind_cols(as_tibble(rows)) %>%
     relocate(value)
 
   if (is.null(name)) {
-    name <- if (allAreLgas)
+    name <- if (all(naijR::is_lga(rows))) {
       'LGA'
+    }
     else {
-      warning("'name' was not supplied, so an arbitrary term was used")
-      "variable"
+      warning("'name' was not supplied, so an arbitrary term was used",
+              call. = FALSE)
+      "Variable"
     }
   }
-
   nm <- rlang::ensym(name)
-
-  df %>%
-    rename(!!nm := value)
+  rename(df, !!nm := value)
 }
 
 
@@ -110,7 +109,7 @@ make_table_df <- function(col.vars, row.vars, name = NULL)
 
 
 
-#' Make a multi-reponse dummy table using established headers
+#' Make a multi-response dummy table using established headers
 #'
 #' @param hdrs Character vector with the names of the labels for each response
 #'
