@@ -2,8 +2,9 @@
 % Please edit documentation in R/tables.R
 \name{table_multiopt}
 \alias{table_multiopt}
+\alias{table_singleopt}
 \alias{table_yesno}
-\title{Make a frequency tabulation of multi-response questions}
+\title{Make a frequency tabulation}
 \usage{
 table_multiopt(
   x,
@@ -14,6 +15,8 @@ table_multiopt(
   redcap = getOption("data.on.redcap"),
   ...
 )
+
+table_singleopt(.data, x, y, table.only = FALSE, data.only = FALSE)
 
 table_yesno(data, col, data.only = FALSE, ...)
 }
@@ -34,12 +37,23 @@ for which the data were stored on REDCap?}
 
 \item{...}{Additional response options, if they exist.}
 
+\item{.data}{The data frame.}
+
+\item{table.only}{Logical}
+
 \item{data}{The data.}
 
 \item{col}{The column with the responses}
+
+\item{x, y}{An integer or character vector of length \code{1L} for selecting
+a column from \code{.data}.}
+}
+\value{
+An object of class \code{flextable} (or when \code{table.only} is
+\code{TRUE} an object of class \code{table}).
 }
 \description{
-Make a frequency tabulation of multi-response questions
+Make a frequency tabulation
 
 Make a frequency tabulation that for variables with Yes/No responses
 }

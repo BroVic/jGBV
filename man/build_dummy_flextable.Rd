@@ -15,7 +15,8 @@ build_dummy_flextable(
 )
 }
 \arguments{
-\item{dic}{A \code{data.frame} containing the data dictionary}
+\item{dic}{A \code{data.frame} containing the data dictionary, as generated
+by \code{\link[labelled]{generate_dictionary}}.}
 
 \item{rows}{Numeric vector of the rows of interest in the dictionary}
 

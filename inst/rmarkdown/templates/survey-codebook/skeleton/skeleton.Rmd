@@ -1,5 +1,5 @@
 ---
-title: "RAAMP-GBV Assessment"
+title: "GBV Assessment"
 output:
   html_document:
     toc: true
@@ -24,7 +24,7 @@ pander::panderOptions("table.split.table", Inf)
 
 ```{r pkg-loading, message=FALSE}
 library(codebook)
-library(raampGBV)
+library(jGBV)
 ggplot2::theme_set(ggplot2::theme_bw())
 ```
 

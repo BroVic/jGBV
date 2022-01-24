@@ -1,5 +1,5 @@
 ---
-title: "RAAMP Gender-Based Violence Assessment"
+title: "Gender-Based Violence Assessment"
 output:
   html_document: default
   word_document: default

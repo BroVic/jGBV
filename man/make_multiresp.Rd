@@ -2,7 +2,7 @@
 % Please edit documentation in R/dum.R
 \name{make_multiresp}
 \alias{make_multiresp}
-\title{Make a multi-reponse dummy table using established headers}
+\title{Make a multi-response dummy table using established headers}
 \usage{
 make_multiresp(hdrs)
 }
@@ -13,5 +13,5 @@ make_multiresp(hdrs)
 A data frame with summary of multiple responses
 }
 \description{
-Make a multi-reponse dummy table using established headers
+Make a multi-response dummy table using established headers
 }

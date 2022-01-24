@@ -7,7 +7,7 @@ globalVariables(c(
   "name_of_lga"
 ))
 
-#' Make a frequency tabulation of multi-response questions
+#' Make a frequency tabulation
 #'
 #' @rdname tables
 #'
@@ -93,6 +93,66 @@ table_multiopt <-
       myFlextable(mult) %>%
       set_caption(caption = argslist$caption)
   }
+
+
+
+
+
+
+
+#' @rdname tables
+#'
+#' @import dplyr
+#' @import flextable
+#' @importFrom labelled var_label
+#'
+#' @param .data The data frame.
+#' @param x,y An integer or character vector of length \code{1L} for selecting
+#' a column from \code{.data}.
+#' @param table.only Logical
+#' @param data.only Logical
+#'
+#' @return An object of class \code{flextable} (or when \code{table.only} is
+#' \code{TRUE} an object of class \code{table}).
+#'
+#' @export
+table_singleopt <-
+  function(.data,
+           x,
+           y,
+           table.only = FALSE,
+           data.only = FALSE) {
+    if (!is.data.frame(.data))
+      stop("'.data' should be a data frame")
+    if (table.only && data.only)
+      stop("'table.only' and 'data.only' cannot both be TRUE at the same time")
+    x <- .data[[x]]
+    if (!missing(y))
+      y <- .data[[y]]
+    lbs <- labelled::var_label(x)
+
+    t <- if (missing(y))
+      table(x)
+    else
+      table(x, y)
+    if (table.only)
+      return(t)
+
+    d <- t %>%
+      as.data.frame() %>%
+      arrange(desc(Freq)) %>%
+      mutate(Percentage = round(Freq/sum(Freq)*100, 1)) %>%
+      rename(Variable = x)
+    if (data.only)
+      return(d)
+
+    flextable(d) %>%
+      set_caption(caption = lbs) %>%
+      theme_box %>%
+      autofit()
+  }
+
+
 
 
 

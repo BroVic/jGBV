@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.5.1.9004
-Date: 2021-01-22
+Version: 0.5.1.9010
+Date: 2022-01-25
 Authors@R: 
     c(
       person(given = "Victor",
@@ -13,7 +13,7 @@ Authors@R:
              role = "cph")
       )
 Description: Developed for the purpose of reproducible research and for project
-    scale up across all the different GBV services mapping and assessment
+    scale-up across all the different GBV services mapping and assessment
     activities conducted by Jhpiego Nigeria.
 Depends: 
     R (>= 3.6),
@@ -29,6 +29,7 @@ Imports:
     kableExtra (>= 1.1.0),
     knitr (>= 1.24),
     labelled (>= 2.2.1),
+    magrittr (>= 2.0.1),
     naijR (>= 0.0.6),
     officer (>= 0.3.18),
     purrr (>= 0.3.2),
