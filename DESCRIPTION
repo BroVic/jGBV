@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.5.1.9010
-Date: 2022-01-25
+Version: 0.5.1.9011
+Date: 2022-01-27
 Authors@R: 
     c(
       person(given = "Victor",
