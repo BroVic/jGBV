@@ -107,31 +107,6 @@ input_state <- function() {
 
 
 
-
-confirm_states <- function(x = NULL) {
-  all.st <-  getOption("jgbv.project.states")
-  if (is.null(x))
-    return(all.st)
-  x <- stringr::str_to_title(x)
-  match.arg(x, all.st)
-}
-
-
-
-
-
-pick_one_state <- function() {
-  ss <- confirm_states()
-  ss[menu(ss, TRUE, "Select a State")]
-}
-
-
-
-
-
-
-
-
 #' Transform the data for a given sector
 #'
 #' @param data The data frame with the data for a given sector

@@ -38,7 +38,7 @@ input_state <- function() {
 
 
 
-confirm_states <- function(x = NULL) {
+.confirmStates <- function(x = NULL) {
   all.st <-  getOption("jgbv.project.states")
   if (is.null(x))
     return(all.st)
@@ -49,8 +49,15 @@ confirm_states <- function(x = NULL) {
 
 
 
-
+#' Interactively Select a State
+#'
+#' Uses global options to identify the States for a given project and prompts
+#' the user to select one.
+#'
+#' @importFrom utils menu
+#'
+#' @export
 pick_one_state <- function() {
-  ss <- confirm_states()
+  ss <- .confirmStates()
   ss[menu(ss, TRUE, "Select a State")]
 }
