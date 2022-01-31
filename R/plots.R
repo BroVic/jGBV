@@ -157,3 +157,30 @@ show_output.data.frame <-
     plot_multiopt(d, ...)
   }
 
+
+
+
+
+
+
+#' Basic bar plot
+#'
+#' @param data The data frame
+#' @param title The title of the plot
+#' @param xlab The x-axis label. Defaults to \code{x}
+#'
+#' @import ggplot2
+#'
+#' @return A ggplot object
+#'
+#' @export
+basic_bar <- function(data, title = "[Title]", xlab = 'x') {
+  ggplot(data) +
+    aes(name, fill = name) +
+    geom_bar() +
+    theme(legend.position = 'none',
+          plot.title = element_text(hjust = .5)) +
+    ggtitle(title) +
+    ylab("No. of respondents") +
+    xlab(xlab)
+}

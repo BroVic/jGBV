@@ -123,3 +123,69 @@ make_multiresp <- function(hdrs) {
   names(dd) <- hdrs
   ufs::multiResponse(dd)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+#' Make a kable table
+#'
+#' Create a table formatted for markdown
+#'
+#' @param row A vector for the rows.
+#' @param column A character vector of the column names
+#' @param opt The options for the dummy table
+#'
+#' @importFrom kableExtra add_header_above
+#' @importFrom kableExtra kable_styling
+#' @importFrom knitr kable
+#'
+#' @export
+make_kable <- function(row, column, opt = NULL) {
+  if (inherits(row, "Tools"))
+    row <- row[!row == "Referral"]
+  if (is.null(opt))
+    opt <- c(" (N) ", " (%) ")
+  else
+    opt <- opt
+  len.column <- length(column)
+  newCol <- rep(opt, len.column)
+  ncols <- length(newCol)
+  nrows <- length(row)
+  df <-
+    as.data.frame(matrix(
+      data = rep("", nrows * ncols),
+      nrow = nrows,
+      dimnames = list(row, newCol)
+    ),
+    stringsAsFactors = FALSE)
+  grpSz <- length(opt)
+  grps <- structure(rep(grpSz, len.column), names = column)
+
+  kable(df) %>%
+    kable_styling("striped") %>%
+    add_header_above(c("", grps))
+}
+
+
+
+
+
+
+
+#' Make a Yes/No Dummy Table
+#'
+#' @param columns The colums to be used
+#' @param all.lgas The LGAs in the State
+#'
+#' @export
+make_just_yesno <- function(columns, all.lgas) {
+  make_kable(all.lgas, columns , opt = c("Yes", "No"))
+}
