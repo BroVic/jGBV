@@ -4,16 +4,21 @@
 \alias{write_files_to_project}
 \title{Write Text Files to an RQDA Project}
 \usage{
-write_files_to_project(proj, pattern = NULL, sourcedir = NULL)
+write_files_to_project(
+  proj,
+  pattern = NULL,
+  ignore_case = FALSE,
+  sourcedir = NULL
+)
 }
 \arguments{
 \item{proj}{The path to the RQDA project.}
 
 \item{pattern}{A regular expression for matching selected files.}
 
-\item{sourcedir}{The path to the directory containing the text files.}
-
 \item{ignore_case}{Logical; whether to consider the case when matching.}
+
+\item{sourcedir}{The path to the directory containing the text files.}
 }
 \value{
 The function has the side-effect of altering the state of the

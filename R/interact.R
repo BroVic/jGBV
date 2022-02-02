@@ -37,8 +37,22 @@ input_state <- function() {
 
 
 
-
-.confirmStates <- function(x = NULL) {
+#' Get Project State(s)
+#'
+#' Reels out the project states or a single one as selected by partial matching
+#'
+#' @param x A string, usually partial match for a given State for that project.
+#'
+#' @return A character vector contain all project States when \code{x} is
+#' \code{NULL} or a one of length \code{1L} based on the partial match.
+#'
+#' @note This function is mostly used for conditional code chunk evaluation
+#' in the R Markdown source files.
+#'
+#' @importFrom stringr str_to_title
+#'
+#' @export
+confirm_state <- function(x = NULL) {
   all.st <-  getOption("jgbv.project.states")
   if (is.null(x))
     return(all.st)
