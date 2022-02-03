@@ -177,7 +177,7 @@ assertStateInput <- function(state) {
 #' @param type Either \code{capneeds} or \code{refdir}. Partial matching is
 #' allowed.
 #'
-#' @return A character vector of length 1L, nameing the sheet.
+#' @return A character vector of length 1L, naming the sheet.
 #'
 #' @export
 SheetName <- function(type = c("capneeds", "refdir")) {

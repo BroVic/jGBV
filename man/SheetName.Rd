@@ -11,7 +11,7 @@ SheetName(type = c("capneeds", "refdir"))
 allowed.}
 }
 \value{
-A character vector of length 1L, nameing the sheet.
+A character vector of length 1L, naming the sheet.
 }
 \description{
 A convenience function for consistent naming of spreadsheets for the
