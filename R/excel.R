@@ -152,7 +152,11 @@ generate_filename <- function(state, type) {
 
 
 
-
+#' Check Input of States
+#'
+#' @param state The project State.
+#'
+#' @export
 assertStateInput <- function(state) {
   rgx <- paste(getOption("jgbv.project.states"), collapse = "|")
   if (!length(state) == 1L || isFALSE(all(grepl(rgx, state))))
@@ -176,8 +180,24 @@ SheetName <- function(type = c("capneeds", "refdir")) {
 
 
 
-# Creates a formatted table for EXcel
+#' Write an Excel Sheet for Project Outputs
+#'
+#' This function actually finalises the process of getting an Excel
+#' worksheet ready for the Referral Direcories and Capacity Needs
+#' Assessment tables.
+#'
+#' @param data The data frame made with preparatory functions
+#' @param path The path of the Excel file to be created.
+#' @param sheet The name of the worksheet.
+#' @param header.fill The colour for the header.
+#' @param header.font.colour The colour of the header text.
+#' @param na.string How to represent missing values
+#'
+#' @return No return value. Used for its side effects.
+#'
 #' @import xlsx
+#'
+#' @export
 writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
                                      header.font.colour, na.string = "") {
   stopifnot(length(path) == 1L)
@@ -206,3 +226,6 @@ writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
   saveWorkbook(wkbk, path)
   cat("Done\n")
 }
+
+
+
