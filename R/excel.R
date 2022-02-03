@@ -1,11 +1,11 @@
 #' Make the Referral Directory
-#' 
+#'
 #' Creates a data frame of the referral directory of the State, which can be
 #' used to create other more sylistically appealing tables
-#' 
+#'
 #' @param df The cleaned data from the State.
 #' @param state The State under study.
-#' @param indices A numeric vector of all the column indices that will be used to 
+#' @param indices A numeric vector of all the column indices that will be used to
 #' create the tabulation.
 #' @param serv.cols The columns that contain the interventions provided. Used either
 #' as an atomic vector with indices, a regular expression or the actual column names.
@@ -19,10 +19,10 @@
 #'   \item \strong{gbvcontat} - Contact details of the GBV focal person.
 #' }
 #' In all instances, the value is \emph{the column name} for that variable.
-#' 
-#' @return A modified data frame containing the information required of the 
+#'
+#' @return A modified data frame containing the information required of the
 #' State's referral directory.
-#' 
+#'
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
 #' @importFrom dplyr mutate
@@ -31,7 +31,8 @@
 #' @importFrom dplyr quo
 #' @importFrom tidyr unite
 #' @importFrom stats setNames
-#' 
+#'
+#' @export
 prep_ref_directory <- function(df, state, indices, serv.cols, day.pattern, namelist) {
   stopifnot(is.data.frame(df))
   require(dplyr)
@@ -47,24 +48,24 @@ prep_ref_directory <- function(df, state, indices, serv.cols, day.pattern, namel
   }
   else
     stop(quote(serv.cols), " cannot be of type ", typeof(serv.cols))
-  
+
   df %>%
     select(all_of(indices)) %>%
-    rename(name = !!quo(namelist$orgname)) %>% 
-    rename(phone = !!quo(namelist$orgphone)) %>% 
-    rename(contact_gbv = !!quo(namelist$gbvcontact)) %>% 
+    rename(name = !!quo(namelist$orgname)) %>%
+    rename(phone = !!quo(namelist$orgphone)) %>%
+    rename(contact_gbv = !!quo(namelist$gbvcontact)) %>%
     mutate(across(contains('type_of_service'), set_logical_with_label)) %>%
-    mutate(across(all_of(serv.names), set_logical_with_label)) %>% 
-    mutate(across(matches(day.pattern), set_logical_with_label)) %>% 
-    unite("intervention", all_of(serv.names), sep = ', \n', na.rm = TRUE) %>% 
-    unite("services", contains('type_of_service'), sep = ', ', na.rm = TRUE) %>% 
-    unite("days_open", matches(day.pattern), sep = ', ', na.rm = TRUE) %>% 
+    mutate(across(all_of(serv.names), set_logical_with_label)) %>%
+    mutate(across(matches(day.pattern), set_logical_with_label)) %>%
+    unite("intervention", all_of(serv.names), sep = ', \n', na.rm = TRUE) %>%
+    unite("services", contains('type_of_service'), sep = ', ', na.rm = TRUE) %>%
+    unite("days_open", matches(day.pattern), sep = ', ', na.rm = TRUE) %>%
     mutate(days_open = ifelse(grepl("Yes", Is_the_facility_open_and_acces),
                               "-",
-                              days_open)) %>% 
-    arrange(LGA, Ward) %>% 
-    relocate(intervention, .after = last_col()) %>% 
-    relocate(services, .before = last_col()) %>% 
+                              days_open)) %>%
+    arrange(LGA, Ward) %>%
+    relocate(intervention, .after = last_col()) %>%
+    relocate(services, .before = last_col()) %>%
     setNames(.refdirnames())
 }
 
@@ -75,13 +76,13 @@ prep_ref_directory <- function(df, state, indices, serv.cols, day.pattern, namel
 #' Replaces the logical TRUE in the column with its label. This
 #' features prominently in those columns that have to do with
 #' the type of services/interventions carried out by facilities
-#' 
+#'
 #' @param column A column of the data frame that inherits from class
 #' \code{labelled}.
-#' 
+#'
 #' @return The transformed column, now of type \code{character}.
-#' 
-#' @importFrom labelled var_label 
+#'
+#' @importFrom labelled var_label
 #' @export
 set_logical_with_label <- function(column) {
   if (!is.logical(column)) {
@@ -89,7 +90,7 @@ set_logical_with_label <- function(column) {
     if (booleans > 0 && booleans <= 2)
       column <- as.logical(column)
   }
-  label <- labelled::var_label(column) 
+  label <- labelled::var_label(column)
   ifelse(column, label, NA_character_)
 }
 
@@ -135,11 +136,11 @@ set_logical_with_label <- function(column) {
 
 
 #' Generate File Names for Excel Outputs
-#' 
+#'
 #' @param state The State of interest.
 #' @param type The type of output one of \code{refdir} (for Referral Directory)
 #' or \code{capneed} (for Capacity Needs Assessment).
-#' 
+#'
 #' @export
 generate_filename <- function(state, type) {
   stopifnot(state %in% getOption("jgbv.project.states"))
@@ -177,7 +178,7 @@ SheetName <- function(type = c("capneeds", "refdir")) {
 
 # Creates a formatted table for EXcel
 #' @import xlsx
-writeFormattedExcelSheet <- function(data, path, sheet, header.fill, 
+writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
                                      header.font.colour, na.string = "") {
   stopifnot(length(path) == 1L)
   data <- as.data.frame(data)
@@ -200,7 +201,7 @@ writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
     characterNA = na.string,
     row.names = FALSE
   )
-  
+
   cat(sprintf("Saving workbook for %s State ... ", basename(dirname(path))))
   saveWorkbook(wkbk, path)
   cat("Done\n")
