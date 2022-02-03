@@ -11,7 +11,7 @@ prep_ref_directory(df, state, indices, serv.cols, day.pattern, namelist)
 
 \item{state}{The State under study.}
 
-\item{indices}{A numeric vector of all the column indices that will be used to 
+\item{indices}{A numeric vector of all the column indices that will be used to
 create the tabulation.}
 
 \item{serv.cols}{The columns that contain the interventions provided. Used either
@@ -30,7 +30,7 @@ all those that represent the day a facility operates.}
 In all instances, the value is \emph{the column name} for that variable.}
 }
 \value{
-A modified data frame containing the information required of the 
+A modified data frame containing the information required of the
 State's referral directory.
 }
 \description{

@@ -169,7 +169,17 @@ assertStateInput <- function(state) {
 
 
 
-# Gets or sets worksheet names
+#' Gets or sets worksheet names
+#'
+#' A convenience function for consistent naming of spreadsheets for the
+#' relevant outputs.
+#'
+#' @param type Either \code{capneeds} or \code{refdir}. Partial matching is
+#' allowed.
+#'
+#' @return A character vector of length 1L, nameing the sheet.
+#'
+#' @export
 SheetName <- function(type = c("capneeds", "refdir")) {
   type <- match.arg(type)
   switch(type, capneeds = "CapNeedsAssmt", refdir = "ReferralDirectory")
