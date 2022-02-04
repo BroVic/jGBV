@@ -76,11 +76,11 @@ prep_ref_directory <-
             sep = ", ",
             na.rm = FALSE) %>%
       mutate(days_open = ifelse(
-        grepl("Yes", Is_the_facility_open_and_acces, ignore.case = TRUE),
+        grepl("Yes", !!enquo(namelist$openaccess), ignore.case = TRUE),
         "-",
         days_open
       )) %>%
-      arrange(LGA, Ward) %>%
+      arrange(!!enquo(namelist$lga), !!enquo(namelist$ward)) %>%
       relocate(intervention, .after = last_col()) %>%
       relocate(services, .before = last_col()) %>%
       setNames(.refdirnames())
