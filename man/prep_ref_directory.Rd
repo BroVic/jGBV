@@ -4,7 +4,15 @@
 \alias{prep_ref_directory}
 \title{Make the Referral Directory}
 \usage{
-prep_ref_directory(df, state, indices, serv.cols, day.pattern, namelist)
+prep_ref_directory(
+  df,
+  state,
+  indices,
+  serv.cols,
+  servtyp.pattern,
+  day.pattern,
+  namelist
+)
 }
 \arguments{
 \item{df}{The cleaned data from the State.}
@@ -18,14 +26,15 @@ create the tabulation.}
 as an atomic vector with indices, a regular expression or the actual column names.
 by each category of service provider.}
 
-\item{day.pattern}{A regular expression that represents the \code{colnames} of
-all those that represent the day a facility operates.}
+\item{servtyp.pattern, day.pattern}{A regular expression that represents the
+\code{colnames} of all those that represent the service category of a facility
+and the day it operates, respectively.}
 
 \item{namelist}{A named list with column names as follows:
 \itemize{
   \item \strong{orgname} - Name of the organization.
   \item \strong{orgphone} - Phone number of the organization.
-  \item \strong{gbvcontat} - Contact details of the GBV focal person.
+  \item \strong{gbvcontact} - Contact details of the GBV focal person.
 }
 In all instances, the value is \emph{the column name} for that variable.}
 }

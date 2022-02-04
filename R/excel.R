@@ -10,13 +10,14 @@
 #' @param serv.cols The columns that contain the interventions provided. Used either
 #' as an atomic vector with indices, a regular expression or the actual column names.
 #' by each category of service provider.
-#' @param day.pattern A regular expression that represents the \code{colnames} of
-#' all those that represent the day a facility operates.
+#' @param servtyp.pattern,day.pattern A regular expression that represents the
+#' \code{colnames} of all those that represent the service category of a facility
+#' and the day it operates, respectively.
 #' @param namelist A named list with column names as follows:
 #' \itemize{
 #'   \item \strong{orgname} - Name of the organization.
 #'   \item \strong{orgphone} - Phone number of the organization.
-#'   \item \strong{gbvcontat} - Contact details of the GBV focal person.
+#'   \item \strong{gbvcontact} - Contact details of the GBV focal person.
 #' }
 #' In all instances, the value is \emph{the column name} for that variable.
 #'
@@ -33,42 +34,57 @@
 #' @importFrom stats setNames
 #'
 #' @export
-prep_ref_directory <- function(df, state, indices, serv.cols, day.pattern, namelist) {
-  stopifnot(is.data.frame(df))
-  require(dplyr)
-  require(tidyr)
-  nms <- names(df)
-  serv.names <- if (is.numeric(serv.cols))
-    nms[serv.cols]
-  else if (is.character(serv.cols)) {
-    if (length(serv.cols) == 1L)  # then likely a regex
-      grep(serv.cols, nms, value = TRUE)
+prep_ref_directory <-
+  function (df,
+            state,
+            indices,
+            serv.cols,
+            servtyp.pattern,
+            day.pattern,
+            namelist)
+  {
+    stopifnot(is.data.frame(df))
+    nms <- names(df)
+    serv.names <- if (is.numeric(serv.cols))
+      nms[serv.cols]
+    else if (is.character(serv.cols)) {
+      if (length(serv.cols) == 1L)
+        grep(serv.cols, nms, value = TRUE)
+      else
+        serv.cols
+    }
     else
-      serv.cols
+      stop(quote(serv.cols), " cannot be of type ", typeof(serv.cols))
+    df %>%
+      select(all_of(indices)) %>%
+      rename(name = !!quo(namelist$orgname)) %>%
+      rename(phone = !!quo(namelist$orgphone)) %>%
+      rename(contact_gbv = !!quo(namelist$gbvcontact)) %>%
+      mutate(across(matches(servtyp.pattern), set_logical_with_label)) %>%
+      mutate(across(all_of(serv.names), set_logical_with_label)) %>%
+      mutate(across(matches(day.pattern), set_logical_with_label)) %>%
+      unite("intervention",
+            all_of(serv.names),
+            sep = ", \n",
+            na.rm = FALSE) %>%
+      unite("services",
+            matches(servtyp.pattern),
+            sep = ", ",
+            na.rm = FALSE) %>%
+      unite("days_open",
+            matches(day.pattern),
+            sep = ", ",
+            na.rm = FALSE) %>%
+      mutate(days_open = ifelse(
+        grepl("Yes", Is_the_facility_open_and_acces, ignore.case = TRUE),
+        "-",
+        days_open
+      )) %>%
+      arrange(LGA, Ward) %>%
+      relocate(intervention, .after = last_col()) %>%
+      relocate(services, .before = last_col()) %>%
+      setNames(.refdirnames())
   }
-  else
-    stop(quote(serv.cols), " cannot be of type ", typeof(serv.cols))
-
-  df %>%
-    select(all_of(indices)) %>%
-    rename(name = !!quo(namelist$orgname)) %>%
-    rename(phone = !!quo(namelist$orgphone)) %>%
-    rename(contact_gbv = !!quo(namelist$gbvcontact)) %>%
-    mutate(across(contains('type_of_service'), set_logical_with_label)) %>%
-    mutate(across(all_of(serv.names), set_logical_with_label)) %>%
-    mutate(across(matches(day.pattern), set_logical_with_label)) %>%
-    unite("intervention", all_of(serv.names), sep = ', \n', na.rm = TRUE) %>%
-    unite("services", contains('type_of_service'), sep = ', ', na.rm = TRUE) %>%
-    unite("days_open", matches(day.pattern), sep = ', ', na.rm = TRUE) %>%
-    mutate(days_open = ifelse(grepl("Yes", Is_the_facility_open_and_acces),
-                              "-",
-                              days_open)) %>%
-    arrange(LGA, Ward) %>%
-    relocate(intervention, .after = last_col()) %>%
-    relocate(services, .before = last_col()) %>%
-    setNames(.refdirnames())
-}
-
 
 
 
