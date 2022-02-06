@@ -113,8 +113,6 @@ make_table_df <- function(cols, rows, name = NULL)
 #'
 #' @param hdrs Character vector with the names of the labels for each response
 #'
-#' @importFrom ufs multiResponse
-#'
 #' @return A data frame with summary of multiple responses
 #'
 #' @export
@@ -143,8 +141,6 @@ make_multiresp <- function(hdrs) {
 #' @param column A character vector of the column names
 #' @param opt The options for the dummy table
 #'
-#' @importFrom kableExtra add_header_above
-#' @importFrom kableExtra kable_styling
 #' @importFrom knitr kable
 #'
 #' @export
@@ -170,8 +166,8 @@ make_kable <- function(row, column, opt = NULL) {
   grps <- structure(rep(grpSz, len.column), names = column)
 
   kable(df) %>%
-    kable_styling("striped") %>%
-    add_header_above(c("", grps))
+    kableExtra::kable_styling("striped") %>%
+    kableExtra::add_header_above(c("", grps))
 }
 
 

@@ -46,21 +46,21 @@ test_that("Labels of multi-response questions are stripped of prefixes", {
 
 })
 
-
-test_that("Labels of a data frame are retrieved", {
-   dd <- readRDS("testdata/dft-out.rds")
-
-   expect_identical(get_var_labels(dd), c("X", "A", "B", "C", "Y"))
-   expect_identical(get_var_labels(dd, 1), "X")
-   expect_identical(get_var_labels(dd, 5), "Y")
-   expect_identical(get_var_labels(dd, 3), "B")
-   expect_identical(get_var_labels(dd, 3:4), c("B", "C"))
-   expect_error(get_var_labels(pi), "'data' should be of class data.frame")
-   expect_error(get_var_labels(dd, letters[1:2]),
-                "'ind' should be a numeric vector")
-   expect_error(get_var_labels(dd, 5:6),
-                "Out-of-bounds or missing index in 'ind'")
-})
+## TODO: Function is to be deprecated.
+# test_that("Labels of a data frame are retrieved", {
+#    dd <- readRDS("testdata/dft-out.rds")
+#
+#    expect_identical(get_var_labels(dd), c("X", "A", "B", "C", "Y"))
+#    expect_identical(get_var_labels(dd, 1), "X")
+#    expect_identical(get_var_labels(dd, 5), "Y")
+#    expect_identical(get_var_labels(dd, 3), "B")
+#    expect_identical(get_var_labels(dd, 3:4), c("B", "C"))
+#    expect_error(get_var_labels(pi), "'data' should be of class data.frame")
+#    expect_error(get_var_labels(dd, letters[1:2]),
+#                 "'ind' should be a numeric vector")
+#    expect_error(get_var_labels(dd, 5:6),
+#                 "Out-of-bounds or missing index in 'ind'")
+# })
 
 
 test_that("auto-numbers are generated for tables", {

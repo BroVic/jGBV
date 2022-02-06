@@ -16,11 +16,6 @@
 #' @param ignore_case Logical; whether to consider the case when matching.
 #' @param no. The number of projects to be created as a numeric vector of length 1.
 #'
-#'
-#' @importFrom RQDA closeProject
-#' @importFrom RQDA openProject
-#' @importFrom RQDA write.FileList
-#' @import RQDAassist
 #' @import utils
 #' @importFrom here here
 #' @importFrom purrr map_lgl
@@ -127,14 +122,14 @@ import_transcripts <-
     readline(paste("Select text files to import", anykey))
     tryCatch({
       cat("File import ")
-      openProject(rq)
+      RQDA::openProject(rq)
       filelist <- RQDAassist::make_FileList(choose.files())
-      write.FileList(filelist)
+      RQDA::write.FileList(filelist)
       cat("was successful\n")
     },
     error = function(e)
       cat("failed\n"),
-    finally = closeProject())
+    finally = RQDA::closeProject())
   }
 }
 
@@ -246,10 +241,6 @@ replicate_rqdaproj <- function(serialno, dir, state)
 #'
 #' Selects a number of files to RQDA based on a regular expression
 #' matched on the filename.
-#' @importFrom RQDA openProject
-#' @importFrom RQDA closeProject
-#' @importFrom RQDA write.FileList
-#' @importFrom RQDAassist make_FileList
 #'
 #' @param proj The path to the RQDA project.
 #' @param pattern A regular expression for matching selected files.
@@ -265,10 +256,10 @@ replicate_rqdaproj <- function(serialno, dir, state)
 write_files_to_project <- function(proj, pattern = NULL, ignore_case = FALSE, sourcedir = NULL) {
   files <-
     list.files(sourcedir, pattern, ignore.case = ignore_case, full.names = TRUE)
-  browser()
+
   flist <- RQDAassist::make_FileList(files)
   message("Writing text files to project ", basename(proj))
-  openProject(proj)
-  on.exit(closeProject())
-  write.FileList(flist)
+  RQDA::openProject(proj)
+  on.exit(RQDA::closeProject())
+  RQDA::write.FileList(flist)
 }

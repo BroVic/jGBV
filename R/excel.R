@@ -221,26 +221,24 @@ SheetName <- function(type = c("capneeds", "refdir")) {
 #'
 #' @return No return value. Used for its side effects.
 #'
-#' @import xlsx
-#'
 #' @export
 writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
                                      header.font.colour, na.string = "") {
   stopifnot(length(path) == 1L)
   data <- as.data.frame(data)
   wkbk <- if (file.exists(path))
-    loadWorkbook(path)
+    xlsx::loadWorkbook(path)
   else
-    createWorkbook()
-  mysheets <- getSheets(wkbk)
+    xlsx::createWorkbook()
+  mysheets <- xlsx::getSheets(wkbk)
   if (sheet %in% names(mysheets))
-    removeSheet(wkbk, sheet)
-  sheetObj <- createSheet(wkbk, sheet)
-  hdrStyle <- CellStyle(wkbk) +
-    Fill(foregroundColor = header.fill) +
-    Font(wkbk, color = header.font.colour, isBold = TRUE) +
-    Border()
-  addDataFrame(
+    xlsx::removeSheet(wkbk, sheet)
+  sheetObj <- xlsx::createSheet(wkbk, sheet)
+  hdrStyle <- xlsx::CellStyle(wkbk) +
+    xlsx::Fill(foregroundColor = header.fill) +
+    xlsx::Font(wkbk, color = header.font.colour, isBold = TRUE) +
+    xlsx::Border()
+  xlsx::addDataFrame(
     data,
     sheetObj,
     colnamesStyle = hdrStyle,
@@ -249,7 +247,7 @@ writeFormattedExcelSheet <- function(data, path, sheet, header.fill,
   )
 
   cat(sprintf("Saving workbook for %s State ... ", basename(dirname(path))))
-  saveWorkbook(wkbk, path)
+  xlsx::saveWorkbook(wkbk, path)
   cat("Done\n")
 }
 

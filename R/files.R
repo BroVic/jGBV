@@ -38,7 +38,6 @@ list_files_pattern <- function(dir = ".", pattern) {
 #' @param to_markdown Logical; whether to convert to markdown or not
 #'
 #' @import stringr
-#' @importFrom readtext readtext
 #'
 #' @return The path to the converted text file.
 #'
@@ -61,7 +60,7 @@ convert_word_to_text <- function(docpath, dest = ".", to_markdown = FALSE)
     warning = function(w) w)
   }
   else {
-    readtextObj <- readtext(docpath)
+    readtextObj <- readtext::readtext(docpath)
     cat(readtextObj$text, file = txtpath)
   }
   txtpath

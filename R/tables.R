@@ -35,9 +35,7 @@ globalVariables(c(
 #'
 #' @importFrom dplyr as_tibble
 #' @importFrom flextable set_caption
-#' @importFrom forcats fct_reorder
 #' @importFrom purrr map_dfc
-#' @importFrom ufs multiResponse
 #'
 #' @export
 table_multiopt <-
@@ -77,7 +75,7 @@ table_multiopt <-
       mutate(Variable = Option) %>%
       relocate(Variable, .after = Option) %>%
       mutate(Variable = factor(Variable) %>%
-               fct_reorder(Frequency, .desc = TRUE)) %>%
+               forcats::fct_reorder(Frequency, .desc = TRUE)) %>%
       arrange(desc(Frequency)) %>%
       select(!last_col(offset = 1L)) %>%
       mutate(across(last_col(), ~ round(.x, digits = 1)))
@@ -283,7 +281,7 @@ get_value_labels <-
 
 
 
-
+## TODO: Deprecate
 #' Get Variable Labels
 #'
 #' Retrieve all the labels of designated columns of a data frame
@@ -406,8 +404,6 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 #'
 #' @param bookmark A string to represent the bookmark used in a given document
 #' @param ... Other arguments passed on to \code{\link[officer]{run_autonum}}.
-#'
-#' @importFrom officer run_autonum
 #'
 #' @return See the documentation for \code{officer::run_autonum}.
 #'
