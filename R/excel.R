@@ -1,3 +1,5 @@
+globalVariables(c("days_open", "intervention", "services"))
+
 #' Make the Referral Directory
 #'
 #' Creates a data frame of the referral directory of the State, which can be

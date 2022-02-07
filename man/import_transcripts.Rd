@@ -19,6 +19,8 @@ lga_matching_function(state, ...)
 \code{NULL}, a file selection dialog is presented to the user - this only works
 in interactive sessions.}
 
+\item{patterns}{A regular expression or matching string for selecting LGAs.}
+
 \item{ignore_case}{Logical; whether to consider the case when matching.}
 
 \item{no.}{The number of projects to be created as a numeric vector of length 1.}
@@ -28,8 +30,6 @@ extracted.}
 
 \item{...}{Optional list of States to be manually provided for pattern
 selection.}
-
-\item{pattern}{A regular expression or matching string for selecting LGAs.}
 }
 \value{
 For \code{lga_match_function}, a function that takes a list of patterns

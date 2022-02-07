@@ -1,11 +1,11 @@
 globalVariables(c(
   "Variable",
   "Option",
-  "Response",
   "Frequency",
-  "Option",
-  "name_of_lga"
+  "name_of_lga",
+  "Freq"
 ))
+
 
 #' Make a frequency tabulation
 #'

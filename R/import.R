@@ -12,7 +12,7 @@
 #' @param zipfile Path to a ZIP archive containing interview transcripts. When
 #' \code{NULL}, a file selection dialog is presented to the user - this only works
 #' in interactive sessions.
-#' @param pattern A regular expression or matching string for selecting LGAs.
+#' @param patterns A regular expression or matching string for selecting LGAs.
 #' @param ignore_case Logical; whether to consider the case when matching.
 #' @param no. The number of projects to be created as a numeric vector of length 1.
 #'
@@ -70,7 +70,7 @@ import_transcripts <-
       map_lgl(extracted, function(fn)
         file.rename(fn, .changenames(fn)))
     if (sum(!result)) {
-      notchanged <- allfiles[!result]
+      notchanged <- extracted[!result]
       cat("Filenames not changed:\n", sprintf("* %s\n", notchanged))
     }
   }

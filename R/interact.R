@@ -72,6 +72,6 @@ confirm_state <- function(x = NULL) {
 #'
 #' @export
 pick_one_state <- function() {
-  ss <- .confirmStates()
+  ss <- confirm_state()
   ss[menu(ss, TRUE, "Select a State")]
 }

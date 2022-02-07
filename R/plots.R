@@ -1,4 +1,6 @@
-globalVariables(c("Variable", "Percentage of Facilities"))
+globalVariables(
+  c("Variable", "Percentage of Facilities", "Response", "Frequency")
+)
 
 plot_multiopt <- function(x, ...)
   UseMethod("plot_multiopt")
