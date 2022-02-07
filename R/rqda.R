@@ -21,16 +21,29 @@ launch_rqda <- function() {
 
 
 
-#' Get the paths to RQDA project
+#' Get the paths to RQDA projects
 #'
-#' Collect RQDA projects developed by different collaborators
+#' A convenience function for collecting RQDA projects developed by
+#' different collaborators.
 #'
-#' @param datafolder The directory housing the projects
+#' @param datafolder The directory housing the projects. The default
+#' value is internally determined and is a vestige from older projects
+#' that is there only for backward compatibility.
+#'
+#' @return A character vector whose elements are the absolute paths to
+#' individual RQDA projects.
 #'
 #' @export
-get_rqda_projs <- function(datafolder = here::here("data/qual/rqda")) {
-  stopifnot(dir.exists(datafolder))
-  list.files(datafolder, '\\.rqda$', full.names = TRUE)
+get_rqda_projs <- function(datafolder = NULL) {
+  if (is.null(datafolder))
+    datafolder <- here::here("data/qual/rqda") # applies to old project
+  pqDir <- sQuote(datafolder, q = FALSE)
+  if (!dir.exists(datafolder))
+    stop("The directory ", pqDir, " does not exist")
+  ff <- list.files(datafolder, '\\.rqda$', full.names = TRUE)
+  if (!length(ff))
+    warning("No RQDA projects were found in ", pqDir)
+  ff
 }
 
 
