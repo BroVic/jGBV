@@ -1,0 +1,122 @@
+---
+title: "`r sprintf('CAPACITY ASSESSMENT OF FIRST RESPONDERS ON PROVISION OF GBV SERVICES IN LGAs OF %s STATE', toupper(params$state))`"
+author: "Jhpiego"
+date: "`r Sys.Date()`"
+output:
+  bookdown::word_document2:
+    toc: 2
+    fig_caption: true
+    reference_docx: capacity-needs-styles.docx
+  html_document: default
+params: 
+  state: NULL
+editor_options:
+  chunk_output_type: console
+knit: (function(inputfile, encoding) { rmarkdown::render(inputfile, encoding = encoding, output_dir = here::here("out"))})
+---
+
+```{r, cache = FALSE, include = FALSE}
+knitr::read_chunk(here::here("src/capacity-needs-ext.R"))
+```
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+```
+
+```{r additional-functions}
+gt_one <- function(df) {
+  stopifnot(is.data.frame(df))
+  nrow(df) > 1L
+}
+
+empty_place <- function() cat("[Insert value]")
+```
+
+
+# Capacity of First Responders
+The availability of designated or trained GBV first-responders was assessed in the various facilities. Of the `r nrow(capdata)` establishments, `r statGBV(capdata, "perc", 'gbv')` do not have GBV focal persons but have staff randomly providing GBV services when clients present. Out of `r statGBV(allcap$health, 'total', 'gbv')` respondents rendering healthcare services, only `r statGBV(allcap$health, 'sum', 'gbv')` (`r statGBV(allcap$health, 'perc', 'gbv')`) are designated GBV focal persons for their respective facilities. However, a greater proportion of law enforcement agencies had GBV focal persons -- `r statGBV(allcap$law, 'perc', 'gbv')` agencies assessed. Other service provider areas seem to have higher preponderance of designated personnel as `r statGBV(allcap$legal, 'sum', 'gbv')` out of `r statGBV(allcap$legal, 'total', 'gbv')` (`r statGBV(allcap$legal, 'perc', 'gbv')`) assessed that provide legal aid are GBV focal persons, `r statGBV(allcap$shelter, 'sum', 'gbv')` out of `r statGBV(allcap$shelter, 'total', 'gbv')` (`r statGBV(allcap$shelter, 'perc', 'gbv')`) providers in temporary shelter and `r statGBV(allcap$psycho, 'sum', 'gbv')` out of `r statGBV(allcap$psycho, 'total', 'gbv')` (`r statGBV(allcap$psycho, 'perc', 'gbv')`) in those providing psycho-social support.  
+
+Analysis by sex showed proportion of female GBV service providers in the health (`r statGBV(allcap$health, 'perc', 'gender')`), temporary shelter (`r statGBV(allcap$shelter, 'perc', 'gender')`) and legal aid sectors (`r statGBV(allcap$legal, 'perc', 'gender')`). In the law enforcement sector, `r statGBV(allcap$law, 'perc', 'gender')` were female officers while `r paste0(100 - as.numeric(sub("^(\\d+\\.?\\d{1})(%)$", "\\1", statGBV(allcap$psycho, 'perc', 'gender'))), "%")` of the operators providing psycho-social support were male.
+
+# Available Skills and Knowledge
+## Health Services
+The accompanying chart shows that of the `r nrow(allcap$health)` facilities providing healthcare services, `r statGBV(allcap$health, 'perc', fixOffset(6))` have received training in HIV/STI testing and treatment; other clinical skills for which they have been trained include effective referrals (`r statGBV(allcap$health, 'perc', fixOffset('referrals', allcap$health))`), examination and treatment of adolescent survivors (`r statGBV(allcap$health, 'perc', fixOffset('examination and treat', allcap$health))`) as well as emergency contraception (`r statGBV(allcap$health, 'perc', fixOffset('contraceptive', allcap$health))`). In terms of communication and documentation, `r statGBV(allcap$health, 'perc', fixOffset('communication', allcap$health))` have been trained on effective communication, `r statGBV(allcap$health, 'perc', fixOffset('documentation', allcap$health))` on documentation, while `r statGBV(allcap$health, 'perc', fixOffset('confidentiality', allcap$health))` have been trained on maintaining patient confidentiality.
+
+However, there is a general lack of capacity on psychosocial support counseling (LIVES) and basic care for post-GBV survivors, as only `r statGBV(allcap$health, 'sum', fixOffset('referrals', allcap$health))` (`r empty_place()`) of healthcare workers have been trained. Findings also showed that only one-fifth of those interviewed have received basic training on GBV (`r empty_place()`), clinical management of rape (`r empty_place()`) and clinical management of rape services for children (`r empty_place()`).
+
+Overall, low capacity was recorded in medico-legal report writing (`r statGBV(allcap$health, 'perc', fixOffset('medico', allcap$health))`), testifying in court (`r statGBV(allcap$health, 'perc', fixOffset('testify', allcap$health))`) and forensic examination (`r statGBV(allcap$health, 'perc', fixOffset('forensic', allcap$health))`). This indicates that most GBV survivors willing to press charges against suspected perpetrators may find it difficult to get justice because forensic evidence and testifying in courts are key requirements. 
+
+```{r health-chart, eval = gt_one(allcap$health), fig.cap="GBV-related Training for Health Service Providers"}
+
+```
+
+## Law Enforcement
+A total of `r nrow(allcap$law)` law enforcement officers were assessed and `r statGBV(allcap$law, 'sum', fixOffset('safety', allcap$law))` of them have received the requisite essential GBV training in subjects ranging from safety planning (`r statGBV(allcap$law, 'perc', fixOffset('safety', allcap$law))`), ‘how to testify in court’ (`r statGBV(allcap$law, 'perc', fixOffset('testify', allcap$law))`), patient confidentiality (`r statGBV(allcap$law, 'perc', fixOffset('confidentiality', allcap$law))`), and effective communication (`r statGBV(allcap$law, 'perc', fixOffset('communication', allcap$law))`). However, only `r statGBV(allcap$law, 'perc', fixOffset('forensic', allcap$law))` have been trained on forensic examination. The inability of a significant proportion of officers to conduct forensic examinations may affect the success prosecutions in court.
+
+```{r lawenf-chart, eval = gt_one(allcap$law), fig.cap="GBV-related Training for Law Enforcement Officers"}
+
+```
+
+## Legal Aid Services
+```{r}
+nleg <- nrow(allcap$legal)
+nconf <- allcap$legal %>% statGBV('sum', fixOffset('confidentiality', .))
+```
+
+Only `r nleg` legal aid service providers were assessed -- `r if (nconf == nleg) "all" else nconf` have received the requisite training on maintaining patient confidentiality as well as on effective communication. `r allcap$legal %>% statGBV('perc', fixOffset('safety', .))` had received training on safety planning and on basic GBV interventions. Only `r allcap$legal %>% statGBV('sum', fixOffset('testify', .))` individual said that they had knowledge about the following: laws and policies on GBV and human rights; proper documentation and basic psychosocial support counseling; effective referrals; and handling of GBV case evidence (`r allcap$legal %>% statGBV('perc', fixOffset('testify', .))`).
+
+```{r legal-chart, eval = gt_one(allcap$legal), fig.cap="GBV-related Training for Legal Aid Providers"}
+
+```
+
+## Psycho-Social Support Services
+Out of the `r nrow(allcap$psycho)` psycho-social support service providers assessed, `r statGBV(allcap$psycho, 'perc', fixOffset('survivor', allcap$psycho))` have the skills to offer survivor-centred post-GBV interventions. `r statGBV(allcap$psycho, 'sum', fixOffset('understanding', allcap$psycho))` have been trained on effective communication and provision of post GBV care; effective referrals and follow-up, gender mainstreaming, guiding principles of case management, prevention of sexual exploitation and abuse. 
+
+```{r psycho-chart, eval = gt_one(allcap$psycho), fig.cap="GBV-related Training for Psycho-Social Support Providers"}
+
+```
+
+## Temporary Shelter Services
+Of the 2 safe homes only 1 of them was trained in provision of post-GBV care. `r empty_place()` indicated being trained in the following: effective communication; effective referrals, survivor-centred approaches; guiding principles of case management, and of post-GBV care; mental health; safety, security and dignity in shelters/settlements; and prevention of sexual exploitation and abuse. 
+
+```{r shelter-chart, eval = gt_one(allcap$shelter), fig.cap="GBV-related Training for Shelter Services"}
+
+```
+
+---
+
+# Summary of Responses on GBV Service Capacity 
+## Health Services
+
+```{r health-table}
+makeTable("health", serviceAreas[1])
+```
+
+<br>
+
+## Law Enforcement
+```{r lawenf-table}
+makeTable('law', serviceAreas[2])
+```
+
+<br>
+
+## Legal Aid Services
+```{r legal-table}
+makeTable('legal', serviceAreas[3])
+```
+
+<br>
+
+## Psycho-Social Support Services
+```{r psycho-table}
+makeTable('psycho', serviceAreas[4])
+```
+
+<br>
+
+## Temporary Shelter Services
+```{r shelter-table}
+makeTable('shelter', serviceAreas[5])
+```
+
+<br>

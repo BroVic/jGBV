@@ -179,3 +179,97 @@ rqda_is_installed <- function() {
     warning("You may install RQDA with `RQDAassist::install()`")
   installed
 }
+
+
+
+
+
+
+
+
+#' Display current RQDA codes for the project
+#'
+#' @param dir Path to the directory to which to save the persistent data.
+#' Defaults to the folder containing the RQDA project file.
+#'
+#' @export
+view_rqdacodes <- function(dir) {
+  codes <- readRDS(file.path(dir, "CODES.rds"))
+  cat(codes, sep = "\n")
+}
+
+
+
+
+
+
+
+
+
+
+#' Get the coding table from RQDA projects from collaborators
+#'
+#' @param path A path to a directory, zip file or RQDA projecct file
+#'
+#' @description This function is designed to just fetch RQDA projects
+#' with as little hassle as possible. So whether it's a directory, or
+#' a compressed archive or an RQDA project file itself, the codes will
+#' be extracted.
+#'
+#' @description In the event that there are several RQDA files in the
+#' accessed directory, they will all be extracted and merged into one
+#' single table. No further transformation is carried out, thereafter.
+#'
+#' @import DBI
+#' @import RSQLite
+#' @importFrom purrr map_df
+#' @importFrom utils file_test
+#'
+#' @return The coding table as an R \code{data.frame}.
+#'
+#' @export
+obtain_rqda_codes <- function(path) {
+  if (!rqda_is_installed())
+    stop("Required package 'RQDA' is not installed")
+  stopifnot(is.character(path))
+  isZipfile <- endsWith(path, ".zip")
+  finalDir <-
+    if (file_test("-d", path))
+      path
+  else if (file_test("-f", path)) {
+    if (isZipfile)
+      extract_zipfile(path)
+    sub("\\.[[:alpha:]]+$", "", path)
+  }
+  else
+    stop("'path' is incorrect or non-existent", call. = FALSE)
+
+  rqdafile <-
+    if (endsWith(path, ".rqda"))
+      path
+  else
+    list_files_pattern(finalDir, "\\.rqda$")
+
+  projectsFound <- length(rqdafile)
+  if (projectsFound == 0L) {
+    if (isZipfile) {
+      unlink(finalDir, recursive = TRUE, force = TRUE)
+      warning("Created extraction directory ",
+              sQuote(finalDir),
+              " was removed")
+    }
+    stop("RQDA project file not found in ", sQuote(finalDir), call. = FALSE)
+  }
+  else if (projectsFound > 1L)
+    warning("More than one RQDA project file found")
+
+  map_df(rqdafile, function(proj) {
+    tryCatch({
+      RQDA::openProject(proj)
+      codes <- RQDA::getCodingTable()
+      on.exit(RQDA::closeProject())
+      codes
+    }, error = function(e)
+      e)
+  })
+}

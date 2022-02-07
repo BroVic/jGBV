@@ -11,7 +11,6 @@
 #' regular expressions, one for each questions, that can be utilized in
 #' carrying out string matching during the analysis.
 #'
-#' @importFrom Hmisc escapeRegex
 #' @importFrom stats setNames
 #'
 #' @param questions A character vector of the question(s)
@@ -28,7 +27,7 @@ interview <- function(questions)
 {
   len <- length(unlist(questions))
   nms <- rep(NA, len)
-  rgx <- escapeRegex(questions)
+  rgx <- Hmisc::escapeRegex(questions)
   obj <- list()
 
   for (i in seq_along(questions)) {

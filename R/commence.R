@@ -1,3 +1,12 @@
+globalVariables(c(
+  "Open_date",
+  "GBV_date",
+  "GBV_period",
+  "Open_period",
+  "Period",
+  "Type of Period"
+))
+
 #' Ouputs on Opening and Commencement of GBV Services for a State
 #'
 #' @import dplyr

@@ -2,20 +2,36 @@
 % Please edit documentation in R/report.R
 \name{open_template}
 \alias{open_template}
-\title{Open a New R Markdown Template}
+\alias{clone_template}
+\title{R Markdown Templates}
 \usage{
-open_template(type = c("dummy", "report", "codebook"), ...)
+open_template(
+  tmplname,
+  type = c("dummy", "report", "codebook", "capacity"),
+  ...
+)
+
+clone_template()
 }
 \arguments{
+\item{tmplname}{A string naming the actual template.}
+
 \item{type}{A character vector of length 1L, representing the type of template
-to be loaded. One of \emph{'dummy'}, \emph{'report'}, or
-\emph{'codebook'}.}
+to be loaded. One of \emph{dummy}, \emph{report}, \emph{codebook}, or
+\emph{capacity}.}
 
 \item{...}{Other arguments passed on to \code{\link[rmarkdown]{draft}},
 apart from \code{file}, \code{template}, and \code{package}, which are
 set internally.}
 }
+\value{
+These functions will create base R Markdown documents that the
+the user can now modify fo reporting. Every effort is being made to
+increasingly automating the actual process of building the reports.
+}
 \description{
-Creates an R Markdown template for various types of intermediate as well as
-final project outputs such as dummy tables, analysis reports, etc.
+\code{open_template} creates an R Markdown template for various types of
+intermediate as well as final project outputs such as dummy tables, analysis
+reports, etc. \code{clone_template} creates a clone of the main reporting
+template.
 }

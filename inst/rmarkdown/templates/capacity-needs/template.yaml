@@ -1,0 +1,4 @@
+name: capacity-needs
+description: >
+   R Markdown template for the capacity needs assessment output for Jhpiego Nigeria's GBV assessments
+create_dir: FALSE

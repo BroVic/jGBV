@@ -1,11 +1,11 @@
 globalVariables(c(
   "Variable",
   "Option",
-  "Response",
   "Frequency",
-  "Option",
-  "name_of_lga"
+  "name_of_lga",
+  "Freq"
 ))
+
 
 #' Make a frequency tabulation
 #'
@@ -18,7 +18,7 @@ globalVariables(c(
 #' that way, there is no need to set the argument, each time the function
 #' is called.
 #'
-#' @param x The data
+#' @param data The data
 #' @param dictionary The data dictionary
 #' @param indices Numeric vector representing indices of columns chosen
 #' @param use.regex Logical; whether to use label patterns to determine
@@ -35,13 +35,11 @@ globalVariables(c(
 #'
 #' @importFrom dplyr as_tibble
 #' @importFrom flextable set_caption
-#' @importFrom forcats fct_reorder
 #' @importFrom purrr map_dfc
-#' @importFrom ufs multiResponse
 #'
 #' @export
 table_multiopt <-
-  function(x,
+  function(data,
            dictionary = NULL,
            indices,
            use.regex = TRUE,
@@ -49,9 +47,9 @@ table_multiopt <-
            redcap = getOption("data.on.redcap"),
            ...) {
     if (is.null(dictionary)) {
-      dictionary <- makeDictionary(x)
+      dictionary <- makeDictionary(data)
     }
-    if (nrow(dictionary) != ncol(x))
+    if (nrow(dictionary) != ncol(data))
       stop(
         "'data' and 'dictionary' are incompatible:
              `nrow(dictionary)` is not equal to `ncol(data)`"
@@ -59,7 +57,7 @@ table_multiopt <-
     if (is.null(redcap)) redcap <- TRUE  # for backward compatibility
     opts <- get_value_labels(dictionary, indices, use.regex, redcap = redcap)
 
-    mult <- x %>%
+    mult <- data %>%
       select(all_of(indices)) %>%
       map_dfc( ~ ifelse(is.na(.x), 0L, .x)) %>%
       ufs::multiResponse() %>%
@@ -77,7 +75,7 @@ table_multiopt <-
       mutate(Variable = Option) %>%
       relocate(Variable, .after = Option) %>%
       mutate(Variable = factor(Variable) %>%
-               fct_reorder(Frequency, .desc = TRUE)) %>%
+               forcats::fct_reorder(Frequency, .desc = TRUE)) %>%
       arrange(desc(Frequency)) %>%
       select(!last_col(offset = 1L)) %>%
       mutate(across(last_col(), ~ round(.x, digits = 1)))
@@ -106,9 +104,9 @@ table_multiopt <-
 #' @import flextable
 #' @importFrom labelled var_label
 #'
-#' @param .data The data frame.
+#' @param data The data
 #' @param x,y An integer or character vector of length \code{1L} for selecting
-#' a column from \code{.data}.
+#' a column from \code{data}.
 #' @param table.only Logical
 #' @param data.only Logical
 #'
@@ -117,18 +115,18 @@ table_multiopt <-
 #'
 #' @export
 table_singleopt <-
-  function(.data,
+  function(data,
            x,
            y,
            table.only = FALSE,
            data.only = FALSE) {
-    if (!is.data.frame(.data))
+    if (!is.data.frame(data))
       stop("'.data' should be a data frame")
     if (table.only && data.only)
       stop("'table.only' and 'data.only' cannot both be TRUE at the same time")
-    x <- .data[[x]]
+    x <- data[[x]]
     if (!missing(y))
-      y <- .data[[y]]
+      y <- data[[y]]
     lbs <- labelled::var_label(x)
 
     t <- if (missing(y))
@@ -188,7 +186,7 @@ table_singleopt <-
 #'
 #' @rdname tables
 #'
-#' @param data The data.
+#' @param data The data
 #' @param col The column with the responses
 #' @param data.only Return only the \code{data.frame}?
 #' @param ... Additional response options, if they exist.
@@ -283,13 +281,13 @@ get_value_labels <-
 
 
 
-
+## TODO: Deprecate
 #' Get Variable Labels
 #'
 #' Retrieve all the labels of designated columns of a data frame
 #'
 #' @param data A data frame
-#' @param ind A numeric vector representing columns
+#' @param ind A numeric or character vector representing columns
 #'
 #' @importFrom labelled var_label
 #' @importFrom purrr map_chr
@@ -297,16 +295,22 @@ get_value_labels <-
 #' @return A character vector of label names
 #'
 #' @export
-get_var_labels <- function(data, ind = NA_integer_) {
+get_var_labels <- function(data, ind) {
   if (!is.data.frame(data))
     stop("'data' should be of class data.frame")
-  if (!is.numeric(ind))
-    stop("'ind' should be a numeric vector")
+  if (!is.numeric(ind) && !is.character(ind))
+    stop(paste("The data cannot be subset with an object of type", typeof(ind)))
+  if (is.character(ind)) {
+    nm <- names(data)
+    if (!all(ind %in% nm))
+      stop("Any strings must be valid variable names")
+    ind <- match(ind, nm)
+  }
   dfi <- seq_along(data)
   if (all(is.na(ind)))
     ind <- dfi
   if (any(!ind %in% dfi))
-    stop("Out-of-bounds or missing index in 'ind'")
+    stop("Out-of-bounds or missing index")
   purrr::map_chr(ind, ~ var_label(data[[.x]]))
 }
 
@@ -400,8 +404,6 @@ table_yesno <- function(data, col, data.only = FALSE, ...) {
 #'
 #' @param bookmark A string to represent the bookmark used in a given document
 #' @param ... Other arguments passed on to \code{\link[officer]{run_autonum}}.
-#'
-#' @importFrom officer run_autonum
 #'
 #' @return See the documentation for \code{officer::run_autonum}.
 #'

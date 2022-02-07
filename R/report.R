@@ -61,7 +61,73 @@ build_report <-
 
 
 
-#' Create A Clone of the Reporting Template
+
+
+#' R Markdown Templates
+#'
+#' \code{open_template} creates an R Markdown template for various types of
+#' intermediate as well as final project outputs such as dummy tables, analysis
+#' reports, etc. \code{clone_template} creates a clone of the main reporting
+#' template.
+#'
+#' @param tmplname A string naming the actual template.
+#' @param type A character vector of length 1L, representing the type of template
+#' to be loaded. One of \emph{dummy}, \emph{report}, \emph{codebook}, or
+#' \emph{capacity}.
+#' @param ... Other arguments passed on to \code{\link[rmarkdown]{draft}},
+#' apart from \code{file}, \code{template}, and \code{package}, which are
+#' set internally.
+#'
+#' @importFrom rmarkdown draft
+#'
+#' @return These functions will create base R Markdown documents that the
+#' the user can now modify fo reporting. Every effort is being made to
+#' increasingly automating the actual process of building the reports.
+#'
+#' @export
+open_template <-
+  function(tmplname,
+           type = c("dummy", "report", "codebook", "capacity"),
+           ...)
+  {
+    dir <- if (missing(tmplname)) {
+      type <- match.arg(type)
+      .Templates(type)
+    }
+    else
+      tmplname
+    if(!nzchar(system.file("rmarkdown/templates", dir, package = thisPkg())))
+      stop("There is no template ", sQuote(dir))
+    fn <- paste0(dir, ".Rmd")
+    rmarkdown::draft(fn, dir, thisPkg(), ...)
+  }
+
+
+
+
+
+
+
+# Picks one out of several available R Markdown templates
+.Templates <- function(tmpl) {
+  dirs <- c(
+    "dummy-tables",
+    "report-gbv",
+    "codebook-survey",
+    "capacity-needs"
+  )
+  ll <- lapply(dirs, function(str) list(dirname = str))
+  names(ll) <- sub("(^[[:alpha:]]+)([[:punct:]])(.+)", "\\1", dirs)
+  ll[[tmpl]]$dirname
+}
+
+
+
+
+
+
+
+#' @rdname open_template
 #'
 #' @importFrom here here
 #' @importFrom utils file.edit
@@ -82,7 +148,7 @@ clone_template <- function() {
       "gbv-report",
       "skeleton",
       "skeleton.Rmd",
-      package = 'raampGBV',
+      package = thisPkg(),
       mustWork = TRUE
     ),
     new.tmp
@@ -110,47 +176,6 @@ clone_template <- function() {
   tmpl
 }
 
-
-
-
-
-
-
-#' Open a New R Markdown Template
-#'
-#' Creates an R Markdown template for various types of intermediate as well as
-#' final project outputs such as dummy tables, analysis reports, etc.
-#'
-#' @param type A character vector of length 1L, representing the type of template
-#' to be loaded. One of \emph{'dummy'}, \emph{'report'}, or
-#' \emph{'codebook'}.
-#' @param ... Other arguments passed on to \code{\link[rmarkdown]{draft}},
-#' apart from \code{file}, \code{template}, and \code{package}, which are
-#' set internally.
-#'
-#' @importFrom rmarkdown draft
-#'
-#' @export
-open_template <- function(type = c("dummy", "report", "codebook"), ...)
-{
-  type <- match.arg(type)
-  fn <- paste0(type, ".Rmd")
-
-  .Templates <-
-    list( # Likely to be shared with other functions, so prepared in advance
-      dummy = list(dirname = "dummy-tables"),
-      report = list(dirname = "gbv-report"),
-      codebook = list(dirname = "survey-codebook")
-    )
-
-  dir <-
-    switch(type,
-           dummy = .Templates$dummy$dirname,
-           report = .Templates$report$dirname,
-           codebook = .Templates$codebook$dirname)
-
-  rmarkdown::draft(fn, dir, thisPkg(), ...)
-}
 
 
 

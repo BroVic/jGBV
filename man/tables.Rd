@@ -7,7 +7,7 @@
 \title{Make a frequency tabulation}
 \usage{
 table_multiopt(
-  x,
+  data,
   dictionary = NULL,
   indices,
   use.regex = TRUE,
@@ -16,12 +16,12 @@ table_multiopt(
   ...
 )
 
-table_singleopt(.data, x, y, table.only = FALSE, data.only = FALSE)
+table_singleopt(data, x, y, table.only = FALSE, data.only = FALSE)
 
 table_yesno(data, col, data.only = FALSE, ...)
 }
 \arguments{
-\item{x}{The data}
+\item{data}{The data}
 
 \item{dictionary}{The data dictionary}
 
@@ -37,16 +37,12 @@ for which the data were stored on REDCap?}
 
 \item{...}{Additional response options, if they exist.}
 
-\item{.data}{The data frame.}
+\item{x, y}{An integer or character vector of length \code{1L} for selecting
+a column from \code{data}.}
 
 \item{table.only}{Logical}
 
-\item{data}{The data.}
-
 \item{col}{The column with the responses}
-
-\item{x, y}{An integer or character vector of length \code{1L} for selecting
-a column from \code{.data}.}
 }
 \value{
 An object of class \code{flextable} (or when \code{table.only} is
