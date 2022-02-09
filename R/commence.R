@@ -27,6 +27,13 @@ globalVariables(c(
 #'
 #' @export
 outputs_commencement <- function(.data, open, gbv, format = "%Y") {
+  convertToDateClass <- function(x) {
+    if (is.character(x))
+      as.Date(x)
+    else if (is.numeric(x))
+      as.Date(x, origin = "1970-01-01")
+  }
+  .data <- mutate(.data, across(all_of(c(open, gbv)), convertToDateClass))
   minmax <- .data[[open]] %>%
     format(format) %>%
     as.numeric() %>%
