@@ -42,7 +42,7 @@ table_multiopt <-
   function(data,
            dictionary = NULL,
            indices,
-           use.regex = TRUE,
+           use.regex = getOption("use.regex"),
            data.only = FALSE,
            redcap = getOption("data.on.redcap"),
            ...) {
