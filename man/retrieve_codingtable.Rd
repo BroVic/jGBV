@@ -25,9 +25,5 @@ when more than one are combined.
 Gets a data frame of all the codings across one or more RQDA projects.
 }
 \details{
-By default, \code{query} is used to provide a coding table
-from the project that has the following relations: rowid, cid, fid,
-codename, filename, index1, index2, CodingLength, codecat, and coder.
-For addition details, visit
-\code{\link[RQDA::RQDATables]RQDA::RQDATables}.
+
 }
