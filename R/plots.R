@@ -146,7 +146,7 @@ show_output.data.frame <-
   function(x,
            index,
            type = c("both", "plot", "table"),
-           use.regex = TRUE,
+           use.regex = getOption("use.regex"),
            ...)
   {
     if (length(index) == 1L)
