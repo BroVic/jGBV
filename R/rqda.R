@@ -64,7 +64,7 @@ get_rqda_projs <- function(datafolder = NULL) {
 #' from the project that has the following relations: rowid, cid, fid,
 #' codename, filename, index1, index2, CodingLength, codecat, and coder.
 #' For addition details, visit
-#' \code{\link{[RQDA::RQDATables]{RQDA::RQDATables}}}.
+#' \code{\link[RQDA]{RQDATables}}.
 #'
 #' @return A data frame containing the data, either singly or stacked
 #' when more than one are combined.
