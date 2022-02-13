@@ -68,15 +68,16 @@ prep_ref_directory <-
       unite("intervention",
             all_of(serv.names),
             sep = ", \n",
-            na.rm = FALSE) %>%
+            na.rm = TRUE) %>%
+      mutate(intervention = gsub("\\n", "", intervention)) %>%
       unite("services",
             matches(servtyp.pattern),
             sep = ", ",
-            na.rm = FALSE) %>%
+            na.rm = TRUE) %>%
       unite("days_open",
             matches(day.pattern),
             sep = ", ",
-            na.rm = FALSE) %>%
+            na.rm = TRUE) %>%
       mutate(days_open = ifelse(
         grepl("Yes", !!quo(namelist$openaccess), ignore.case = TRUE),
         "-",
