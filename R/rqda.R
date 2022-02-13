@@ -64,7 +64,7 @@ get_rqda_projs <- function(datafolder = NULL) {
 #' from the project that has the following relations: rowid, cid, fid,
 #' codename, filename, index1, index2, CodingLength, codecat, and coder.
 #' For addition details, visit
-#' \code{\link{[RQDA::RQDATables]{RQDA::RQDATables}}.
+#' \code{\link{[RQDA::RQDATables]{RQDA::RQDATables}}}.
 #'
 #' @return A data frame containing the data, either singly or stacked
 #' when more than one are combined.
@@ -82,7 +82,7 @@ retrieve_codingtable <- function(proj, query = character()) {
 
   if (!is.character(query))
     stop("query must of of type 'character'")
-  tbl <- NA
+  tbl <- NULL
   if (!length(query)) {   # i.e. the default
     tbl <- RQDA::getCodingTable()
     query <- .defaultQuery()
@@ -102,7 +102,7 @@ retrieve_codingtable <- function(proj, query = character()) {
   ## otherwise this function is expected to fail majestically.
   ## No, we are not going to handle exceptions.
   # TODO: Conduct a pre-call check for SQL(ite) statements???
-  if (is.na(tbl)) {
+  if (is.null(tbl)) {
     query <- query[1]
     tbl <- RQDA::RQDAQuery(query)
   }
@@ -190,7 +190,7 @@ get_codecat_dfs <-
 #' @param codedata A data frame containing the codings, usually as an output
 #' of \code{RQDA::getCodingsTable}.
 #' @param proj An RQDA project.
-#' @param coding The coding for which the codings are to be retrieved
+#' @param code The code for which the codings are to be retrieved
 #'
 #' @note For this function to work properly, the RQDA GUI needs to have been
 #' opened prior to its being called.
@@ -198,15 +198,18 @@ get_codecat_dfs <-
 #' @return No value is returned but a window with the codings is opened
 #' as a side effect.
 #' @export
-get_quotes <- function(codedata, proj, coding) {
+get_quotes <- function(codedata, proj, code) {
   if (!rqda_is_installed())
     stop("Package 'RQDA' not found")
+  if (!is.character(code) || length(code) > 1)
+    stop("'code' must be of type character and length 1")
+
   RQDA::openProject(proj)
   on.exit(RQDA::closeProject())
 
-  code <- unique(codedata$cid[codedata$codename == coding])
-  len <- length(code)
+  code <- unique(codedata$cid[codedata$codename == code])
 
+  len <- length(code)
   if (len > 1L)
     warning(paste("cid is ", code, sep = ", ", collapse = ' '), call. = FALSE)
   else if (len == 0L)
@@ -224,9 +227,9 @@ get_quotes <- function(codedata, proj, coding) {
 ## place, as well as use it in some of the functions whenever it is available.
 ## Otherwise, we can cross the `R CMD check` hurdle.
 rqda_is_installed <- function() {
-  installed <- requireNamespace("RQDA")
+  installed <- requireNamespace("RQDA", quietly = TRUE)
   if (!installed)
-    warning("You may install RQDA with `RQDAassist::install()`")
+    warning("To install RQDA visit https://github.com/BroVic/RQDAassist")
   installed
 }
 
