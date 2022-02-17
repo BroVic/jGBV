@@ -6,19 +6,19 @@
 \title{R Markdown Templates}
 \usage{
 open_template(
-  tmplname,
   type = c("dummy", "report", "codebook", "capacity"),
+  tmplname,
   ...
 )
 
 clone_template()
 }
 \arguments{
-\item{tmplname}{A string naming the actual template.}
+\item{type}{A character vector of length 1L, representing the type of
+template to be loaded. One of \emph{dummy}, \emph{report},
+\emph{codebook}, or \emph{capacity}.}
 
-\item{type}{A character vector of length 1L, representing the type of template
-to be loaded. One of \emph{dummy}, \emph{report}, \emph{codebook}, or
-\emph{capacity}.}
+\item{tmplname}{A string naming the actual template.}
 
 \item{...}{Other arguments passed on to \code{\link[rmarkdown]{draft}},
 apart from \code{file}, \code{template}, and \code{package}, which are

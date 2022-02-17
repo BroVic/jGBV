@@ -70,10 +70,10 @@ build_report <-
 #' reports, etc. \code{clone_template} creates a clone of the main reporting
 #' template.
 #'
+#' @param type A character vector of length 1L, representing the type of
+#' template to be loaded. One of \emph{dummy}, \emph{report},
+#' \emph{codebook}, or \emph{capacity}.
 #' @param tmplname A string naming the actual template.
-#' @param type A character vector of length 1L, representing the type of template
-#' to be loaded. One of \emph{dummy}, \emph{report}, \emph{codebook}, or
-#' \emph{capacity}.
 #' @param ... Other arguments passed on to \code{\link[rmarkdown]{draft}},
 #' apart from \code{file}, \code{template}, and \code{package}, which are
 #' set internally.
@@ -86,20 +86,19 @@ build_report <-
 #'
 #' @export
 open_template <-
-  function(tmplname,
-           type = c("dummy", "report", "codebook", "capacity"),
+  function(type = c("dummy", "report", "codebook", "capacity"),
+           tmplname,
            ...)
   {
     dir <- if (missing(tmplname)) {
       type <- match.arg(type)
       .Templates(type)
     }
-    else
-      tmplname
+    else tmplname
     if(!nzchar(system.file("rmarkdown/templates", dir, package = thisPkg())))
       stop("There is no template ", sQuote(dir))
-    fn <- paste0(dir, ".Rmd")
-    rmarkdown::draft(fn, dir, thisPkg(), ...)
+    fname <- paste0(dir, ".Rmd")
+    rmarkdown::draft(fname, dir, thisPkg(), ...)
   }
 
 
@@ -171,110 +170,7 @@ clone_template <- function() {
     "skeleton.Rmd",
     package = thisPkg()
   )
-  if (identical(tmpl, ""))
-    stop("Codebook template not found")
+  if (!nzchar(tmpl))
+    stop(sprintf("Template %s was not found", sQuote(dir)))
   tmpl
 }
-
-
-
-
-
-
-
-
-
-#' Produces dual outputs (table & plot) for multi-response variables
-#' @param dat The data frame
-#' @param indices Columns to be used
-#' @param ... Arguments passed for internal used
-#' @param na.rm Logical; whether to keep NAs or not.
-#'
-#' @importFrom flextable theme_box
-#' @importFrom flextable autofit
-#' @importFrom magrittr %>%
-#'
-#' @export
-dual_multiopts <- function(dat, indices, ..., na.rm = TRUE) {
-  stopifnot(is.numeric(indices))
-  dat <- applyFilter(dat, ...)
-  ft <- table_multiopt(dat, indices = indices) %>%
-    theme_box() %>%
-    autofit()
-  pp <- show_output(dat, indices, size = getOption("jgbv.axis.text.size"))
-  list(table = ft, plot = pp)
-}
-
-
-
-
-
-
-
-
-#' Makes outputs like above but for single response questions
-#'
-#' @param dat The data frame
-#' @param x,y An integer or character vector of length \code{1L} for selecting
-#' a column from \code{.data}.
-#' @param ... Arguments passed on to \code{applyFilter}.
-#' @param na.rm Logical
-#'
-#' @import ggplot2
-#' @importFrom flextable flextable
-#' @importFrom flextable theme_box
-#' @importFrom flextable autofit
-#' @importFrom magrittr %>%
-#'
-#' @export
-dual_singleopts <- function(dat, x, y, ..., na.rm = TRUE) {
-  stopifnot(is.numeric(x))
-  if (!missing(y))
-    stopifnot(is.numeric(y))
-  dat <- applyFilter(dat, ...)
-  tb <- table_singleopt(dat, x, y, data.only = TRUE)
-  gg <- if (missing(y)) {
-    ggplot(tb, aes(Variable, Freq))
-  }
-  else
-    ggplot(tb, aes(Variable, y))
-  gg <- gg +
-    theme(axis.text = element_text(size = getOption("jgbv.axis.text.size")))
-  ft <- tb %>%
-    flextable() %>%
-    # theme_box() %>%
-    autofit()
-  list(table = ft, plot = gg + geom_col())
-}
-
-
-
-
-
-
-
-applyFilter <-
-  function(data,
-           filter = NULL,
-           na.rm = TRUE,
-           opt.col = "type_of_service")
-  {
-    vars <- colnames(data)
-    colsOfInterst <-
-      grep(opt.col,
-           vars,
-           value = TRUE,
-           ignore.case = TRUE)
-    if (is.null(filter))
-      return(data)
-    choiceVal <-
-      grep(filter,
-           colsOfInterst,
-           value = TRUE,
-           ignore.case = TRUE)
-    choiceIndex <- match(choiceVal, vars)
-    data <- data[data[[choiceIndex]],]
-    if (na.rm)
-      data <- data[!is.na(data[[choiceIndex]]),]
-    data
-  }
