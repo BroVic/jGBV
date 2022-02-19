@@ -21,16 +21,29 @@ launch_rqda <- function() {
 
 
 
-#' Get the paths to RQDA project
+#' Get the paths to RQDA projects
 #'
-#' Collect RQDA projects developed by different collaborators
+#' A convenience function for collecting RQDA projects developed by
+#' different collaborators.
 #'
-#' @param datafolder The directory housing the projects
+#' @param datafolder The directory housing the projects. The default
+#' value is internally determined and is a vestige from older projects
+#' that is there only for backward compatibility.
+#'
+#' @return A character vector whose elements are the absolute paths to
+#' individual RQDA projects.
 #'
 #' @export
-get_rqda_projs <- function(datafolder = here::here("data/qual/rqda")) {
-  stopifnot(dir.exists(datafolder))
-  list.files(datafolder, '\\.rqda$', full.names = TRUE)
+get_rqda_projs <- function(datafolder = NULL) {
+  if (is.null(datafolder))
+    datafolder <- here::here("data/qual/rqda") # applies to old project
+  pqDir <- sQuote(datafolder, q = FALSE)
+  if (!dir.exists(datafolder))
+    stop("The directory ", pqDir, " does not exist")
+  ff <- list.files(datafolder, '\\.rqda$', full.names = TRUE)
+  if (!length(ff))
+    warning("No RQDA projects were found in ", pqDir)
+  ff
 }
 
 
@@ -39,65 +52,102 @@ get_rqda_projs <- function(datafolder = here::here("data/qual/rqda")) {
 
 #' Data related to codings
 #'
-#' GEts a data frame of all the codings across different RQDA projects
+#' Gets a data frame of all the codings across one or more RQDA projects.
 #'
-#' @param projects A character vector of the paths of one or more related
+#' @param proj A character vector of the paths of one or more related
 #' RQDA project databases
+#' @param query A valid SQLite (i.e. including a terminating semicolon) in
+#' the form of a string. Character vectors longer than \code{1L} are
+#' truncated.
 #'
-#' @importFrom purrr map_dfr
+#' @details By default, \code{query} is used to provide a coding table
+#' from the project that has the following relations: rowid, cid, fid,
+#' codename, filename, index1, index2, CodingLength, codecat, and coder.
+#' For addition details, visit
+#' \code{\link[RQDA]{RQDATables}}.
 #'
-#' @return A data frame containing the data from the combined projects
+#' @return A data frame containing the data, either singly or stacked
+#' when more than one are combined.
+#'
+#' @import dplyr
 #'
 #' @export
-get_codings_master_df <- function(projects) {
-  stopifnot(all(file.exists(projects)))
-  map_dfr(projects, retrieve_codingtable)  # NB: catid NAs abound!
-}
-
-
-
-
-
-#' @import dplyr
-retrieve_codingtable <- function(proj, query = NULL) {
+retrieve_codingtable <- function(proj, query = character()) {
   if (!rqda_is_installed())
     stop("RQDA has not yet been installed.")
   if (!endsWith(proj, ".rqda"))
-    stop("'proj' does not look like the name of an RQDA project")
-  RQDA::openProject(proj)
+    stop("'proj' is not an RQDA project")
+  RQDA::openProject(I(proj))
   on.exit(RQDA::closeProject())
 
-  tb <- if (is.null(query)) {
-    qry <- paste("sELECT treecode.cid AS cid,",
-            "codecat.name AS codecat",
-            "FROM treecode, codecat",
-            "WHERE treecode.catid=codecat.catid AND codecat.status=1;")
-    cdt <- RQDA::getCodingTable()
-    cats <- RQDA::RQDAQuery(qry) %>%
+  if (!is.character(query))
+    stop("query must of of type 'character'")
+  tbl <- NULL
+  if (!length(query)) {   # i.e. the default
+    tbl <- RQDA::getCodingTable()
+    query <- .defaultQuery()
+    cats <- RQDA::RQDAQuery(query) %>%
       group_by(cid) %>%
       count(codecat)
-    cdt$codecat <- NA
+    tbl$codecat <- NA
     for (i in seq_len(nrow(cats))) {
-      ind <- which(cdt$cid %in% cats$cid[[i]])
-      cdt$codecat[ind] <- cats$codecat[i]
+      ind <- which(tbl$cid %in% cats$cid[[i]])
+      tbl$codecat[ind] <- cats$codecat[i]
     }
-    cdt
   }
-  else {
-    if (!is.character(query) ||
-        (length(query) == 1L && !identical(query, character(1))))
-      stop("'query' must be type 'character' length 1L, and non-empty")
-    RQDA::RQDAQuery(query)
-  }
+  if (!nzchar(query))
+    stop("'query' must be a non-empty string")
 
+  ## At this point we are expecting a bona-fide SQL query
+  ## otherwise this function is expected to fail majestically.
+  ## No, we are not going to handle exceptions.
+  # TODO: Conduct a pre-call check for SQL(ite) statements???
+  if (is.null(tbl)) {
+    query <- query[1]
+    tbl <- RQDA::RQDAQuery(query)
+  }
   ## Get coder's name
-  nm <-
+  ## TODO: This should be reviewed or removed entirely.
+  nm <- if (identical(getOption("jgbv.project.name"), "IUFMP"))
     sub("(IUFMP\\s-\\s)([[:upper:]][[:lower:]]+)(\\.?\\d*\\.rqda)$",
         "\\2",
         basename(proj))
-
-  mutate(tb, coder = nm)
+  else {
+    unlist(RQDA::RQDAQuery("SELECT owner FROM freecode LIMIT 1;"))[1]
+  }
+  mutate(tbl, coder = nm)
 }
+
+
+
+
+.defaultQuery <- function()
+{
+  paste(
+    "sELECT treecode.cid AS cid,",
+    "codecat.name AS codecat",
+    "FROM treecode, codecat",
+    "WHERE treecode.catid=codecat.catid AND codecat.status=1;"
+  )
+}
+
+
+
+#' @rdname retrieve_codingtable
+#'
+#' @importFrom purrr map_dfr
+#'
+#' @export
+get_codings_master_df <- function(proj) {
+  stopifnot(all(file.exists(proj)))
+  map_dfr(proj, retrieve_codingtable)  # NB: catid NAs abound!
+}
+
+
+
+
+
+
 
 
 
@@ -140,7 +190,7 @@ get_codecat_dfs <-
 #' @param codedata A data frame containing the codings, usually as an output
 #' of \code{RQDA::getCodingsTable}.
 #' @param proj An RQDA project.
-#' @param coding The coding for which the codings are to be retrieved
+#' @param code The code for which the codings are to be retrieved
 #'
 #' @note For this function to work properly, the RQDA GUI needs to have been
 #' opened prior to its being called.
@@ -148,15 +198,18 @@ get_codecat_dfs <-
 #' @return No value is returned but a window with the codings is opened
 #' as a side effect.
 #' @export
-get_quotes <- function(codedata, proj, coding) {
+get_quotes <- function(codedata, proj, code) {
   if (!rqda_is_installed())
     stop("Package 'RQDA' not found")
+  if (!is.character(code) || length(code) > 1)
+    stop("'code' must be of type character and length 1")
+
   RQDA::openProject(proj)
   on.exit(RQDA::closeProject())
 
-  code <- unique(codedata$cid[codedata$codename == coding])
-  len <- length(code)
+  code <- unique(codedata$cid[codedata$codename == code])
 
+  len <- length(code)
   if (len > 1L)
     warning(paste("cid is ", code, sep = ", ", collapse = ' '), call. = FALSE)
   else if (len == 0L)
@@ -174,9 +227,9 @@ get_quotes <- function(codedata, proj, coding) {
 ## place, as well as use it in some of the functions whenever it is available.
 ## Otherwise, we can cross the `R CMD check` hurdle.
 rqda_is_installed <- function() {
-  installed <- requireNamespace("RQDA")
+  installed <- requireNamespace("RQDA", quietly = TRUE)
   if (!installed)
-    warning("You may install RQDA with `RQDAassist::install()`")
+    warning("To install RQDA visit https://github.com/BroVic/RQDAassist")
   installed
 }
 

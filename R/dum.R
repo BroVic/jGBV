@@ -62,7 +62,7 @@ build_dummy_flextable <-
 
 
 # Get column headers
-get_hdrs <- function(dic, rows, use.regex = TRUE)
+get_hdrs <- function(dic, rows, use.regex = getOption("use.regex"))
 {
   stopifnot(is.data.frame(dic))
   vec <- dic[['label']][rows]

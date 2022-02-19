@@ -1,0 +1,6 @@
+This is a test (the second time I'm writing this file cos in RQDA, CTRL-X/CTRL-V doesn't seem to work).
+
+Anyway, I am trying to safe myself some trouble down the line by writing the tests right now.
+
+Where to we start?
+

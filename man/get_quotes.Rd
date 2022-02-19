@@ -4,7 +4,7 @@
 \alias{get_quotes}
 \title{Get Selected Codings}
 \usage{
-get_quotes(codedata, proj, coding)
+get_quotes(codedata, proj, code)
 }
 \arguments{
 \item{codedata}{A data frame containing the codings, usually as an output
@@ -12,7 +12,7 @@ of \code{RQDA::getCodingsTable}.}
 
 \item{proj}{An RQDA project.}
 
-\item{coding}{The coding for which the codings are to be retrieved}
+\item{code}{The code for which the codings are to be retrieved}
 }
 \value{
 No value is returned but a window with the codings is opened

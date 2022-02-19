@@ -57,9 +57,13 @@ import_transcripts <-
   dir.create(txtDirpath, recursive = TRUE)
 
   # Extract files into the new directory, if not done earlier
-  if (!dir.exists(safeDirpath) ||
-      !length(list.files(safeDirpath))) {
-    extracted <- unzip(zipfile, exdir = safeDirpath)
+  if (!length(list.files(safeDirpath, ".\\docx"))) {
+    tryCatch({
+      cat("Extracting the ZIP archive... ")
+      extracted <- unzip(zipfile, exdir = safeDirpath)
+      cat("Done\n")
+    }, error = function(e)
+      cat("Failed\n"))
     # safeDirpath <- dirname(extracted[1])  # TODO: This is a hack. Make more robust.
 
     # Treat the filenames here as well by removing spaces, if any.

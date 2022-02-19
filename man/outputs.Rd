@@ -10,7 +10,13 @@ show_output(x, ...)
 
 \method{show_output}{default}(x, type = c("multiplot", "yesno"), ...)
 
-\method{show_output}{data.frame}(x, index, type = c("both", "plot", "table"), use.regex = TRUE, ...)
+\method{show_output}{data.frame}(
+  x,
+  index,
+  type = c("both", "plot", "table"),
+  use.regex = getOption("use.regex"),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{data.frame} that has the data used in the

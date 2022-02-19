@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.5.1.9039
-Date: 2022-02-07
+Version: 0.5.1.9048
+Date: 2022-02-17
 Authors@R: 
     c(
       person(given = "Victor",
@@ -37,7 +37,7 @@ Imports:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     Hmisc (>= 4.2.0),
     RQDA,
@@ -50,5 +50,3 @@ Suggests:
     ufs (>= 0.4.3),
     usethis (>= 1.5.0),
     xlsx (>= 0.6.5)
-
-

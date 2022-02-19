@@ -2,13 +2,20 @@
 % Please edit documentation in R/rqda.R
 \name{get_rqda_projs}
 \alias{get_rqda_projs}
-\title{Get the paths to RQDA project}
+\title{Get the paths to RQDA projects}
 \usage{
-get_rqda_projs(datafolder = here::here("data/qual/rqda"))
+get_rqda_projs(datafolder = NULL)
 }
 \arguments{
-\item{datafolder}{The directory housing the projects}
+\item{datafolder}{The directory housing the projects. The default
+value is internally determined and is a vestige from older projects
+that is there only for backward compatibility.}
+}
+\value{
+A character vector whose elements are the absolute paths to
+individual RQDA projects.
 }
 \description{
-Collect RQDA projects developed by different collaborators
+A convenience function for collecting RQDA projects developed by
+different collaborators.
 }
