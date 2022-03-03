@@ -60,6 +60,7 @@ get_rqda_projs <- function(datafolder = NULL) {
 #' the form of a string. Character vectors longer than \code{1L} are
 #' truncated.
 #'
+#'
 #' @details By default, \code{query} is used to provide a coding table
 #' from the project that has the following relations: rowid, cid, fid,
 #' codename, filename, index1, index2, CodingLength, codecat, and coder.
@@ -136,14 +137,23 @@ retrieve_codingtable <- function(proj, query = character()) {
 #' @rdname retrieve_codingtable
 #'
 #' @importFrom purrr map_dfr
+#' @importFrom purrr map_lgl
 #'
 #' @export
-get_codings_master_df <- function(proj) {
-  stopifnot(all(file.exists(proj)))
-  map_dfr(proj, retrieve_codingtable)  # NB: catid NAs abound!
+get_codings_master_df <- function(proj, query = character()) {
+  res <- map_lgl(proj, function(p) {
+    projExists <- file.exists(p)
+    if (!projExists)
+      warning("No project ",
+              sQuote(basename(p), q = FALSE),
+              " was found and thus was excluded from the operation")
+    projExists
+  })
+  proj <- proj[res]
+  if (length(proj) == 0L)
+    stop("No projects files were found for the operation")
+  map_dfr(proj, retrieve_codingtable, query = query)  # NB: catid NAs abound!
 }
-
-
 
 
 

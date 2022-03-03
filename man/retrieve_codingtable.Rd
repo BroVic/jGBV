@@ -7,7 +7,7 @@
 \usage{
 retrieve_codingtable(proj, query = character())
 
-get_codings_master_df(proj)
+get_codings_master_df(proj, query = character())
 }
 \arguments{
 \item{proj}{A character vector of the paths of one or more related
