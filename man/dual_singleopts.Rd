@@ -4,7 +4,7 @@
 \alias{dual_singleopts}
 \title{Makes outputs like above but for single response questions}
 \usage{
-dual_singleopts(dat, x, y, ..., na.rm = TRUE)
+dual_singleopts(dat, x, y = NULL, ..., na.rm = TRUE, use.table = FALSE)
 }
 \arguments{
 \item{dat}{The data frame}
@@ -15,6 +15,9 @@ a column from \code{.data}.}
 \item{...}{Arguments passed on to \code{applyFilter}.}
 
 \item{na.rm}{Logical}
+
+\item{use.table}{Logical. Whether a table object is created internally or
+not for the handling of bivariate data.}
 }
 \description{
 Makes outputs like above but for single response questions

@@ -26,15 +26,20 @@ globalVariables(c(
 #' \code{plot}.
 #'
 #' @export
-outputs_commencement <- function(.data, open, gbv, format = "%Y") {
-  convertToDateClass <- function(x) {
-    if (is.character(x))
+outputs_commencement <- function(data, open, gbv, format = "%Y") {
+  .convertToDateClass <- function(x) {
+    if (inherits(x, "POSIXct") || inherits(x, "Date"))
+      return(x)
+    x <- if (is.character(x))
       as.Date(x)
     else if (is.numeric(x))
       as.Date(x, origin = "1970-01-01")
+    else
+      warning("Type ", typeof(x), " is not supported", call. = FALSE)
+    x
   }
-  .data <- mutate(.data, across(all_of(c(open, gbv)), convertToDateClass))
-  minmax <- .data[[open]] %>%
+  data <- mutate(data, across(all_of(c(open, gbv)), .convertToDateClass))
+  minmax <- data[[open]] %>%
     format(format) %>%
     as.numeric() %>%
     range(na.rm = TRUE)
@@ -54,7 +59,7 @@ outputs_commencement <- function(.data, open, gbv, format = "%Y") {
     cut(x, year.cats, year.labs, ordered_result = TRUE)
   }
   thisyr <- as.integer(format(Sys.Date(), "%Y"))
-  period.data <- .data %>%
+  period.data <- data %>%
     select(all_of(c(open, gbv))) %>%
     mutate(across(everything(), ~ format(.x, format))) %>%
     mutate(across(everything(), ~ as.integer(.x))) %>%

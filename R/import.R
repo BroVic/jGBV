@@ -9,6 +9,8 @@
 #' folder. When finalising, we do some checks that everything went well
 #' and we remove the directory that was created for the extraction.
 #'
+#' @param rqdaDirpath The path to a base RQDA project that is used to create
+#' projects to which the transcript data are imported into.
 #' @param zipfile Path to a ZIP archive containing interview transcripts. When
 #' \code{NULL}, a file selection dialog is presented to the user - this only works
 #' in interactive sessions.
@@ -27,7 +29,7 @@
 #'
 #' @export
 import_transcripts <-
-  function(zipfile = NULL, patterns = NULL, ignore_case = FALSE, no. = NULL)
+  function(rqdaDirpath, zipfile = NULL, patterns = NULL, ignore_case = FALSE, no. = NULL)
 {
   anykey <- '(Press <ENTER> to continue): '
   if (is.null(zipfile)) {
@@ -57,7 +59,8 @@ import_transcripts <-
   dir.create(txtDirpath, recursive = TRUE)
 
   # Extract files into the new directory, if not done earlier
-  if (!length(list.files(safeDirpath, ".\\docx"))) {
+  msword.rgx <- "\\.docx?$"
+  if (!length(list.files(safeDirpath, msword.rgx, recursive = TRUE))) {
     tryCatch({
       cat("Extracting the ZIP archive... ")
       extracted <- unzip(zipfile, exdir = safeDirpath)
@@ -73,9 +76,10 @@ import_transcripts <-
     result <-
       map_lgl(extracted, function(fn)
         file.rename(fn, .changenames(fn)))
-    if (sum(!result)) {
-      notchanged <- extracted[!result]
-      cat("Filenames not changed:\n", sprintf("* %s\n", notchanged))
+    isUnchanged <- !result
+    if (sum(isUnchanged)) {
+      notchanged <- extracted[isUnchanged]
+      cat("Filenames not changed:\n", sprintf("* %s\n", basename(notchanged)))
     }
   }
 
@@ -83,8 +87,8 @@ import_transcripts <-
   ## in the newly created folder named 'txt' at the same level
   walk(list.dirs(safeDirpath), function(dir) {
     docfiles <-
-      list.files(dir, "\\.docx?$", ignore.case = ignore_case, full.names = TRUE)
-    if (0L == length(docfiles))
+      list.files(dir, msword.rgx, ignore.case = ignore_case, full.names = TRUE)
+    if (!length(docfiles))
       return()
     RQDAassist::read_transcript(
       destdir = txtDirpath,
@@ -93,7 +97,6 @@ import_transcripts <-
   })
 
   # Generate new RQDA projects and import text files
-  rqdaDirpath <- here("data/rqda")
   dir.create(rqdaDirpath, recursive = TRUE)
   opt <-
     menu(c("Yes", "No"), FALSE, "Do you want to generate a new project?")
@@ -105,7 +108,7 @@ import_transcripts <-
     else
       no.
     num <- seq_len(num)
-    state <- pick_one_state()
+    state <- pick_one_state()  # TODO: Parametrize.
     walk(num, replicate_rqdaproj, dir = rqdaDirpath, state = state)
 
     ## Note that based on the patterns supplied, the assumption

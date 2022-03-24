@@ -117,7 +117,7 @@ table_multiopt <-
 table_singleopt <-
   function(data,
            x,
-           y,
+           y = NULL,
            table.only = FALSE,
            data.only = FALSE) {
     if (!is.data.frame(data))
@@ -125,14 +125,15 @@ table_singleopt <-
     if (table.only && data.only)
       stop("'table.only' and 'data.only' cannot both be TRUE at the same time")
     x <- data[[x]]
-    if (!missing(y))
+    if (!is.null(y))
       y <- data[[y]]
     lbs <- labelled::var_label(x)
 
-    t <- if (missing(y))
+    t <- if (is.null(y))
       table(x)
     else
       table(x, y)
+
     if (table.only)
       return(t)
 
@@ -141,6 +142,7 @@ table_singleopt <-
       arrange(desc(Freq)) %>%
       mutate(Percentage = round(Freq/sum(Freq)*100, 1)) %>%
       rename(Variable = x)
+
     if (data.only)
       return(d)
 
@@ -152,7 +154,16 @@ table_singleopt <-
 
 
 
-
+#
+# ..makePercentage <- function(ref, rounding = 1L) {
+#   if (is.symbol(ref))
+#     ref <- enquo(ref)
+#   else
+#     stopifnot(is.character(ref))
+#   stopifnot(is.numeric(rounding))
+#
+#   round(!!ref/sum(ref)*100, 1)
+# }
 
 
 

@@ -71,3 +71,15 @@ test_that("auto-numbers are generated for tables", {
    expect_error(my_autonum(matrix(letters, ncol = 2)))
    expect_error(my_autonum(letters))
 })
+
+
+test_that("bivariate table is created", {
+
+   expect_s3_class(table_singleopt(dat, 'a', "f", table.only = T), "table")
+   expect_s3_class(table_singleopt(dat, 'a', "f", data.only = T), 'data.frame')
+
+})
+
+
+# Cleanup
+rm(dat)

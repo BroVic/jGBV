@@ -16,7 +16,7 @@ table_multiopt(
   ...
 )
 
-table_singleopt(data, x, y, table.only = FALSE, data.only = FALSE)
+table_singleopt(data, x, y = NULL, table.only = FALSE, data.only = FALSE)
 
 table_yesno(data, col, data.only = FALSE, ...)
 }

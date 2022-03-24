@@ -85,8 +85,7 @@ prep_ref_directory <-
       )) %>%
       arrange(!!quo(namelist$lga), !!quo(namelist$ward)) %>%
       relocate(intervention, .after = last_col()) %>%
-      relocate(services, .before = last_col()) %>%
-      setNames(.refdirnames())
+      relocate(services, .before = last_col())
   }
 
 
@@ -122,29 +121,6 @@ set_logical_with_label <- function(column) {
   stopifnot(is.character(rgx), is.character(x))
   stopifnot(length(rgx) == 1)
   sub(rgx, toupper(rgx), x, ignore.case = TRUE)
-}
-
-
-
-
-
-.refdirnames <- function() {
-  c(
-    "Name of Organization/Facility",
-    "LGA",
-    "Ward",
-    "Address",
-    "Is the facility open and accessible?",
-    "Days Open",
-    "Opening Time",
-    "Closing Time",
-    "Respondent's Name",
-    "Title/Role in the Organization",
-    "Telephone No. of Organization",
-    "Contact Info of GBV Focal Person",
-    "Type of Service",
-    "Interventions Offered"
-  )
 }
 
 

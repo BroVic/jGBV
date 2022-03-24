@@ -6,6 +6,7 @@
 \title{Extract interview transcripts for RQDA}
 \usage{
 import_transcripts(
+  rqdaDirpath,
   zipfile = NULL,
   patterns = NULL,
   ignore_case = FALSE,
@@ -15,6 +16,9 @@ import_transcripts(
 lga_matching_function(state, ...)
 }
 \arguments{
+\item{rqdaDirpath}{The path to a base RQDA project that is used to create
+projects to which the transcript data are imported into.}
+
 \item{zipfile}{Path to a ZIP archive containing interview transcripts. When
 \code{NULL}, a file selection dialog is presented to the user - this only works
 in interactive sessions.}
