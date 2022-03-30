@@ -14,15 +14,6 @@
 # Gets the index of the column for 'Type of Service' and that of the first
 # column of the changeable portion of the respective tables
 
-globalVariables("allcap")
-
-
-.tableBookmarks <- function(data) {
-  stopifnot(is.data.frame(data))
-  cols <- names(data)
-  c(type.index = grep("type", cols, ignore.case = TRUE)[1])
-}
-
 
 #' Draw Plot of Service Provider Capacity
 #'
@@ -43,10 +34,12 @@ globalVariables("allcap")
 #' @export
 makePlot <- function(data, labs, colour, annot = waiver(), table = FALSE) {
   ## last column of the fixed part of the table
-  fixed <- .tableBookmarks(data)["type.index"]
+  bkm <- .tableBookmarks(data)
+  fixed <- bkm["type.index"]
+  coord.start <- bkm['coord.index']
   d <- data %>%
+    select(-c(coord.start:last_col())) %>%
     select(-c(seq_len(fixed))) %>%
-    select(seq_len(length(.) - 3)) %>%
     mutate(across(everything(), ~ ifelse(.x == "-", NA_character_, .x))) %>%
     pivot_longer(everything()) %>%
     mutate(value = ifelse(value == "No", 0L, 1L))
@@ -86,7 +79,7 @@ makePlot <- function(data, labs, colour, annot = waiver(), table = FALSE) {
 
 #' Make a table of Capacity (Training) Needs
 #'
-#' @param service A string for the type of service provider
+#' @param dt A data frame for the type of service provider
 #' @param caption A caption for the table
 #'
 #' @importFrom magrittr %>%
@@ -99,20 +92,22 @@ makePlot <- function(data, labs, colour, annot = waiver(), table = FALSE) {
 #' script. Hence it is for now unfortunately tied to is.
 #'
 #' @export
-makeTable <- function(service, caption = NULL) {
-  stopifnot(is.character(service))
-  # 'allcap' is in the parent environment
-  dt <- allcap[[service]]
+makeTable <- function(dt, caption = character(1)) {
+  stopifnot(is.data.frame(dt))
   train.cols <- getTrainingsIndex(dt)
   scales <-
     scales::col_factor(palette = c("darkgreen", "red"),
                        levels = c("Yes", "No"))
+  bkm <- .tableBookmarks(dt)
   dt %>%
     select(-10) %>%   # remove the 'type of service' column
     flextable %>%
     add_header_row(
       values = c("Facility Info", "Areas of Training", "Coordination"),
-      colwidths = c(.tableBookmarks(dt) - 1L, length(train.cols), 3L)
+      colwidths = c(
+        bkm['type.index'] - 1L,
+        length(train.cols),
+        length(dt) - bkm['coord.index'] + 1)
     ) %>%
     theme_box %>%
     set_caption(caption) %>%
@@ -125,15 +120,25 @@ makeTable <- function(service, caption = NULL) {
 }
 
 
+.tableBookmarks <- function(data) {
+  stopifnot(is.data.frame(data))
+  cols <- names(data)
+  c(type.index = grep("type", cols, ignore.case = TRUE)[1],
+    coord.index = grep("coordination meeting", cols, ignore.case = TRUE)[1])
+}
+
+
+
 
 
 
 
 getTrainingsIndex <- function(dt) {
   stopifnot(is.data.frame(dt))
-  sentinel <- .tableBookmarks(dt)
-  len <- ncol(dt) - (sentinel + 3L)
-  seq(sentinel + 1L, length.out = len)
+  sentinels <- .tableBookmarks(dt)
+  iTrainFirst <- sentinels['type.index'] + 1
+  numTrainings <- sentinels['coord.index'] - iTrainFirst
+  seq(iTrainFirst, length.out = numTrainings)
 }
 
 
@@ -144,36 +149,47 @@ getTrainingsIndex <- function(dt) {
 #' Filter the Data and Select Only Columns Relevant to Capacity Assessment
 #'
 #'
-#' @import stringr
+#' @importFrom stringr str_remove
+#' @importFrom stringr str_replace
+#' @importFrom stringr str_squish
+#' @importFrom stringr str_trim
 #' @import dplyr
 #'
 #' @param df The data
 #' @param service A string representing the service being filtered.
+#'
+#' @return A data frame with data related to a particular service category.
 #'
 #' @export
 filterAndSelect <- function(df, service) {
   stopifnot(is.data.frame(df), is.character(service))
   cols <- names(df)
   t <- .tableBookmarks(df)['type.index']
+  .allEmpty <- function(x) {
+    if (is.character(x))
+      all(x == "-")
+    else if (is.logical(x))
+      all(is.na(x))
+    else FALSE
+  }
   df <- df %>%
     filter(grepl(service, .data[[cols[[t]]]], ignore.case = TRUE)) %>%
-    select(!matches("train") | matches(service))
-  # %>%
-  #   select(!where( ~ all(.x == "-")))   # NAs were earlier converted to '-'
-  #
+    # select(!matches("train") | matches(service)) %>% # applied to NECD. Review!
+    select(!where(.allEmpty))  # most NAs were earlier converted to '-'
+
   # Carry out this step here because when the entire complement of
   # columns are available, transformation is impossible due to
   # the duplication of column names.
   colnames(df) %<>%    # pipe assignment
     {
-      .[[1]] <- "LGA"
-      .[[2]] <- "Name of Facility"
-      .[[4]] <- "GBV Focal Person?"
-      .[[5]] <- "Designation"
-      .[[6]] <- "Age Range"
-      .[[8]] <- "Qualifications"
-      .[[9]] <- "Phone"
-      .[[10]] <- "Type of Organization"
+      try(.[[grep("LGA", .)]] <- "LGA")
+      try(.[[grep("Name.+Org", .)]] <- "Name of Facility")
+      try(.[[grep("focal", .)]] <- "GBV Focal Person?")
+      try(.[[grep("Position", .)]] <- "Designation")
+      try(.[[grep("^Age", .)]] <- "Age Range")
+      # try(.[[grep("Qualification", .)]] <- "Qualifications")
+      try(.[[grep("Phone", .)]] <- "Phone")
+      try(.[[t]] <- "Type of Organization")
       .
     } %>%
     str_remove("\\.+\\d{1,2}$") %>%
@@ -183,6 +199,7 @@ filterAndSelect <- function(df, service) {
     str_replace("Sex/Gender", "Gender") %>%
     str_trim %>%
     str_squish
+
   df
 }
 
@@ -240,8 +257,9 @@ fixOffset <- function(x, ...)
 #' @rdname fixOffset
 #'
 #' @export
-fixOffset.numeric <- function(x) {
-  .tableBookmarks(capdata)['type.index'] + x
+fixOffset.numeric <- function(x, df) {
+  stopifnot(is.data.frame(df))
+  .tableBookmarks(df)['type.index'] + x
 }
 
 #' @rdname fixOffset

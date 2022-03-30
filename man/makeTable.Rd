@@ -4,10 +4,10 @@
 \alias{makeTable}
 \title{Make a table of Capacity (Training) Needs}
 \usage{
-makeTable(service, caption = NULL)
+makeTable(dt, caption = NULL)
 }
 \arguments{
-\item{service}{A string for the type of service provider}
+\item{dt}{A data frame for the type of service provider}
 
 \item{caption}{A caption for the table}
 }

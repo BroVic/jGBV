@@ -11,6 +11,9 @@ filterAndSelect(df, service)
 
 \item{service}{A string representing the service being filtered.}
 }
+\value{
+A data frame with data related to a particular service category.
+}
 \description{
 Filter the Data and Select Only Columns Relevant to Capacity Assessment
 }
