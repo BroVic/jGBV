@@ -33,9 +33,19 @@ test_that("Plot or tabulation is created", {
   expect_s3_class(p, 'ggplot')
   expect_s3_class(p, 'gg')
   expect_s3_class(makePlot(hlth, lbls, 'blue', table = TRUE), "data.frame")
+
+  expect_null(makePlot(data.frame(), lbls, 'blue'))
+  expect_null(makePlot(data.frame(), lbls, 'blue', table = TRUE))
 })
 
 
 test_that("Main table is generated", {
   expect_s3_class(makeTable(hlth), "flextable")
+  expect_null(makeTable(data.frame()))
+})
+
+
+
+test_that("Inline stats are generated", {
+  expect_null(statGBV(data.frame(), "sum", "gbv"))
 })

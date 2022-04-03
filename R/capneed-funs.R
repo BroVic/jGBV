@@ -33,6 +33,14 @@
 #'
 #' @export
 makePlot <- function(data, labs, colour, annot = waiver(), table = FALSE) {
+  if (!is.data.frame(data))
+    stop("'data' is not a data frame")
+  if (!is.character(labs) && is.character(colour))
+    stop("'labs' and 'colour' must be of type 'character'")
+  if (!is.logical(table) && length(table == 1L))
+    stop("'table' must be a logical vector or length 1")
+  if (!nrow(data))
+    return()
   ## last column of the fixed part of the table
   bkm <- .tableBookmarks(data)
   fixed <- bkm["type.index"]
@@ -93,7 +101,12 @@ makePlot <- function(data, labs, colour, annot = waiver(), table = FALSE) {
 #'
 #' @export
 makeTable <- function(dt, caption = character(1)) {
-  stopifnot(is.data.frame(dt))
+  if (!is.data.frame(dt))
+    stop("'dt' is not a data frame")
+  if (!is.character(caption) || length(caption) > 1L)
+    stop("'caption' must be a character vector of length 1")
+  if (!nrow(dt))
+    return()
   train.cols <- getTrainingsIndex(dt)
   scales <-
     scales::col_factor(palette = c("darkgreen", "red"),
@@ -183,7 +196,7 @@ filterAndSelect <- function(df, service) {
   colnames(df) %<>%    # pipe assignment
     {
       try(.[[grep("LGA", .)]] <- "LGA")
-      try(.[[grep("Name.+Org", .)]] <- "Name of Facility")
+      try(.[[grep("Name.+Facility", ., ignore.case = TRUE)]] <- "Name of Facility")
       try(.[[grep("focal", .)]] <- "GBV Focal Person?")
       try(.[[grep("Position", .)]] <- "Designation")
       try(.[[grep("^Age", .)]] <- "Age Range")
@@ -217,7 +230,10 @@ filterAndSelect <- function(df, service) {
 #'
 #' @export
 statGBV <- function(df, stat = c("sum", "perc", 'total'), var = character()) {
-  stopifnot(is.data.frame(df))
+  if (!is.data.frame(df))
+    stop("'df' is not a data frame")
+  if (!nrow(df))
+    return()
   stat <- match.arg(stat)
   i <- if (is.character(var)) {
     var <- match.arg(var, c('gbv', 'gender'))
