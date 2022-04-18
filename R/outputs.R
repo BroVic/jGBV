@@ -76,7 +76,8 @@ dual_singleopts <-
   tb <-
     table_singleopt(dat, x, y, data.only = !use.table, table.only = use.table)
   # TODO: Consider putting this block into the preceding function
-  if (inherits(tb, 'table')) {
+  went.table.route <- inherits(tb, 'table')
+  if (went.table.route) {
     tb <- tb %>%
       as.data.frame() %>%
       group_by(x, y) %>%
@@ -105,8 +106,12 @@ dual_singleopts <-
 
   gg <- if (is.null(y))
     ggplot(tb, aes(Variable, Freq))
-  else
-    ggplot(tb, aes(Variable, y))
+  else {
+    if (went.table.route)
+      ggplot(tb, aes(Variable, Percent))
+    else
+      ggplot(tb, aes(Variable, y))
+  }
 
   gg <- gg  +
     geom_col() +

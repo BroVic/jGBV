@@ -1,7 +1,8 @@
 dat <- readRDS("testdata/dft-out.rds")
 
 test_that("multi-response table is created successfully", {
-   ccl <- quote(table_multiopt(dat, indices = 2:4, use.regex = FALSE))
+   ccl <-
+      quote(table_multiopt(dat, indices = 1:3, use.regex = FALSE, redcap = FALSE))
    ft <- eval(ccl)
    ccl$data.only <- TRUE
    df <- eval(ccl)

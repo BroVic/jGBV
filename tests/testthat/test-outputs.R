@@ -25,16 +25,20 @@ test_that("a table and plot are produced for cross-sectional bivariate data",
             expect_s3_class(out.s$table, ft)
             expect_s3_class(out.s$plot, gg)
 
-            expect_type(dual_singleopts(df, "a", "y"), 'list')
+            expect_type(dual_singleopts(df, "m_a", "y"), 'list')
             expect_error(dual_singleopts(df, TRUE))
-            expect_warning(dual_singleopts(df, c("a", "b")))
+            expect_warning(dual_singleopts(df, c("m_a", "m_b")))
 
-            obj1 <- suppressWarnings(dual_singleopts(df, c("a", "b")))
-            obj2 <- dual_singleopts(df, "a")
+            obj1 <- suppressWarnings(dual_singleopts(df, c("m_a", "m_b")))
+            obj2 <- dual_singleopts(df, "m_a")
             expect_type(obj1, "list")
             expect_equal(obj1, obj2)   # Why are they not identical?
 
-
+            obj3 <- dual_singleopts(df, 'yn', "f1", use.table = T)
+            expect_type(obj3, 'list')
+            expect_s3_class(obj3$table, 'flextable')
+            expect_s3_class(obj3$plot , 'ggplot')
+            expect_s3_class(obj3$plot, 'gg')
           })
 
 
