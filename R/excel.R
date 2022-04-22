@@ -6,7 +6,6 @@ globalVariables(c("days_open", "intervention", "services"))
 #' used to create other more sylistically appealing tables
 #'
 #' @param df The cleaned data from the State.
-#' @param state The State under study.
 #' @param indices A numeric vector of all the column indices that will be used to
 #' create the tabulation.
 #' @param serv.cols The columns that contain the interventions provided. Used either
@@ -38,7 +37,6 @@ globalVariables(c("days_open", "intervention", "services"))
 #' @export
 prep_ref_directory <-
   function (df,
-            state,
             indices,
             serv.cols,
             servtyp.pattern,
@@ -63,6 +61,8 @@ prep_ref_directory <-
       rename(phone = !!quo(namelist$orgphone)) %>%
       rename(contact_gbv = !!quo(namelist$gbvcontact)) %>%
       mutate(across(matches(servtyp.pattern), set_logical_with_label)) %>%
+      rowwise() %>%
+      mutate(num.intervention = sum(c_across(all_of(serv.names)), na.rm = TRUE)) %>%
       mutate(across(all_of(serv.names), set_logical_with_label)) %>%
       mutate(across(matches(day.pattern), set_logical_with_label)) %>%
       unite("intervention",
@@ -85,6 +85,7 @@ prep_ref_directory <-
       )) %>%
       arrange(!!quo(namelist$lga), !!quo(namelist$ward)) %>%
       relocate(intervention, .after = last_col()) %>%
+      relocate(num.intervention, .after = last_col()) %>%
       relocate(services, .before = last_col())
   }
 

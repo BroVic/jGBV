@@ -6,7 +6,6 @@
 \usage{
 prep_ref_directory(
   df,
-  state,
   indices,
   serv.cols,
   servtyp.pattern,
@@ -16,8 +15,6 @@ prep_ref_directory(
 }
 \arguments{
 \item{df}{The cleaned data from the State.}
-
-\item{state}{The State under study.}
 
 \item{indices}{A numeric vector of all the column indices that will be used to
 create the tabulation.}

@@ -1,7 +1,7 @@
 Package: jGBV
 Title: Helper package for Jhpiego Nigeria's GBV Studies
-Version: 0.5.1.9080
-Date: 2022-04-12
+Version: 0.5.1.9081
+Date: 2022-04-22
 Authors@R: 
     c(
       person(given = "Victor",
@@ -23,6 +23,7 @@ Imports:
     dplyr (>= 0.8.3),
     flextable (>= 0.6.6),
     ggplot2 (>= 3.1.1),
+    ggthemes (>= 4.2.4),
     here (>= 0.1),
     knitr (>= 1.24),
     labelled (>= 2.2.1),
@@ -31,6 +32,7 @@ Imports:
     purrr (>= 0.3.2),
     rlang (>= 0.4.0),
     rmarkdown (>= 1.14),
+    scales (>= 1.1.1),
     shiny (>= 1.3.2),
     stringr (>= 1.4.0),
     tidyr (>= 1.0.0)
