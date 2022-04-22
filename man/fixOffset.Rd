@@ -9,7 +9,7 @@
 \usage{
 fixOffset(x, ...)
 
-\method{fixOffset}{numeric}(x)
+\method{fixOffset}{numeric}(x, df)
 
 \method{fixOffset}{character}(x, df)
 

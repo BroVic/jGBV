@@ -4,7 +4,7 @@
 \alias{makeTable}
 \title{Make a table of Capacity (Training) Needs}
 \usage{
-makeTable(dt, caption = NULL)
+makeTable(dt, caption = character(1))
 }
 \arguments{
 \item{dt}{A data frame for the type of service provider}
