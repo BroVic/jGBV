@@ -14,7 +14,7 @@ globalVariables(c(
 #' @importFrom flextable flextable
 #' @importFrom tidyr pivot_longer
 #'
-#' @param .data The data frame
+#' @param data The data frame
 #' @param open The column with the opening data (an integer).
 #' @param gbv The column with the date when GBV service was commenced
 #' (an integer).

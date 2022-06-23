@@ -1,3 +1,9 @@
+# Source file: tables.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 globalVariables(c(
   "Variable",
   "Option",

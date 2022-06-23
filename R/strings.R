@@ -1,3 +1,9 @@
+# Source file: strings.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Modify Strings
 #'
 #' Creates spaces for underscores and changes text to title case

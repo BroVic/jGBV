@@ -1,4 +1,4 @@
-globalVariables(c("days_open", "intervention", "services"))
+globalVariables(c("days_open", "intervention", "num.intervention", "services"))
 
 #' Make the Referral Directory
 #'
@@ -102,6 +102,7 @@ prep_ref_directory <-
 #' @return The transformed column, now of type \code{character}.
 #'
 #' @importFrom labelled var_label
+#'
 #' @export
 set_logical_with_label <- function(column) {
   if (!is.logical(column)) {

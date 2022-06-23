@@ -1,3 +1,9 @@
+# Source file: plots.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 globalVariables(
   c("Variable", "Percentage of Facilities", "Response", "Frequency")
 )

@@ -4,6 +4,8 @@
 #
 # Copyright (c) 2022 Victor Ordu
 
+globalVariables("perc")
+
 ## Helper functions for use in the script that has externalized R code
 ## that is put into play for the creation of various output documents
 ## based on R Markdown sources.
@@ -161,12 +163,13 @@ getTrainingsIndex <- function(dt) {
 
 #' Filter the Data and Select Only Columns Relevant to Capacity Assessment
 #'
-#'
+#' @import dplyr
+#' @importFrom magrittr %<>%
+#' @importFrom purrr map_lgl
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_replace
 #' @importFrom stringr str_squish
 #' @importFrom stringr str_trim
-#' @import dplyr
 #'
 #' @param df The data
 #' @param service A string representing the service being filtered.
@@ -176,8 +179,8 @@ getTrainingsIndex <- function(dt) {
 #' @export
 filterAndSelect <- function(df, service) {
   stopifnot(is.data.frame(df), is.character(service))
-  cols <- names(df)
-  t <- .tableBookmarks(df)['type.index']
+
+  # Identifies columns that are empty
   .allEmpty <- function(x) {
     if (is.character(x))
       all(x == "-")
@@ -185,18 +188,21 @@ filterAndSelect <- function(df, service) {
       all(is.na(x))
     else FALSE
   }
+
+  cols <- names(df)
+  t <- .tableBookmarks(df)['type.index']
   df <- df %>%
     filter(grepl(service, .data[[cols[[t]]]], ignore.case = TRUE)) %>%
-    # select(!matches("train") | matches(service)) %>% # applied to NECD. Review!
-    select(!where(.allEmpty))  # most NAs were earlier converted to '-'
+    # select(!matches("train") | matches(service)) %>%   # applied to NEDC. Review!
+    select(which(!map_lgl(., .allEmpty)))  # most NAs were earlier converted to '-'
 
   # Carry out this step here because when the entire complement of
-  # columns are available, transformation is impossible due to
+  # columns are available, transformation is more challenging due to
   # the duplication of column names.
   colnames(df) %<>%    # pipe assignment
     {
       try(.[[grep("LGA", .)]] <- "LGA")
-      try(.[[grep("Name.+Facility", ., ignore.case = TRUE)]] <- "Name of Facility")
+      try(.[[grep("Name.+(Facility|Organization)", ., ignore.case = TRUE)]] <- "Name of Facility")
       try(.[[grep("focal", .)]] <- "GBV Focal Person?")
       try(.[[grep("Position", .)]] <- "Designation")
       try(.[[grep("^Age", .)]] <- "Age Range")
@@ -264,7 +270,6 @@ statGBV <- function(df, stat = c("sum", "perc", 'total'), var = character()) {
 #'
 #' @param x A vector
 #' @param ... Other arguments for methods
-#' @param df A data frame
 #'
 #' @export
 fixOffset <- function(x, ...)
@@ -273,7 +278,8 @@ fixOffset <- function(x, ...)
 #' @rdname fixOffset
 #'
 #' @export
-fixOffset.numeric <- function(x, df) {
+fixOffset.numeric <- function(x, ...) {
+  df <- list(...)$df
   stopifnot(is.data.frame(df))
   .tableBookmarks(df)['type.index'] + x
 }
@@ -281,7 +287,8 @@ fixOffset.numeric <- function(x, df) {
 #' @rdname fixOffset
 #'
 #' @export
-fixOffset.character <- function(x, df) {
+fixOffset.character <- function(x, ...) {
+  df <- list(...)$df
   stopifnot(is.data.frame(df))
   grep(x, names(df), ignore.case = TRUE)
 }
@@ -289,7 +296,7 @@ fixOffset.character <- function(x, df) {
 #' @rdname fixOffset
 #'
 #' @export
-fixOffset.default <- function(x) {"Unsupported type"}
+fixOffset.default <- function(x, ...) {"Unsupported type"}
 
 
 

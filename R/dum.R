@@ -1,3 +1,9 @@
+# Source file: dum.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Make a dummy table
 #'
 #' @param dic A \code{data.frame} containing the data dictionary, as generated

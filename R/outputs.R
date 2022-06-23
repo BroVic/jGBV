@@ -4,7 +4,16 @@
 #
 # Copyright (c) 2022 Victor Ordu
 
+globalVariables(
+  c(
+    "No", "Yes", "Percent",              # dual_singleopts
+    "LGA", "allempty",                   # multiresponse_by_lga
+    "xVar"                               # plot_services_by_lga
+  )
+)
+
 #' Produces dual outputs (table & plot) for multi-response variables
+#'
 #' @param dat The data frame
 #' @param indices Columns to be used. Could be an integer vector (indices of
 #' the columns) or a character vector of length 1 - a regular expression for

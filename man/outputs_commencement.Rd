@@ -7,6 +7,8 @@
 outputs_commencement(data, open, gbv, format = "\%Y")
 }
 \arguments{
+\item{data}{The data frame}
+
 \item{open}{The column with the opening data (an integer).}
 
 \item{gbv}{The column with the date when GBV service was commenced
@@ -14,8 +16,6 @@ outputs_commencement(data, open, gbv, format = "\%Y")
 
 \item{format}{The format to be used in extracting the date as in
 \code{base::format}.}
-
-\item{.data}{The data frame}
 }
 \value{
 A list with 2 elements: An object of class \code{flextable} and

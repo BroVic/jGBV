@@ -1,3 +1,9 @@
+# Source file: import.R
+#
+# MIT License
+#
+# Copyright (c) 2019 Victor Ordu
+
 #' Extract interview transcripts for RQDA
 #'
 #' A script to extract the zip archive containing interview transcripts

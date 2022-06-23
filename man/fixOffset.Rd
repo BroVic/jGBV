@@ -9,18 +9,16 @@
 \usage{
 fixOffset(x, ...)
 
-\method{fixOffset}{numeric}(x, df)
+\method{fixOffset}{numeric}(x, ...)
 
-\method{fixOffset}{character}(x, df)
+\method{fixOffset}{character}(x, ...)
 
-\method{fixOffset}{default}(x)
+\method{fixOffset}{default}(x, ...)
 }
 \arguments{
 \item{x}{A vector}
 
 \item{...}{Other arguments for methods}
-
-\item{df}{A data frame}
 }
 \description{
 Fix offsets for some States
