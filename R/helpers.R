@@ -394,31 +394,3 @@ is_project_state <- function(str)
 
 
 
-
-#' Read Data From A Database
-#'
-#' Reads data from the database and may carry out some minor transformations
-#' in the process.
-#'
-#' @param db The path to the database file.
-#' @param tbl The name of the table to be accessed.
-#' @param ... Additional arguments passed on to \code{DBI::dbConnect}.
-#'
-#' @importFrom RSQLite dbConnect
-#' @importFrom RSQLite dbDisconnect
-#' @importFrom RSQLite dbReadTable
-#'
-#' @export
-read_from_db <- function(db, tbl, ...) {
-  if (!file.exists(db))
-    stop("The database file does not exist")
-  if (!is.character(tbl))
-    stop("'tbl' must be a string")
-  if (length(tbl) > 1L) {
-    tbl <- tbl[1]
-    warning("Only the first element of 'tbl' was used")
-  }
-  con <- dbConnect(SQLite(), db, ...)
-  on.exit(dbDisconnect(con))
-  dbReadTable(con, tbl)
-}
