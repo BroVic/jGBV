@@ -2,21 +2,28 @@
 % Please edit documentation in R/data.R
 \name{load_data}
 \alias{load_data}
-\title{Loads data from the project database(s)}
+\alias{save_table}
+\title{Save/Load Data To Or From The Project Database(s)}
 \usage{
 load_data(path, state, type = c("services", "capacity"))
+
+save_table(df, state, type = c("services", "capacity"), path)
 }
 \arguments{
 \item{path}{The path to the data(base) file.}
 
 \item{state}{The State for which the data are retrieved.}
 
-\item{type}{The kind of data being retrieved (see \italics{Details})}
+\item{type}{The kind of data being retrieved (see \emph{Details})}
 
-\item{...}{Arguments for methods}
+\item{df}{A project data frame that is to be saved.}
+}
+\value{
+For \code{load_data},aA data frame with individual columns of
+class "labelled".
 }
 \description{
-Loads data from the project database(s)
+Save/Load Data To Or From The Project Database(s)
 }
 \details{
 There are two possible values for the \code{type} argument:
