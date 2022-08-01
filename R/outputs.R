@@ -349,9 +349,9 @@ plot_services_by_lga <- function(dat, labs = NULL) {
   if (is.null(labs))
     labs <-
       c("Economic", "Health", "Legal", "Social", "Security", "Shelter")
-  dat |>
-    pivot_longer(2:last_col(), names_to = "xVar", values_to = "Freq") |>
-    mutate(xVar = factor(xVar, labels = labs)) |>
+  dat %>%
+    pivot_longer(2:last_col(), names_to = "xVar", values_to = "Freq") %>%
+    mutate(xVar = factor(xVar, labels = labs)) %>%
     ggplot(aes(xVar, Freq, fill = xVar)) +
     geom_col() +
     scale_color_brewer(palette = "Set1") +
