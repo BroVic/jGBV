@@ -11,15 +11,19 @@ globalVariables(c("orgtype", "orgname"))
 
 #' Import Raw Data Into the Project
 #'
+#' @param dir A directory used for the downloads, which usually has
+#' subdirectories - one for each project State.
 #' @param db Path to an SQLite database. If non-existent, will attempt to
 #' create one.
-#' @param modlist A list of objects of class \code{VarModifier}.
+#' @param modlist An optional list of objects of class \code{VarModifier}.
 #' @param state The project state.
 #' @param filetype The kind of data being imported. Should be one of
 #' \emph{Capacity} or \emph{Services} for data on capacity assessment and for
 #' GBV service mapping, respectively.
+#' @param drop Character vector of columns to be dropped from the data table.
+#' @param ... Arguments passed to \code{read_in_excel_data}.
 #'
-#' @return After saving the data table, return as a data frame.
+#' @return Both functions return a \code{data.frame} with labelled variables.
 #'
 #' @importFrom RSQLite dbConnect
 #' @importFrom RSQLite dbDisconnect
@@ -27,10 +31,14 @@ globalVariables(c("orgtype", "orgname"))
 #' @importFrom dplyr %>%
 #'
 #' @export
-import_data <- function(db, modlist, state, filetype) {
+import_data <-
+  function(dir, db, modlist = NULL, state, filetype, ...)
+{
   # Validate input
-  if (!is.vector(modlist, mode = "list"))
-    stop("'modlist' must be a vector of type 'list'")
+  if (!is.null(modlist)) {
+    if (!is.vector(modlist, mode = "list"))
+      stop("'modlist' must be a vector of type 'list'")
+  }
   state <- match.arg(state, getOption("jgbv.project.states"))
   srv <- "Services"
   cap <- "Capacity"
@@ -42,7 +50,7 @@ import_data <- function(db, modlist, state, filetype) {
   ## to make for easy indexing. The vector used varies depending
   ## on whether we are working with data on service mapping or
   ## for capacity assessment.
-  dat <- .readInExcelData(state, filetype)
+  dat <- read_in_excel_data(dir, state, filetype, ...)
   newvars <- .chooseNewVars(filetype)
 
   ## Make sure that only values from the state of interest
@@ -78,9 +86,11 @@ import_data <- function(db, modlist, state, filetype) {
   ## stage since we are saving to a database, which does not
   ## preserve all the base R types/classes used here.
   if (filetype == srv) {
-    for (x in modlist)
-      dat <-
-        .modifyAndPreserveLabels(dat, newvars[x$vars], x$func, x$nestfunc, x$args)
+    if (!is.null(modlist)) {
+      for (x in modlist)
+        dat <-
+          .modifyAndPreserveLabels(dat, newvars[x$vars], x$func, x$nestfunc, x$args)
+    }
     dat <- transform_bool_to_logical(dat)
 
     # In some of the State datasets, the number of staff/beneficiaries and costs
@@ -188,10 +198,17 @@ import_data <- function(db, modlist, state, filetype) {
 #' @importFrom dplyr select
 #' @importFrom labelled var_label
 #' @importFrom readxl read_xlsx
-.readRawAndLabel <- function(file, new.var = NULL, ftype, state = NULL) {
+#' @importFrom purrr map_df
+.readRawAndLabel <-
+  function(file, new.var = NULL, ftype, state = NULL, drop) {
   stopifnot({file.exists(file); is.character(ftype)})
 
   df <- readxl::read_xlsx(file)
+  if (!is.null(drop))
+    df <- purrr::map_df(drop, function(col) {
+      df[[col]] <- NULL
+      df
+    })
 
   if (ftype == "Capacity") {
     if (state == "Kebbi")
@@ -328,16 +345,29 @@ import_data <- function(db, modlist, state, filetype) {
 
 
 
-# Read in the data and apply labels to the variables
-.readInExcelData <- function(state, filetype) {
-  rgx <- getOption("jgbv.excelfile.regex")
-  xl.rgx <- rgx[filetype]
+#' @rdname import_data
+#'
+#' @export
+read_in_excel_data <- function(dir, state, filetype, drop = NULL) {
+  force(drop)
+  if (!dir.exists(dir))
+    stop("The directory 'path' does not exist")
+  state <- match.arg(state, getOption("jgbv.project.states"))
+  filetype <- match.arg(filetype, c("Services", "Capacity"))
 
-  dir <- paste(here("data/incoming"), state, sep = '/')
+  # Select a pattern (if applicable for extracting the Excel file)
+  xl.rgx <- NULL
+  rgx <- getOption("jgbv.excelfile.regex")
+  if (!is.null(rgx))
+    xl.rgx <- rgx[filetype]
+
+  dir <- paste(dir, state, sep = '/')
   xlf <- list.files(dir, xl.rgx, ignore.case = TRUE)
+  if (length(xlf) > 1L)
+    stop("More than one Excel file selected")
   xlpath <- file.path(dir, xlf)
   newcolnames <- .chooseNewVars(filetype)
-  .readRawAndLabel(xlpath, newcolnames, filetype, state)
+  .readRawAndLabel(xlpath, newcolnames, filetype, state, drop)
 }
 
 

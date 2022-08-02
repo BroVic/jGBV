@@ -2,24 +2,34 @@
 % Please edit documentation in R/start.R
 \name{import_data}
 \alias{import_data}
+\alias{read_in_excel_data}
 \title{Import Raw Data Into the Project}
 \usage{
-import_data(db, modlist, state, filetype)
+import_data(dir, db, modlist = NULL, state, filetype, ...)
+
+read_in_excel_data(dir, state, filetype, drop = NULL)
 }
 \arguments{
+\item{dir}{A directory used for the downloads, which usually has
+subdirectories - one for each project State.}
+
 \item{db}{Path to an SQLite database. If non-existent, will attempt to
 create one.}
 
-\item{modlist}{A list of objects of class \code{VarModifier}.}
+\item{modlist}{An optional list of objects of class \code{VarModifier}.}
 
 \item{state}{The project state.}
 
 \item{filetype}{The kind of data being imported. Should be one of
 \emph{Capacity} or \emph{Services} for data on capacity assessment and for
 GBV service mapping, respectively.}
+
+\item{...}{Arguments passed to \code{read_in_excel_data}.}
+
+\item{drop}{Character vector of columns to be dropped from the data table.}
 }
 \value{
-After saving the data table, return as a data frame.
+Both functions return a \code{data.frame} with labelled variables.
 }
 \description{
 Import Raw Data Into the Project

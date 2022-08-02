@@ -1,5 +1,8 @@
-xopts <- options(jgbv.project.states = c("Taraba", "Kebbi", "Niger"),
-        jgbv.multiresponse.regex = "bin")
+xopts <- options(
+  jgbv.project.states = c("Taraba", "Kebbi", "Niger"),
+  jgbv.multiresponse.regex = "bin",
+  jgbv.excelfile.regex = c(Services = "services_", Capacity = "capacity_")
+)
 
 test_that("input is validated for 'import_data'", {
   db <- 'testdata/testdb.db'
@@ -46,6 +49,14 @@ test_that("binary values are tranformed to logical T/F", {
   expect_type(dtrans$dbl, "double")
   expect_type(dtrans$str, "character")
 
+})
+
+
+test_that("Excel files are read and labelled", {
+  res <- read_in_excel_data("testdata", "Taraba", "Services")
+
+  expect_s3_class(res, "data.frame")
+  expect_equal(attr(res$alcgp, "label"), "alcgp")
 })
 
 options(xopts)
