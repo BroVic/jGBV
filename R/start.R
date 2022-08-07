@@ -625,8 +625,9 @@ transform_bool_to_logical <- function(data) {
     else
       substitute(f)
     arglist <- list()
+    columnnames <-  names(df)
     for (i in x) {
-      if (!i %in% names(df)) {
+      if (is.character(i) && (!i %in% columnnames)) {
         message("No variable named ", i)
         next
       }
@@ -641,6 +642,8 @@ transform_bool_to_logical <- function(data) {
           substitute(nest)
         cc <- as.call(list(nestfun, cc))
       }
+      if (is.numeric(i))
+        i <- columnnames[i]
       message("Modifying ", i)
       df[[i]] <<- eval(cc)
       var_label(df[[i]]) <<- l
