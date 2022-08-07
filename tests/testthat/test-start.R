@@ -1,7 +1,19 @@
 xopts <- options(
   jgbv.project.states = c("Taraba", "Kebbi", "Niger"),
   jgbv.multiresponse.regex = "bin",
-  jgbv.excelfile.regex = c(Services = "services_", Capacity = "capacity_")
+  jgbv.excelfile.regex = c(Services = "services_", Capacity = "capacity_"),
+  jgbv.new.varnames = c(
+    sn = "serialnum",
+    age = "agegroup",
+    fake1 = "fake_1",
+    rem1 = "rem_1",
+    alc = "alcohol_grp",
+    fake2 = "fake_2",
+    tob = "tobacco_grp",
+    rem2 = "rem_2",
+    n = "num_cases",
+    nc = "num_controls"
+  )
 )
 
 test_that("input is validated for 'import_data'", {
@@ -52,11 +64,24 @@ test_that("binary values are tranformed to logical T/F", {
 })
 
 
+
+d <- "testdata"
+s <- "Taraba"
+t <- "Services"
+outvars <- c(3, 6)
+
+test_that("Unwanted variables are removed when reading  data", {
+  expect_error(suppressWarnings(read_in_excel_data(d, s, t)))
+  expect_warning(try(read_in_excel_data(d, s, t), silent = TRUE))
+  expect_silent(read_in_excel_data(d, s, t, drop.v = outvars))
+})
+
+
 test_that("Excel files are read and labelled", {
-  res <- read_in_excel_data("testdata", "Taraba", "Services")
+  res <- read_in_excel_data(d, s, t, drop.v = outvars)
 
   expect_s3_class(res, "data.frame")
-  expect_equal(attr(res$alcgp, "label"), "alcgp")
+  expect_equal(attr(res$alcohol_grp, "label"), "alcgp")
 })
 
 options(xopts)

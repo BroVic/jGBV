@@ -7,7 +7,14 @@
 \usage{
 import_data(dir, db, modlist = NULL, state, filetype, ...)
 
-read_in_excel_data(dir, state, filetype, drop = NULL)
+read_in_excel_data(
+  dir,
+  state,
+  filetype,
+  drop.c = NULL,
+  drop.v = NULL,
+  nvars = NULL
+)
 }
 \arguments{
 \item{dir}{A directory used for the downloads, which usually has
@@ -26,11 +33,20 @@ GBV service mapping, respectively.}
 
 \item{...}{Arguments passed to \code{read_in_excel_data}.}
 
-\item{drop}{Character vector of columns to be dropped from the data table.}
+\item{drop.c, drop.v}{Character or integer vector of columns or variables to
+be dropped from the data table or list of variable names, respectively.}
+
+\item{nvars}{The number of columns in the final data frame.}
 }
 \value{
 Both functions return a \code{data.frame} with labelled variables.
 }
 \description{
 Import Raw Data Into the Project
+}
+\note{
+\code{import_data} wraps \code{read_in_excel_data}, as it carries
+out additional processing of the data read from the spreadsheets.
+\code{nvars} is usually set for the capacity assessment data, which tend
+to have superfluous columns.
 }

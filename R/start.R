@@ -20,10 +20,17 @@ globalVariables(c("orgtype", "orgname"))
 #' @param filetype The kind of data being imported. Should be one of
 #' \emph{Capacity} or \emph{Services} for data on capacity assessment and for
 #' GBV service mapping, respectively.
-#' @param drop Character vector of columns to be dropped from the data table.
+#' @param drop.c,drop.v Character or integer vector of columns or variables to
+#' be dropped from the data table or list of variable names, respectively.
+#' @param nvars The number of columns in the final data frame.
 #' @param ... Arguments passed to \code{read_in_excel_data}.
 #'
 #' @return Both functions return a \code{data.frame} with labelled variables.
+#'
+#' @note \code{import_data} wraps \code{read_in_excel_data}, as it carries
+#' out additional processing of the data read from the spreadsheets.
+#' \code{nvars} is usually set for the capacity assessment data, which tend
+#' to have superfluous columns.
 #'
 #' @importFrom RSQLite dbConnect
 #' @importFrom RSQLite dbDisconnect
@@ -40,8 +47,7 @@ import_data <-
       stop("'modlist' must be a vector of type 'list'")
   }
   state <- match.arg(state, getOption("jgbv.project.states"))
-  srv <- "Services"
-  cap <- "Capacity"
+  srv <- "Services"; cap <- "Capacity"
   filetype <- match.arg(filetype, c(srv, cap))
 
   ## Collect data as well as modified variable names
@@ -194,47 +200,6 @@ import_data <-
 
 
 
-# Reads in the raw data from Excel and also labels the new data frame
-#' @importFrom dplyr select
-#' @importFrom labelled var_label
-#' @importFrom readxl read_xlsx
-#' @importFrom purrr map_df
-.readRawAndLabel <-
-  function(file, new.var = NULL, ftype, state = NULL, drop) {
-  stopifnot({file.exists(file); is.character(ftype)})
-
-  df <- readxl::read_xlsx(file)
-  if (!is.null(drop))
-    df <- purrr::map_df(drop, function(col) {
-      df[[col]] <- NULL
-      df
-    })
-
-  if (ftype == "Capacity") {
-    if (state == "Kebbi")
-      df[["audit_URL"]] <- NULL
-    actual <- 153L
-    df <- df[seq_len(actual)]
-  }
-
-  labelled::var_label(df) <- names(df)
-
-  if (!is.null(new.var)) {
-    nc <- ncol(df)
-    nv <- length(new.var)
-
-    if (!identical(nc, nv)) {
-      warning(sprintf("There are %d columns, but %d variables were provided",
-                      nc, nv))
-      stop("'new.var' must have as many elements as there are columns")
-    }
-
-    names(df) <- new.var
-  }
-  df
-}
-
-
 
 # Generic cleaning of variable labels
 #' @importFrom stringr str_remove
@@ -348,27 +313,83 @@ import_data <-
 #' @rdname import_data
 #'
 #' @export
-read_in_excel_data <- function(dir, state, filetype, drop = NULL) {
-  force(drop)
-  if (!dir.exists(dir))
-    stop("The directory 'path' does not exist")
-  state <- match.arg(state, getOption("jgbv.project.states"))
-  filetype <- match.arg(filetype, c("Services", "Capacity"))
+read_in_excel_data <-
+  function(dir,
+           state,
+           filetype,
+           drop.c = NULL,
+           drop.v = NULL,
+           nvars = NULL) {
+    if (!dir.exists(dir))
+      stop("The directory 'path' does not exist")
+    state <- match.arg(state, getOption("jgbv.project.states"))
+    filetype <- match.arg(filetype, c("Services", "Capacity"))
+    force(drop.c)
+    force(drop.v)
+    force(nvars)
 
-  # Select a pattern (if applicable for extracting the Excel file)
-  xl.rgx <- NULL
-  rgx <- getOption("jgbv.excelfile.regex")
-  if (!is.null(rgx))
-    xl.rgx <- rgx[filetype]
+    # Select a pattern (if applicable for extracting the Excel file)
+    xl.rgx <- NULL
+    rgx <- getOption("jgbv.excelfile.regex")
+    if (!is.null(rgx))
+      xl.rgx <- rgx[filetype]
 
-  dir <- paste(dir, state, sep = '/')
-  xlf <- list.files(dir, xl.rgx, ignore.case = TRUE)
-  if (length(xlf) > 1L)
-    stop("More than one Excel file selected")
-  xlpath <- file.path(dir, xlf)
-  newcolnames <- .chooseNewVars(filetype)
-  .readRawAndLabel(xlpath, newcolnames, filetype, state, drop)
-}
+    dir <- paste(dir, state, sep = '/')
+    xlf <- list.files(dir, xl.rgx, ignore.case = TRUE)
+    if (length(xlf) > 1L)
+      stop("More than one Excel file selected")
+    xlpath <- file.path(dir, xlf)
+    newcolnames <- .chooseNewVars(filetype)
+    .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars)
+  }
+
+
+
+
+# Reads in the raw data from Excel and also labels the new data frame
+#' @importFrom dplyr select
+#' @importFrom labelled var_label
+#' @importFrom readxl read_xlsx
+#' @importFrom purrr map_df
+.readRawAndLabel <-
+  function(file,
+           new.var,
+           ftype,
+           state,
+           drop.col,
+           drop.var,
+           numvar) {
+    stopifnot({
+      file.exists(file)
+      is.character(ftype)
+    })
+
+    df <- readxl::read_xlsx(file)
+    if (!is.null(drop.col))
+      for (col in drop.col)
+        df[[col]] <- NULL
+
+    if (!is.null(numvar))
+      df <- df[seq_len(numvar)]
+
+    labelled::var_label(df) <- names(df)
+
+    if (!is.null(new.var)) {
+      if (!is.null(drop.var))
+        new.var <- new.var[-drop.var]
+      nc <- ncol(df)
+      nv <- length(new.var)
+
+      if (!identical(nc, nv)) {
+        warning(sprintf("There are %d columns, but %d variables were provided", nc, nv))
+        stop("'new.var' must have as many elements as there are columns")
+      }
+
+      names(df) <- new.var
+    }
+    df
+  }
+
 
 
 
@@ -605,6 +626,10 @@ transform_bool_to_logical <- function(data) {
       substitute(f)
     arglist <- list()
     for (i in x) {
+      if (!i %in% names(df)) {
+        message("No variable named ", i)
+        next
+      }
       l <- var_label(df[[i]])
       cc <- as.call(list(f, quote(df[[i]])))
       cl <- c(as.list(cc), ...)
