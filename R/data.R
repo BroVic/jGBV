@@ -151,6 +151,7 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 
 
 #' @import dplyr
+#' @importFrom stats na.exclude
 #' @importFrom stringr str_remove
 .processDateTime <- function(data, vars) {
   stopifnot(is.data.frame(data), is.list(vars))

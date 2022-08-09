@@ -59,7 +59,7 @@ import_data <-
   ## to make for easy indexing. The vector used varies depending
   ## on whether we are working with data on service mapping or
   ## for capacity assessment.
-  dat <- read_in_excel_data(dir, state, filetype, ..., na.strings)
+  dat <- read_in_excel_data(dir, state, filetype, ..., na.strings = na.strings)
   newvars <- .chooseNewVars(filetype)
 
   ## Make sure that only values from the state of interest
@@ -200,7 +200,7 @@ import_data <-
   stopifnot({
     is.data.frame(df)
     is.character(pattern)
-    is.function(eval(func))
+    # is.function(eval(func))
   })
   patternFound <-
     function(column) any(grepl(pattern, column))
@@ -355,7 +355,7 @@ read_in_excel_data <-
       stop("More than one Excel file selected")
     xlpath <- file.path(dir, xlf)
     newcolnames <- .chooseNewVars(filetype)
-    .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars)
+    .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars, na = na.strings)
   }
 
 
