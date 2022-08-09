@@ -50,6 +50,8 @@ import_data <-
   state <- match.arg(state, getOption("jgbv.project.states"))
   srv <- "Services"; cap <- "Capacity"
   filetype <- match.arg(filetype, c(srv, cap))
+  if (missing(na.strings))
+    na.strings <- ""
 
   ## Collect data as well as modified variable names
   ## The vector with the modified names is supplied as
@@ -95,8 +97,11 @@ import_data <-
   if (filetype == srv) {
     if (!is.null(modlist)) {
       for (x in modlist)
-        dat <-
-          .modifyAndPreserveLabels(dat, newvars[x$vars], x$func, x$nestfunc, x$args)
+        try(
+          dat <-
+            .modifyAndPreserveLabels(
+              dat, newvars[x$vars], x$func, x$nestfunc, x$args)
+        )
     }
     dat <- transform_bool_to_logical(dat)
 
@@ -104,18 +109,18 @@ import_data <-
     # are represented as character vectors, so we perform a check/fix for this.
     for (col in grep("num_|_num|fee_", newvars, value = T)) {
       if (is.character(dat[[col]]))
-        dat <- .modifyAndPreserveLabels(dat, col, as.numeric)
+        try(dat <- .modifyAndPreserveLabels(dat, col, as.numeric))
     }
 
     ## Conversely, some of the columns that ought to contain strings are
     ## found to be numeric in some States' datasets
     for (col in grep("describe|simserial", newvars, value = TRUE))
-      dat <- .modifyAndPreserveLabels(dat, col, as.character)
+      try(dat <- .modifyAndPreserveLabels(dat, col, as.character))
 
     dat <-
-      .modifyAcrossPatterns(dat, "^(yes|no|sometimes|never|always)$", str_to_title)
-    dat <- .modifyAcrossPatterns(dat, "^free$", str_to_title)
-    dat <- fix_factors(dat, newvars)
+      .modifyAcrossPatterns("^(yes|no|sometimes|never|always)$", str_to_title) |>
+      .modifyAcrossPatterns("^free$", str_to_title) |>
+      fix_factors(newvars)
 
     ## Some of the LGAs in States are misspelt. We have prepared a function
     ## that is customized to fix this given the spelling mistakes identified
@@ -191,11 +196,19 @@ import_data <-
 # of the variable. They are identified with regular expressions.
 # This function uses those patterns to carry out the modifications.
 .modifyAcrossPatterns <- function(df, pattern, f) {
-  indices <-
-    which(vapply(df, \(x) any(grepl(pattern, x)), logical(1)))
   func <- substitute(f)
+  stopifnot({
+    is.data.frame(df)
+    is.character(pattern)
+    is.function(eval(func))
+  })
+  patternFound <-
+    function(column) any(grepl(pattern, column))
+  indices <- which(vapply(df, patternFound, logical(1)))
+  if (!indices)
+    stop("The regular expression ", sQuote(pattern), "did not match")
   for (i in indices)
-    df <- .modifyAndPreserveLabels(df, i, deparse(func))
+    try(df <- .modifyAndPreserveLabels(df, i, deparse(func)))
   df
 }
 
