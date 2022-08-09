@@ -71,7 +71,7 @@ s <- "Taraba"
 t <- "Services"
 outvars <- c(3, 6)
 
-test_that("Unwanted variables are removed when reading  data", {
+test_that("Unwanted variables are made missing when reading data", {
   expect_error(suppressWarnings(read_in_excel_data(d, s, t)))
   expect_warning(try(read_in_excel_data(d, s, t), silent = TRUE))
   expect_silent(read_in_excel_data(d, s, t, drop.v = outvars))

@@ -205,8 +205,10 @@ import_data <-
   patternFound <-
     function(column) any(grepl(pattern, column))
   indices <- which(vapply(df, patternFound, logical(1)))
-  if (!indices)
-    stop("The regular expression ", sQuote(pattern), "did not match")
+  if (!indices[1])
+    stop("The regular expression ",
+         sQuote(pattern),
+         "did not match column values")
   for (i in indices)
     try(df <- .modifyAndPreserveLabels(df, i, deparse(func)))
   df
@@ -390,12 +392,20 @@ read_in_excel_data <-
 
     labelled::var_label(df) <- names(df)
 
+    # For situations where there are missing variables from the
+    # imported data, we will add new variables that have only
+    # missing values.
     if (!is.null(new.var)) {
-      if (!is.null(drop.var))
+      missingVars <- isFALSE(is.null(drop.var))
+      if (missingVars) {
+        add.var <- new.var[drop.var]
         new.var <- new.var[-drop.var]
+      }
+      names(df) <- new.var
       if (!matchDfWithVarsLength(df, new.var))
         stop("'new.var' must have as many elements as there are columns")
-      names(df) <- new.var
+      if (missingVars)
+        df[, add.var] <- NA
     }
     df
   }
