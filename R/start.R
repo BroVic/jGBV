@@ -24,6 +24,7 @@ globalVariables(c("orgtype", "orgname"))
 #' be dropped from the data table or list of variable names, respectively.
 #' @param nvars The number of columns in the final data frame.
 #' @param ... Arguments passed to \code{read_in_excel_data}.
+#' @param na.strings Strings in the Excel sheet to be interpreted as \code{MA}.
 #'
 #' @return Both functions return a \code{data.frame} with labelled variables.
 #'
@@ -39,7 +40,7 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @export
 import_data <-
-  function(dir, db, modlist = NULL, state, filetype, ...)
+  function(dir, db, modlist = NULL, state, filetype, ..., na.strings)
 {
   # Validate input
   if (!is.null(modlist)) {
@@ -56,7 +57,7 @@ import_data <-
   ## to make for easy indexing. The vector used varies depending
   ## on whether we are working with data on service mapping or
   ## for capacity assessment.
-  dat <- read_in_excel_data(dir, state, filetype, ...)
+  dat <- read_in_excel_data(dir, state, filetype, ..., na.strings)
   newvars <- .chooseNewVars(filetype)
 
   ## Make sure that only values from the state of interest
@@ -319,7 +320,8 @@ read_in_excel_data <-
            filetype,
            drop.c = NULL,
            drop.v = NULL,
-           nvars = NULL) {
+           nvars = NULL,
+           na.strings = "") {
     if (!dir.exists(dir))
       stop("The directory 'path' does not exist")
     state <- match.arg(state, getOption("jgbv.project.states"))
@@ -358,13 +360,14 @@ read_in_excel_data <-
            state,
            drop.col,
            drop.var,
-           numvar) {
+           numvar,
+           na) {
     stopifnot({
       file.exists(file)
       is.character(ftype)
     })
 
-    df <- readxl::read_xlsx(file)
+    df <- readxl::read_xlsx(file, na = na)
     if (!is.null(drop.col))
       for (col in drop.col)
         df[[col]] <- NULL
@@ -377,19 +380,12 @@ read_in_excel_data <-
     if (!is.null(new.var)) {
       if (!is.null(drop.var))
         new.var <- new.var[-drop.var]
-      nc <- ncol(df)
-      nv <- length(new.var)
-
-      if (!identical(nc, nv)) {
-        warning(sprintf("There are %d columns, but %d variables were provided", nc, nv))
+      if (!matchDfWithVarsLength(df, new.var))
         stop("'new.var' must have as many elements as there are columns")
-      }
-
       names(df) <- new.var
     }
     df
   }
-
 
 
 

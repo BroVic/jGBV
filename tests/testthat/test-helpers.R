@@ -91,10 +91,10 @@ test_that("knitr_kable object is created", {
 
 
 
-vec <- readRDS(here("tests/testthat", "testdata/samplecol.rds"))
+vec <- readRDS("testdata/samplecol.rds")
 test_that("labelled column can be converted to a factor", {
   f <- transform_to_factor(vec)
-  sngl <- readRDS(here("tests/testthat", "testdata/singleval.rds"))
+  sngl <- readRDS("testdata/singleval.rds")
 
   expect_is(f, "factor")
   expect_type(f, "integer")
@@ -102,14 +102,14 @@ test_that("labelled column can be converted to a factor", {
 })
 
 test_that("not_multichoice detects appropriate variables", {
-  chkd <- readRDS(here("tests/testthat", "testdata/checked.rds"))
+  chkd <- readRDS("testdata/checked.rds")
 
   expect_true(not_multichoice(vec))
   expect_false(not_multichoice(chkd))
 })
 
 test_that("A single list colum is unnested", {
-  dtest <- readRDS(here("tests/testthat", "testdata/list_col_test.rds"))
+  dtest <- readRDS("testdata/list_col_test.rds")
 
   dOut <- extend_single_listcol(dtest, new1, "Test")
   dOut2 <- extend_single_listcol(dtest, new1, c("Test1", "Test2"))
@@ -121,8 +121,8 @@ test_that("A single list colum is unnested", {
 })
 
 test_that("Columns are transformed", {
-  dat <- readRDS(here("tests/testthat", "testdata/pickout.rds"))
-  colCheckObj <- readRDS(here("tests/testthat", "testdata/colCheckObj.rds"))
+  dat <- readRDS("testdata/pickout.rds")
+  colCheckObj <- readRDS("testdata/colCheckObj.rds")
 
   newdat <- pickout_cols_and_transform(dat, colCheckObj)
 
@@ -138,6 +138,8 @@ test_that("`compute_percent()` returns correct values", {
   expect_equal(compute_percent(1), 100)
   expect_false(identical(compute_percent(1), 100L))
 })
+
+
 
 test_that("Input is validated for 'compute_percent'", {
   expect_error(compute_percent(TRUE))
@@ -184,15 +186,17 @@ test_that("show_codebook() validates input", {
 
 
 
-# test_that("templates can be retrieved", {
-#   errmsg <- "is.character\\(dir\\) is not TRUE"
-#   errmsg2 <- gettext("Template '%s' was not found")
-#   fake <- "fake-directory"
-#
-#   expect_error(.retrieveDocumentTemplate(999), errmsg)
-#   expect_error(.retrieveDocumentTemplate(NULL), errmsg)
-#   expect_error(.retrieveDocumentTemplate(NA), errmsg)
-#   expect_error(.retrieveDocumentTemplate(NA_character_), errmsg)
-#   expect_error(.retrieveDocumentTemplate(TRUE), errmsg)
-#   expect_error(.retrieveDocumentTemplate(fake), sprintf(errmsg2, fake))
-# })
+test_that("variables are dropped or not as needed", {
+  xopt <- options(jgbv.project.states = c("Adamawa", "Borno", "Yobe"))
+
+  expect_null(removed_variables())
+  expect_null(removed_variables("Borno"))
+  expect_error(removed_variables("Imo"),
+               "'state' should be one of the project states")
+  expect_error(removed_variables("No.state"),
+               "'state' must be a State of Nigeria")
+  expect_warning(removed_variables("Adamawa"))
+  expect_type(suppressWarnings(removed_variables("Adamawa")), "integer")
+
+  options(xopt)
+})

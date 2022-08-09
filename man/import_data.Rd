@@ -5,7 +5,7 @@
 \alias{read_in_excel_data}
 \title{Import Raw Data Into the Project}
 \usage{
-import_data(dir, db, modlist = NULL, state, filetype, ...)
+import_data(dir, db, modlist = NULL, state, filetype, ..., na.strings)
 
 read_in_excel_data(
   dir,
@@ -13,7 +13,8 @@ read_in_excel_data(
   filetype,
   drop.c = NULL,
   drop.v = NULL,
-  nvars = NULL
+  nvars = NULL,
+  na.strings = ""
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ create one.}
 GBV service mapping, respectively.}
 
 \item{...}{Arguments passed to \code{read_in_excel_data}.}
+
+\item{na.strings}{Strings in the Excel sheet to be interpreted as \code{MA}.}
 
 \item{drop.c, drop.v}{Character or integer vector of columns or variables to
 be dropped from the data table or list of variable names, respectively.}

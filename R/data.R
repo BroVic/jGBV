@@ -43,6 +43,8 @@ read_from_db <- function(db, tbl, ...) {
 #'
 #' @param path The path to the data(base) file.
 #' @param df A project data frame that is to be saved.
+#' @param vars A vector of variable names.Defaults to names provided via
+#' \code{options}.
 #' @param state The State for which the data are retrieved.
 #' @param type The kind of data being retrieved (see \emph{Details})
 #'
@@ -57,19 +59,29 @@ read_from_db <- function(db, tbl, ...) {
 #' @importFrom labelled var_label
 #'
 #' @export
-load_data <- function(path, state, type = c("services", "capacity")) {
+load_data <- function(path,
+                      state,
+                      type = c("services", "capacity"),
+                      vars = getOption("jgbv.new.varnames")) {
   .assertStateAndDbpath(state, path)
   type <- match.arg(type)
+  if (!is.character(vars))
+    stop("'vars' must be a character vector")
   con <- dbConnect(SQLite(), path)
   on.exit(dbDisconnect(con))
   df <-
     dbReadTable(con, .tblName(state, type, "cleaned"), check.names = FALSE)
+
   if (type == 'services') {
-    varlist <- as.list(getOption("jgbv.new.varnames"))
-    df <- suppressWarnings(.processDateTime(df, varlist))
+    if (!matchDfWithVarsLength(df, vars))
+      stop("Length of 'df' and 'vars' do not match")
+    df <- suppressWarnings(.processDateTime(df, as.list(vars)))
     df <- .setFactors(df)
   }
-  qry <- sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
+  else
+    stop("No implementation for ", sQuote(type))
+  qry <-
+    sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
   labs <- unlist(dbGetQuery(con, qry))
   var_label(df) <- labs
   df
@@ -125,17 +137,37 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 }
 
 
+
+
+
 # Constructs the name of a database table
 .tblName <- function(state, type, str) {
   paste(state, type, str, sep = '_')
 }
 
 
+
+
+
+
 #' @import dplyr
 #' @importFrom stringr str_remove
 .processDateTime <- function(data, vars) {
   stopifnot(is.data.frame(data), is.list(vars))
-  data %>%
+
+  makeDate <- function(x) {
+    stopifnot(is.character(x) || is.numeric(x))
+    if (is.character(x) &&
+        !all(grepl("^[[:digit:]]+$", na.exclude(x)))) {
+      return(as.Date(x))
+    }
+    x <- as.numeric(x)
+    if (all(x > as.double(Sys.Date())))
+      return(as.POSIXct(x, origin = "1970-01-01"))
+    as.Date(x, origin = "1900-01-01")
+  }
+
+  df <- data %>%
     mutate(across(
       all_of(c(vars$start, vars$end)),
       ~ as.POSIXct(strptime(.x, format = "%Y-%m-%dT%H:%M:%OS"))
@@ -144,7 +176,9 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
       all_of(c(vars$open.time, vars$close.time)),
       ~ str_remove(.x, "\\:00\\.000\\+01:00$")
     )) %>%
-    mutate(across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), as.Date)) %>%
+    mutate(
+      across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), makeDate)
+    ) %>%
     mutate(across(contains(vars$close.time), .dealWithBadPmEntries))
 }
 

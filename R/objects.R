@@ -4,16 +4,16 @@
 #
 # Copyright (c) 2019 Victor Ordu
 
-#' Builtin Objects For RAAMP-GBV Project
+#' Builtin Objects For JHPIEGO GBV Projects
 #'
-#' @rdname raamp-objects
+#' @rdname jgbv-objects
 #'
 #' @export
 raampStates <- c("Abia", "Akwa Ibom", "Ogun", "Bauchi")
 
 
 
-#' @rdname raamp-objects
+#' @rdname jgbv-objects
 #'
 #' @export
 tool.sectors <-
@@ -45,6 +45,3 @@ tool.sectors <-
 print.Tools <- function(x, ...) {
   print(unclass(unname(x)), ...)
 }
-
-
-

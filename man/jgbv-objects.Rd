@@ -4,7 +4,7 @@
 \name{raampStates}
 \alias{raampStates}
 \alias{tool.sectors}
-\title{Builtin Objects For RAAMP-GBV Project}
+\title{Builtin Objects For JHPIEGO GBV Projects}
 \format{
 An object of class \code{character} of length 4.
 
@@ -16,6 +16,6 @@ raampStates
 tool.sectors
 }
 \description{
-Builtin Objects For RAAMP-GBV Project
+Builtin Objects For JHPIEGO GBV Projects
 }
 \keyword{datasets}

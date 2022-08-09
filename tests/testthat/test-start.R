@@ -12,7 +12,8 @@ xopts <- options(
     tob = "tobacco_grp",
     rem2 = "rem_2",
     n = "num_cases",
-    nc = "num_controls"
+    nc = "num_controls",
+    rem3 = "rem3"
   )
 )
 
@@ -83,5 +84,14 @@ test_that("Excel files are read and labelled", {
   expect_s3_class(res, "data.frame")
   expect_equal(attr(res$alcohol_grp, "label"), "alcgp")
 })
+
+
+test_that("missing values are accurately represented", {
+  df <-
+    read_in_excel_data(d, s, t, drop.v = outvars, na.strings = c("", "n/a"))
+})
+
+
+
 
 options(xopts)
