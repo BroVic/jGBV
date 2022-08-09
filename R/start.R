@@ -117,7 +117,7 @@ import_data <-
     for (col in grep("describe|simserial", newvars, value = TRUE))
       try(dat <- .modifyAndPreserveLabels(dat, col, as.character))
 
-    dat <-
+    dat <- dat |>
       .modifyAcrossPatterns("^(yes|no|sometimes|never|always)$", str_to_title) |>
       .modifyAcrossPatterns("^free$", str_to_title) |>
       fix_factors(newvars)
