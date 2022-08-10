@@ -127,6 +127,37 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 
 
 
+#' Manipulate A Vector For Getting Correct Date-Time Types
+#'
+#' @param x The vector to be modified.
+#'
+#' @return The modified vector usually of class \code{Date} or \code{POSIXct}.
+#' @importFrom stringr str_trim
+#' @export
+make_date <- function(x) {
+  if (!is.character(x) && !is.numeric(x))
+    stop("'x' must be either of type 'character' or 'numeric'")
+  cent.origin <- "1899-12-30"
+  epoch.unix <- "1970-01-01"
+  if (is.character(x)) {
+    x <- stringr::str_trim(x)
+    hasIsoDate <- grepl("^\\d{4}(\\-\\d{2}){2}$", na.exclude(x))
+    if (all(hasIsoDate))
+      return(as.Date(x))
+    if (any(hasIsoDate)) {
+      if (all(grepl("^\\d{4,}$", x[!hasIsoDate])))
+      x <- ifelse(hasIsoDate, as.double(as.Date(x)), x)
+    }
+    x <- as.numeric(x)
+  }
+  if (all(x %/% 1e4 > 3))
+    return(as.POSIXct(x, origin = epoch.unix))
+  as.Date(x, origin = cent.origin)
+}
+
+
+
+
 #' @importFrom naijR is_state
 .assertStateAndDbpath <- function(s, db) {
   if (!is_state(s))
@@ -156,18 +187,6 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 .processDateTime <- function(data, vars) {
   stopifnot(is.data.frame(data), is.list(vars))
 
-  makeDate <- function(x) {
-    stopifnot(is.character(x) || is.numeric(x))
-    if (is.character(x) &&
-        !all(grepl("^[[:digit:]]+$", na.exclude(x)))) {
-      return(as.Date(x))
-    }
-    x <- as.numeric(x)
-    if (all(x > as.double(Sys.Date())))
-      return(as.POSIXct(x, origin = "1970-01-01"))
-    as.Date(x, origin = "1900-01-01")
-  }
-
   df <- data %>%
     mutate(across(
       all_of(c(vars$start, vars$end)),
@@ -178,10 +197,11 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
       ~ str_remove(.x, "\\:00\\.000\\+01:00$")
     )) %>%
     mutate(
-      across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), makeDate)
+      across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), make_date)
     ) %>%
     mutate(across(contains(vars$close.time), .dealWithBadPmEntries))
 }
+
 
 
 
