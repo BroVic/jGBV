@@ -21,10 +21,13 @@ test_that("Project-specific data are read from the database", {
 
 test_that("Date objects are made where appropriate", {
   dtstr1 <- "1950-06-11"
+
   dtstr2 <- "2022-08-10 01:16:36"
-  expect_identical(as.character(make_date("18425")), dtstr1)
-  expect_identical(as.character(make_date(18425)), dtstr1)
-  expect_identical(as.character(make_date('1660090596')), dtstr2)
-  expect_identical(as.character(make_date(1660090596)), dtstr2)
-  expect_s3_class(make_date("2022-01-01"), "Date")
+
+  expect_identical(make_date("18425"), dtstr1)
+  expect_identical(make_date(18425), dtstr1)
+  expect_identical(make_date('1660090596'), dtstr2)
+  expect_identical(make_date(1660090596), dtstr2)
+  expect_s3_class(make_date("2022-01-01", FALSE), "Date")
+
 })
