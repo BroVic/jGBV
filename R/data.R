@@ -43,6 +43,8 @@ read_from_db <- function(db, tbl, ...) {
 #'
 #' @param path The path to the data(base) file.
 #' @param df A project data frame that is to be saved.
+#' @param vars A vector of variable names.Defaults to names provided via
+#' \code{options}.
 #' @param state The State for which the data are retrieved.
 #' @param type The kind of data being retrieved (see \emph{Details})
 #'
@@ -57,19 +59,29 @@ read_from_db <- function(db, tbl, ...) {
 #' @importFrom labelled var_label
 #'
 #' @export
-load_data <- function(path, state, type = c("services", "capacity")) {
+load_data <- function(path,
+                      state,
+                      type = c("services", "capacity"),
+                      vars = getOption("jgbv.new.varnames")) {
   .assertStateAndDbpath(state, path)
   type <- match.arg(type)
+  if (!is.character(vars))
+    stop("'vars' must be a character vector")
   con <- dbConnect(SQLite(), path)
   on.exit(dbDisconnect(con))
   df <-
     dbReadTable(con, .tblName(state, type, "cleaned"), check.names = FALSE)
+
   if (type == 'services') {
-    varlist <- as.list(getOption("jgbv.new.varnames"))
-    df <- suppressWarnings(.processDateTime(df, varlist))
+    if (!matchDfWithVarsLength(df, vars))
+      stop("Length of 'df' and 'vars' do not match")
+    df <- suppressWarnings(.processDateTime(df, as.list(vars)))
     df <- .setFactors(df)
   }
-  qry <- sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
+  else
+    stop("No implementation for ", sQuote(type))
+  qry <-
+    sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
   labs <- unlist(dbGetQuery(con, qry))
   var_label(df) <- labs
   df
@@ -115,6 +127,52 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 
 
 
+#' Manipulate A Vector For Getting Correct Date-Time Types
+#'
+#' @param x The vector to be modified.
+#' @param date.string Whether to return a date(-time) sting or and object.
+#'
+#' @return The modified vector by default (when \code{date.string} is
+#' \code{TRUE}); otherwise an object of class \code{Date} or \code{POSIXct}.
+#'
+#' @importFrom stringr str_trim
+#' @export
+make_date <- function(x, date.string = TRUE) {
+  if (!is.character(x) && !is.numeric(x))
+    stop("'x' must be either of type 'character' or 'numeric'")
+
+  # Converts objects to character vectors, if requested
+  .ds <- function(.x) {
+    if (date.string)
+      .x <- as.character(.x)
+    .x
+  }
+  cent.origin <- "1899-12-30"
+  epoch.unix <- "1970-01-01"
+
+  if (is.character(x)) {
+    x <- stringr::str_trim(x)
+    hasIsoDate <- grepl("^\\d{4}(\\-\\d{2}){2}$", na.exclude(x))
+    if (all(hasIsoDate))
+      return(.ds(as.Date(x)))
+    if (any(hasIsoDate)) {
+      if (all(grepl("^\\d{4,}$", x[!hasIsoDate])))
+        x <-
+          ifelse(!hasIsoDate,
+                 as.Date(as.numeric(x), origin = cent.origin),
+                 x)
+      return(.ds(x))
+    }
+    x <- as.numeric(x)
+  }
+  if (all(x %/% 1e4 > 3))
+    return(.ds(as.POSIXct(x, origin = epoch.unix)))
+  .ds(as.Date(x, origin = cent.origin))
+}
+
+
+
+
 #' @importFrom naijR is_state
 .assertStateAndDbpath <- function(s, db) {
   if (!is_state(s))
@@ -125,17 +183,26 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
 }
 
 
+
+
+
 # Constructs the name of a database table
 .tblName <- function(state, type, str) {
   paste(state, type, str, sep = '_')
 }
 
 
+
+
+
+
 #' @import dplyr
+#' @importFrom stats na.exclude
 #' @importFrom stringr str_remove
 .processDateTime <- function(data, vars) {
   stopifnot(is.data.frame(data), is.list(vars))
-  data %>%
+
+  df <- data %>%
     mutate(across(
       all_of(c(vars$start, vars$end)),
       ~ as.POSIXct(strptime(.x, format = "%Y-%m-%dT%H:%M:%OS"))
@@ -144,9 +211,12 @@ save_table <- function(df, state, type = c("services", "capacity"), path) {
       all_of(c(vars$open.time, vars$close.time)),
       ~ str_remove(.x, "\\:00\\.000\\+01:00$")
     )) %>%
-    mutate(across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), as.Date)) %>%
+    mutate(
+      across(all_of(c(vars$today, vars$opstart, vars$gbvstart)), make_date)
+    ) %>%
     mutate(across(contains(vars$close.time), .dealWithBadPmEntries))
 }
+
 
 
 

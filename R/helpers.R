@@ -404,6 +404,7 @@ is_project_state <- function(str)
 #'
 #' @export
 modify_varnames <- function(as_list = FALSE) {
+  .Deprecated()
   old <-
     c(
       "start",
@@ -1116,3 +1117,101 @@ modify_varnames <- function(as_list = FALSE) {
     mod <- as.list(mod)
   list(modified = mod, old = old)
 }
+
+
+
+# Takes a data frame and a character variable that are presumably going
+# to be matched together i.e. the vector used for renaming, and thus
+# checks whether they are compatible in their lengths.
+matchDfWithVarsLength <- function(d, v)
+{
+  stopifnot({
+    is.data.frame(d)
+    is.vector(v)
+  })
+  nc <- ncol(d)
+  nv <- length(v)
+  they.match <- identical(nc, nv)
+  if (!they.match)
+    warning(
+      sprintf("There are %d columns, but %d variables were provided",
+              nc, nv)
+    )
+  they.match
+}
+
+
+
+
+
+
+
+#' Indices for columns that are removed from the variables
+#'
+#' A helper function for variable removal that may be necessary for
+#' some of the data for specific States.
+#'
+#' @param state The project state
+#'
+#' @return An integer vector of indices for columns to be dropped. For States
+#' that are not applicable, it returns \code{NULL}.
+#'
+#' @importFrom naijR is_state
+#'
+#' @export
+removed_variables <- function(state = NULL) {
+  if (is.null(state))
+    return()
+  if (!is.character(state) && length(state) > 1L)
+    stop("'state' should be a character vector of length 1L")
+  if (!is_state(state))
+    stop("'state' must be a State of Nigeria")
+  if (! state %in% getOption("jgbv.project.states"))
+    stop("'state' should be one of the project states")
+  rem <- if (state == "Yobe")
+    6L
+  else if (state == "Adamawa") {
+    as.integer(
+      c(
+        5:8,
+        16,
+        20,
+        30,
+        37,
+        49,
+        60,
+        63,
+        73,
+        77,
+        99,
+        124,
+        140,
+        151,
+        183,
+        189,
+        194,
+        205,
+        212,
+        234,
+        249,
+        258,
+        266,
+        271,
+        283,
+        291,
+        303,
+        310,
+        321,
+        334,
+        338,
+        342:347
+      )
+    )
+  }
+  else
+    NULL
+  if (len <- length(rem))
+    warning(len, " variable(s) removed from the list to match the data")
+  rem
+}
+

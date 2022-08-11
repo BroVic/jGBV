@@ -13,8 +13,14 @@ test_that("Data are prepared for deveoping referra directory Exce sheet", {
   srv.rgx <- "^srvtype_"
   dow.rgx <- "_(mon|tue|wed|thu|fri|sat|sun)$"
   main.nms <-
-    list(orgname = "org_name", orgphone = "org_phone", gbvcontact = "fp_contact",
-         openaccess = "open_247", lga = "LGA", ward = "ward")
+    list(
+      orgname = "org_name",
+      orgphone = "org_phone",
+      gbvcontact = "fp_contact",
+      openaccess = "open_247",
+      lga = "LGA",
+      ward = "ward"
+    )
 
   dat <- readRDS("testdata/srvdata.rds")
 

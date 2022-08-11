@@ -5,7 +5,12 @@
 \alias{save_table}
 \title{Save/Load Data To Or From The Project Database(s)}
 \usage{
-load_data(path, state, type = c("services", "capacity"))
+load_data(
+  path,
+  state,
+  type = c("services", "capacity"),
+  vars = getOption("jgbv.new.varnames")
+)
 
 save_table(df, state, type = c("services", "capacity"), path)
 }
@@ -15,6 +20,9 @@ save_table(df, state, type = c("services", "capacity"), path)
 \item{state}{The State for which the data are retrieved.}
 
 \item{type}{The kind of data being retrieved (see \emph{Details})}
+
+\item{vars}{A vector of variable names.Defaults to names provided via
+\code{options}.}
 
 \item{df}{A project data frame that is to be saved.}
 }
