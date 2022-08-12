@@ -99,13 +99,17 @@ load_data <- function(path,
 #' @importFrom labelled generate_dictionary
 #'
 #' @export
-save_table <- function(df, state, type = c("services", "capacity"), path) {
+save_table <- function(df, state, type = "services", path) {
 
   if(!is.data.frame(df))
     stop("Expected 'data' to be a data frame")
 
   .assertStateAndDbpath(state, path)
-  type <- match.arg(type)
+
+  type <- tolower(type)
+  if (!type %in% c("services", "capacity"))
+    stop("'type' should be one of 'services' or 'capacity'")
+
   state <- tolower(state)
 
   if (!file.exists(path)) {
