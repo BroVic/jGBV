@@ -159,27 +159,8 @@ import_data <-
     }
   }
 
-
-  if (!is.null(db)) {
-    # Save to an SQLite database. Create a new one if necessary
-    if (!file.exists(db)) {
-
-      message("The database file ",
-              sQuote(db),
-              " does not exist.",
-              "Will attempt to create one.")
-
-      tryCatch({
-        # create bank database
-        con <- RSQLite::dbConnect(RSQLite::SQLite(), db)
-        RSQLite::dbDisconnect(con)
-      },
-      error = function(e)
-        warning(e, call. = FALSE))
-    }
-
+  if (!is.null(db))
     save_table(dat, state, type = tolower(filetype), db)
-  }
 
   invisible(dat)
 }

@@ -100,28 +100,46 @@ load_data <- function(path,
 #'
 #' @export
 save_table <- function(df, state, type = c("services", "capacity"), path) {
+
   if(!is.data.frame(df))
     stop("Expected 'data' to be a data frame")
+
   .assertStateAndDbpath(state, path)
   type <- match.arg(type)
   state <- tolower(state)
 
+  if (!file.exists(path)) {
+
+    message("The database file ",
+            sQuote(path),
+            " does not exist.",
+            "Will attempt to create one.")
+
+    tryCatch({
+      # create bank database
+      con <- RSQLite::dbConnect(RSQLite::SQLite(), path)
+      RSQLite::dbDisconnect(con)
+    },
+    error = function(e)
+      warning(e, call. = FALSE))
+  }
+
   tryCatch({
-    cat("Saving to database... ")
+    message("Saving to database... ", appendLF = FALSE)
     con <- dbConnect(SQLite(), path)
     dbWriteTable(con, .tblName(state, type, "cleaned"), df, overwrite = TRUE)
 
     dic <- generate_dictionary(df)
-    dic <- as.data.frame(dic[, 2:3])  # TODO: Consider expanding the table
+    dic <-
+      as.data.frame(dic[, 2:3])  # TODO: Consider expanding the table
     dbWriteTable(con, .tblName(state, type, "labels"), dic, overwrite = TRUE)
-    cat("Done\n")
+    message("Done")
   },
   error = function(e) {
-    cat("Failed\n")
+    message("Failed")
     warning(e)
   },
-  finally = dbDisconnect(con)
-  )
+  finally = dbDisconnect(con))
 }
 
 
