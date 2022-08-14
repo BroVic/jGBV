@@ -304,7 +304,8 @@ get_value_labels <-
 #' Retrieve all the labels of designated columns of a data frame
 #'
 #' @param data A data frame
-#' @param ind A numeric or character vector representing columns
+#' @param ind A numeric or character vector representing columns. When no
+#' argument is supplied, all column indices are used for retrieval.
 #'
 #' @importFrom labelled var_label
 #' @importFrom purrr map_chr
@@ -312,22 +313,30 @@ get_value_labels <-
 #' @return A character vector of label names
 #'
 #' @export
-get_var_labels <- function(data, ind) {
+get_var_labels <- function(data, ind = NA_integer_) {
   if (!is.data.frame(data))
     stop("'data' should be of class data.frame")
+
   if (!is.numeric(ind) && !is.character(ind))
     stop(paste("The data cannot be subset with an object of type", typeof(ind)))
+
   if (is.character(ind)) {
     nm <- names(data)
+
     if (!all(ind %in% nm))
       stop("Any strings must be valid variable names")
+
     ind <- match(ind, nm)
   }
+
   dfi <- seq_along(data)
+
   if (all(is.na(ind)))
     ind <- dfi
+
   if (any(!ind %in% dfi))
     stop("Out-of-bounds or missing index")
+
   purrr::map_chr(ind, ~ var_label(data[[.x]]))
 }
 

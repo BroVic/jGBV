@@ -4,12 +4,13 @@
 \alias{get_var_labels}
 \title{Get Variable Labels}
 \usage{
-get_var_labels(data, ind)
+get_var_labels(data, ind = NA_integer_)
 }
 \arguments{
 \item{data}{A data frame}
 
-\item{ind}{A numeric or character vector representing columns}
+\item{ind}{A numeric or character vector representing columns. When no
+argument is supplied, all column indices are used for retrieval.}
 }
 \value{
 A character vector of label names

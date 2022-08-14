@@ -5,7 +5,7 @@
 \alias{read_in_excel_data}
 \title{Import Raw Data Into the Project}
 \usage{
-import_data(dir, db, modlist = NULL, state, filetype, ..., na.strings)
+import_data(dir, db = NULL, modlist = NULL, state, filetype, ..., na.strings)
 
 read_in_excel_data(
   dir,
@@ -22,7 +22,7 @@ read_in_excel_data(
 subdirectories - one for each project State.}
 
 \item{db}{Path to an SQLite database. If non-existent, will attempt to
-create one.}
+create one. If \code{NULL}, the data are returned without being saved.}
 
 \item{modlist}{An optional list of objects of class \code{VarModifier}.}
 
@@ -43,6 +43,7 @@ be dropped from the data table or list of variable names, respectively.}
 }
 \value{
 Both functions return a \code{data.frame} with labelled variables.
+\code{import_data} does so invisibly.
 }
 \description{
 Import Raw Data Into the Project

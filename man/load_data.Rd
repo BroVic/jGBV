@@ -12,7 +12,7 @@ load_data(
   vars = getOption("jgbv.new.varnames")
 )
 
-save_table(df, state, type = c("services", "capacity"), path)
+save_table(df, state, type = "services", path)
 }
 \arguments{
 \item{path}{The path to the data(base) file.}

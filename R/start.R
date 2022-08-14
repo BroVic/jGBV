@@ -14,7 +14,7 @@ globalVariables(c("orgtype", "orgname"))
 #' @param dir A directory used for the downloads, which usually has
 #' subdirectories - one for each project State.
 #' @param db Path to an SQLite database. If non-existent, will attempt to
-#' create one.
+#' create one. If \code{NULL}, the data are returned without being saved.
 #' @param modlist An optional list of objects of class \code{VarModifier}.
 #' @param state The project state.
 #' @param filetype The kind of data being imported. Should be one of
@@ -27,6 +27,7 @@ globalVariables(c("orgtype", "orgname"))
 #' @param na.strings Strings in the Excel sheet to be interpreted as \code{MA}.
 #'
 #' @return Both functions return a \code{data.frame} with labelled variables.
+#' \code{import_data} does so invisibly.
 #'
 #' @note \code{import_data} wraps \code{read_in_excel_data}, as it carries
 #' out additional processing of the data read from the spreadsheets.
@@ -40,7 +41,7 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @export
 import_data <-
-  function(dir, db, modlist = NULL, state, filetype, ..., na.strings)
+  function(dir, db = NULL, modlist = NULL, state, filetype, ..., na.strings)
 {
   # Validate input
   if (!is.null(modlist)) {
@@ -158,17 +159,10 @@ import_data <-
     }
   }
 
-  # Save to an SQLite database. Create a new one if necessary
-  if (!file.exists(db))
-    message("The database file ", sQuote(db), " does not exist.",
-            "Will attempt to create one.")
-  tryCatch({
-    con <- RSQLite::dbConnect(RSQLite::SQLite(), db)
-    RSQLite::dbDisconnect(con)
+  if (!is.null(db))
     save_table(dat, state, type = tolower(filetype), db)
-  }, error = function(e) warning(e, call. = FALSE))
 
-  dat
+  invisible(dat)
 }
 
 
