@@ -29,7 +29,7 @@ in interactive sessions.}
 
 \item{no.}{The number of projects to be created as a numeric vector of length 1.}
 
-\item{state}{The project State for which the matches/patters are to be
+\item{state}{The project State for which the matches/patterns are to be
 extracted.}
 
 \item{...}{Optional list of States to be manually provided for pattern
@@ -39,7 +39,8 @@ selection.}
 For \code{lga_match_function}, a function that takes a list of patterns
 for different states. No value is returned by \code{import_transcriipts}
 
-
+A function, which recieves a list of patterns for LGAS and when
+called, returns the ones relevant to \code{state}.
 }
 \description{
 A script to extract the zip archive containing interview transcripts
@@ -53,10 +54,10 @@ folder. When finalising, we do some checks that everything went well
 and we remove the directory that was created for the extraction.
 }
 \note{
-The list of project States is set internally by
-\code{getOption("jgbv.project.states")}. This option is used by the
-GBV assessment project beginning from 2021, and does not apply to earlier
-ones.
+For \code{lga_matching_function}, a list of project States is set
+internally by \code{getOption("jgbv.project.states")}. This option is set
+for the GBV assessment projects beginning 2021, and does not apply to
+earlier ones.
 
 To get the appropriate patterns or matches to be used for the extracting
 function, there is need to inspect the list of transcript files. There, it
