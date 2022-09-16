@@ -155,17 +155,18 @@ import_transcripts <-
 
 #' @rdname import_transcripts
 #'
-#' @param state The project State for which the matches/patters are to be
+#' @param state The project State for which the matches/patterns are to be
 #' extracted.
 #' @param ... Optional list of States to be manually provided for pattern
 #' selection.
 #'
-#' @return
+#' @return A function, which recieves a list of patterns for LGAS and when
+#' called, returns the ones relevant to \code{state}.
 #'
-#' @note The list of project States is set internally by
-#' \code{getOption("jgbv.project.states")}. This option is used by the
-#' GBV assessment project beginning from 2021, and does not apply to earlier
-#' ones.
+#' @note For \code{lga_matching_function}, a list of project States is set
+#' internally by \code{getOption("jgbv.project.states")}. This option is set
+#' for the GBV assessment projects beginning 2021, and does not apply to
+#' earlier ones.
 #'
 #' To get the appropriate patterns or matches to be used for the extracting
 #' function, there is need to inspect the list of transcript files. There, it
@@ -174,14 +175,18 @@ import_transcripts <-
 #' @export
 lga_matching_function <- function(state, ...) {
   proj.states <- getOption("jgbv.project.states")
+
   if (is.null(proj.states))
     proj.states <- c(...)
+
   tryCatch({
     state <- match.arg(state, proj.states)
-  }, error = function(e) {
+  },
+  error = function(e) {
     warning("'state' is not one of the project States")
     stop(e)
   })
+
   function(lgalist) {
     names(lgalist) <- proj.states
     lgalist[[state]]
