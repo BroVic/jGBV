@@ -5,12 +5,7 @@
 \alias{save_table}
 \title{Save/Load Data To Or From The Project Database(s)}
 \usage{
-load_data(
-  path,
-  state,
-  type = c("services", "capacity"),
-  vars = getOption("jgbv.new.varnames")
-)
+load_data(path, state, type = c("services", "capacity"), vars)
 
 save_table(df, state, type = "services", path)
 }
