@@ -62,12 +62,11 @@ read_from_db <- function(db, tbl, ...) {
 load_data <- function(path, state, type = c("services", "capacity"), vars) {
   .assertStateAndDbpath(state, path)
   type <- match.arg(type)
-  cap <- "capacity"
 
   if (missing(vars))  {
     qv <- quote(getOption("jgbv.new.varnames"))
 
-    vars <- if (type == cap)
+    vars <- if (type == 'capacity')
       character()
     else
       eval(qv)
@@ -85,17 +84,15 @@ load_data <- function(path, state, type = c("services", "capacity"), vars) {
   df <-
     dbReadTable(con, .tblName(state, type, "cleaned"), check.names = FALSE)
 
-  if (type == cap)
-    return(df)
+  if (type == 'services') {
+    if (!matchDfWithVarsLength(df, vars))
+      stop("The number of fields and available variable names do not match")
 
-  # The remaining statements apply only to `type == services`
-  if (!matchDfWithVarsLength(df, vars))
-    stop("The number of fields and available variable names do not match")
-
-  df <- df |>
-    .processDateTime(as.list(vars)) |>
-    suppressWarnings() |>
-    .setFactors()
+    df <- df |>
+      .processDateTime(as.list(vars)) |>
+      suppressWarnings() |>
+      .setFactors()
+  }
 
   qry <- sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
   labs <- unlist(dbGetQuery(con, qry))

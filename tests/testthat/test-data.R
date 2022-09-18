@@ -19,17 +19,16 @@ test_that("Project-specific data are read from the database", {
   expect_error(load_data(dbf, state),
                "The call was not made in a valid project")
 
-  vars.cap <- readRDS("testdata/capvars.rds")
-  vars.serv <- readRDS("testdata/srvvars.rds")
-  vars <- c(vars.serv, vars.cap)
+  fls <- paste("testdata", c("srvvars.rds", "capvars.rds"), sep = "/")
+  vars <- lapply(fls, readRDS)
   types <- c("services", "capacity")
 
-  for (i in 1:2) {
-    df <- load_data(dbf, state, type = types[i], vars = vars[i])
+  for (i in seq_along(types)) {
+    df <- load_data(dbf, state, type = types[i], vars = vars[[i]])
+
     expect_s3_class(df, "data.frame")
     expect_type(attr(df[[1]], "label"), "character")
   }
-
 })
 
 
