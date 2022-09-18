@@ -1,3 +1,5 @@
+
+
 dbf <- "testdata/testdb.db"
 
 test_that("data can be read from the database", {
@@ -11,11 +13,23 @@ test_that("data can be read from the database", {
 
 
 test_that("Project-specific data are read from the database", {
+  state <- "Taraba"
 
-  expect_error(load_data(dbf, "Taraba"))
+  expect_error(load_data(dbf, state, vars = pi), "must be a character vector")
+  expect_error(load_data(dbf, state),
+               "The call was not made in a valid project")
 
-  # expect_s3_class(db, "data.frame")
-  # expect_s3_class(db[[1]], "labelled")
+  vars.cap <- readRDS("testdata/capvars.rds")
+  vars.serv <- readRDS("testdata/srvvars.rds")
+  vars <- c(vars.serv, vars.cap)
+  types <- c("services", "capacity")
+
+  for (i in 1:2) {
+    df <- load_data(dbf, state, type = types[i], vars = vars[i])
+    expect_s3_class(df, "data.frame")
+    expect_type(attr(df[[1]], "label"), "character")
+  }
+
 })
 
 

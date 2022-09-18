@@ -59,29 +59,45 @@ read_from_db <- function(db, tbl, ...) {
 #' @importFrom labelled var_label
 #'
 #' @export
-load_data <- function(path,
-                      state,
-                      type = c("services", "capacity"),
-                      vars = getOption("jgbv.new.varnames")) {
+load_data <- function(path, state, type = c("services", "capacity"), vars) {
   .assertStateAndDbpath(state, path)
   type <- match.arg(type)
+  cap <- "capacity"
+
+  if (missing(vars))  {
+    qv <- quote(getOption("jgbv.new.varnames"))
+
+    vars <- if (type == cap)
+      character()
+    else
+      eval(qv)
+
+    if (is.null(vars))
+      stop(sQuote(deparse(qv)),
+           " evaluates to NULL: The call was not made in a valid project")
+  }
+
   if (!is.character(vars))
     stop("'vars' must be a character vector")
+
   con <- dbConnect(SQLite(), path)
   on.exit(dbDisconnect(con))
   df <-
     dbReadTable(con, .tblName(state, type, "cleaned"), check.names = FALSE)
 
-  if (type == 'services') {
-    if (!matchDfWithVarsLength(df, vars))
-      stop("Length of 'df' and 'vars' do not match")
-    df <- suppressWarnings(.processDateTime(df, as.list(vars)))
-    df <- .setFactors(df)
-  }
-  else
-    stop("No implementation for ", sQuote(type))
-  qry <-
-    sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
+  if (type == cap)
+    return(df)
+
+  # The remaining statements apply only to `type == services`
+  if (!matchDfWithVarsLength(df, vars))
+    stop("The number of fields and available variable names do not match")
+
+  df <- df |>
+    .processDateTime(as.list(vars)) |>
+    suppressWarnings() |>
+    .setFactors()
+
+  qry <- sprintf("SELECT label FROM %s;", .tblName(state, type, "labels"))
   labs <- unlist(dbGetQuery(con, qry))
   var_label(df) <- labs
   df
