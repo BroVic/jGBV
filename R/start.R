@@ -170,10 +170,15 @@ import_data <-
 
 .chooseNewVars <- function(filetype) {
   stopifnot(is.character(filetype))
-  if (filetype == "Services")
-    getOption("jgbv.new.varnames")
-  else if (filetype == "Capacity")
-    getOption("jgbv.capnames")
+  ft <- tolower(filetype)
+
+  if (ft == 'services')
+    return(new.varnames)
+
+  if(ft == 'capacity')
+    return(getOption('jgbv.capnames'))
+
+  stop("No avaiable action for file type ", sQuote(filetype))
 }
 
 
@@ -416,17 +421,22 @@ read_in_excel_data <-
 #' Converts relevant character vectors in the dataset into factors.
 #'
 #' @param data The data frame
-#' @param newvars A named vector with the variable names as provided
-#' by \code{options("jgbv.new.varnames")}.
+#' @param newvars A named vector with the variable names.
 #'
 #' @return The modified data frame (if applicable).
 #'
 #' @export
 fix_factors <- function(data, newvars) {
+
   if (!is.data.frame(data))
     stop("'data' should be of class 'data.frame'")
+
+  if (missing(newvars))
+    newvars <- new.varnames
+
   if (!is.character(newvars))
     stop("'newvars' should be atomic and of type 'character'")
+
   data <-
     .factorizeAndPreserveLabels(data, newvars[.yesNoVarnames()], c("Yes", "No"))
   data <-

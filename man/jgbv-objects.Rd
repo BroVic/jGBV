@@ -24,10 +24,11 @@ new.varnames
 Builtin Objects For JHPIEGO GBV Projects
 }
 \note{
-\code{jgbv.new.varnames} is a named vector of new variable names that will be applied to the
-imported raw data. It is named to allow for indexing. These names are equally
-used in the database, so the actual values are SQL compliant, while the names
-are more R-focused.
+\code{new.varnames} is a named vector of new variable names that will
+be applied to the imported raw data. It is named to allow for indexing.
+These names are equally used in the database, so the actual values are SQL
+compliant, while the names are more R-focused.
+
 Not all the values are necessarily named; just those that are actually
 in use at the project level. The unnamed ones are usually extracted using
 regular expressions, especially for multi-response questions.

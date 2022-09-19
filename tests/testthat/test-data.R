@@ -16,8 +16,6 @@ test_that("Project-specific data are read from the database", {
   state <- "Taraba"
 
   expect_error(load_data(dbf, state, vars = pi), "must be a character vector")
-  expect_error(load_data(dbf, state),
-               "The call was not made in a valid project")
 
   fls <- paste("testdata", c("srvvars.rds", "capvars.rds"), sep = "/")
   vars <- lapply(fls, readRDS)
