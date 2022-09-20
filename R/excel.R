@@ -2,7 +2,7 @@ globalVariables(c("days_open", "intervention", "num.intervention", "services"))
 
 
 
-#' Create A Worksheet of the Referral Directory
+#' Create A Worksheet of the Referral Directory or Capacity Assessment
 #'
 #' Uses the project data to generate an MS Excel worksheet of the referral
 #' directory for a givn project State.
@@ -241,6 +241,61 @@ prep_ref_directory <-
       relocate(num.intervention, .after = last_col()) %>%
       relocate(services, .before = last_col())
   }
+
+
+
+
+#' @rdname create_referral_directory
+#'
+#' @export
+create_capacity_assess <- function(db, state, outdir, fname, ...) {
+  cap <- load_data(dbpath, state, type = 'capacity')
+
+  ## Select the columns to be used for the output
+  vars <- as.list(getOption('jgbv.capnames'))
+  lgaCol <- vars$LGA
+
+  basicCols <- vars %$%  # exposition operator
+    c(
+      facility.name,
+      staff.name,
+      is.focalperson,
+      title,
+      age,
+      gender,
+      qualifications,
+      qualifications.other,
+      phone,
+      address,
+      facility.type
+    )
+
+  trainingCols <- vars %>%
+    unlist %>%
+    {
+      nm <- names(.)
+      t <- grep("\\.train\\.", nm)
+      k <- grep(".\\coord\\.", nm)
+      i <- sort(c(t, k))
+      magrittr::extract(., i)
+    }
+
+  allCols <- c(lgaCol, basicCols, trainingCols)
+
+  ## Capture the required variables and save to worksheet, with
+  ## new headers derived from the variable labels
+  needs <- cap %>%
+    select(all_of(allCols)) %>%
+    setNames(labelled::var_label(.))
+
+  excelFilepath <- file.path(outdir, fname)
+  writeFormattedExcelSheet(needs, excelFilepath, SheetName("cap"), ...)
+}
+
+
+
+
+
 
 
 
