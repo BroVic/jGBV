@@ -2,7 +2,7 @@
 % Please edit documentation in R/excel.R
 \name{prep_ref_directory}
 \alias{prep_ref_directory}
-\title{Make the Referral Directory}
+\title{Prepare the Data for the Referral Directory}
 \usage{
 prep_ref_directory(
   df,
@@ -41,5 +41,5 @@ State's referral directory.
 }
 \description{
 Creates a data frame of the referral directory of the State, which can be
-used to create other more sylistically appealing tables
+used to create other more stylistically appealing tables
 }
