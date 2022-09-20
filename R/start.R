@@ -68,8 +68,8 @@ import_data <-
   ## had where data from 2 States were inadvertently joined
   ## together in a single Excel sheet. We don't want to have
   ## check this manually again. This applies only to the
-  ## capacity assessment data!!!
-  if (filetype == cap) {
+  ## capacity assessment data and for the NFWP project!!!
+  if (filetype == cap && getOption("jgbv.project.name") == "NFWP") {
     lgavarname <- paste0("lga.", tolower(state))
     lgavar <- newvars[lgavarname]
     dat <- dplyr::filter(dat, !is.na(.data[[lgavar]]))
