@@ -48,9 +48,11 @@ import_data <-
     if (!is.vector(modlist, mode = "list"))
       stop("'modlist' must be a vector of type 'list'")
   }
+
   state <- match.arg(state, getOption("jgbv.project.states"))
   srv <- "Services"; cap <- "Capacity"
   filetype <- match.arg(filetype, c(srv, cap))
+
   if (missing(na.strings))
     na.strings <- ""
 
@@ -98,11 +100,8 @@ import_data <-
   if (filetype == srv) {
     if (!is.null(modlist)) {
       for (x in modlist)
-        try(
-          dat <-
-            .modifyAndPreserveLabels(
-              dat, newvars[x$vars], x$func, x$nestfunc, x$args)
-        )
+        dat <- dat %>%
+          .modifyAndPreserveLabels(newvars[x$vars], x$func, x$nestfunc, x$args)
     }
     dat <- transform_bool_to_logical(dat)
 
@@ -356,7 +355,10 @@ read_in_excel_data <-
       stop("More than one Excel file selected")
     xlpath <- file.path(dir, xlf)
     newcolnames <- .chooseNewVars(filetype)
-    .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars, na = na.strings)
+    df <-
+      .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars, na = na.strings)
+    class(df) <- c(filetype, class(df))
+    df
   }
 
 
