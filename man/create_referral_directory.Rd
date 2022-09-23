@@ -2,9 +2,12 @@
 % Please edit documentation in R/excel.R
 \name{create_referral_directory}
 \alias{create_referral_directory}
-\title{Create A Worksheet of the Referral Directory}
+\alias{create_capacity_assess}
+\title{Create A Worksheet of the Referral Directory or Capacity Assessment}
 \usage{
 create_referral_directory(db, state, outdir, fname, ...)
+
+create_capacity_assess(db, state, outdir, fname, ...)
 }
 \arguments{
 \item{db}{The path to the database.}

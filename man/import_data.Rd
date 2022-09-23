@@ -5,7 +5,7 @@
 \alias{read_in_excel_data}
 \title{Import Raw Data Into the Project}
 \usage{
-import_data(dir, db = NULL, modlist = NULL, state, filetype, ..., na.strings)
+import_data(dir, modlist = NULL, state, filetype, ..., na.strings, db = NULL)
 
 read_in_excel_data(
   dir,
@@ -21,9 +21,6 @@ read_in_excel_data(
 \item{dir}{A directory used for the downloads, which usually has
 subdirectories - one for each project State.}
 
-\item{db}{Path to an SQLite database. If non-existent, will attempt to
-create one. If \code{NULL}, the data are returned without being saved.}
-
 \item{modlist}{An optional list of objects of class \code{VarModifier}.}
 
 \item{state}{The project state.}
@@ -35,6 +32,9 @@ GBV service mapping, respectively.}
 \item{...}{Arguments passed to \code{read_in_excel_data}.}
 
 \item{na.strings}{Strings in the Excel sheet to be interpreted as \code{MA}.}
+
+\item{db}{Path to an SQLite database. If non-existent, will attempt to
+create one. If \code{NULL}, the data are returned without being saved.}
 
 \item{drop.c, drop.v}{Character or integer vector of columns or variables to
 be dropped from the data table or list of variable names, respectively.}

@@ -13,8 +13,6 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @param dir A directory used for the downloads, which usually has
 #' subdirectories - one for each project State.
-#' @param db Path to an SQLite database. If non-existent, will attempt to
-#' create one. If \code{NULL}, the data are returned without being saved.
 #' @param modlist An optional list of objects of class \code{VarModifier}.
 #' @param state The project state.
 #' @param filetype The kind of data being imported. Should be one of
@@ -25,6 +23,8 @@ globalVariables(c("orgtype", "orgname"))
 #' @param nvars The number of columns in the final data frame.
 #' @param ... Arguments passed to \code{read_in_excel_data}.
 #' @param na.strings Strings in the Excel sheet to be interpreted as \code{MA}.
+#' @param db Path to an SQLite database. If non-existent, will attempt to
+#' create one. If \code{NULL}, the data are returned without being saved.
 #'
 #' @return Both functions return a \code{data.frame} with labelled variables.
 #' \code{import_data} does so invisibly.
@@ -41,7 +41,7 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @export
 import_data <-
-  function(dir, db = NULL, modlist = NULL, state, filetype, ..., na.strings)
+  function(dir, modlist = NULL, state, filetype, ..., na.strings, db = NULL)
 {
   # Validate input
   if (!is.null(modlist)) {
