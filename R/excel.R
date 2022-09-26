@@ -1,6 +1,22 @@
-globalVariables(c("days_open", "intervention", "num.intervention", "services"))
-
-
+globalVariables(
+  c(
+    "days_open",
+    "intervention",
+    "num.intervention",
+    "services",
+    'facility.name',
+    'staff.name',
+    'is.focalperson',
+    'title',
+    'age',
+    'gender',
+    'qualifications',
+    'qualifications.other',
+    'phone',
+    'address',
+    'facility.type'
+  )
+)
 
 #' Create A Worksheet of the Referral Directory or Capacity Assessment
 #'
@@ -10,7 +26,7 @@ globalVariables(c("days_open", "intervention", "num.intervention", "services"))
 #' @param db The path to the database.
 #' @param state The project State as a character string.
 #' @param outdir The path to the directory where the output is to be saved.
-#' @param file An optional filename for the Excel file (is automatically
+#' @param fname An optional filename for the Excel file (is automatically
 #' generated if not explicitly provided).
 #' @param ... Arguments passed on to \code{writeFormattedExcelSheet}.
 #'
@@ -247,9 +263,11 @@ prep_ref_directory <-
 
 #' @rdname create_referral_directory
 #'
+#' @importFrom magrittr %$%
+#'
 #' @export
 create_capacity_assess <- function(db, state, outdir, fname, ...) {
-  cap <- load_data(dbpath, state, type = 'capacity')
+  cap <- load_data(db, state, type = 'capacity')
 
   ## Select the columns to be used for the output
   vars <- as.list(getOption('jgbv.capnames'))

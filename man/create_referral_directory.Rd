@@ -16,10 +16,10 @@ create_capacity_assess(db, state, outdir, fname, ...)
 
 \item{outdir}{The path to the directory where the output is to be saved.}
 
-\item{...}{Arguments passed on to \code{writeFormattedExcelSheet}.}
-
-\item{file}{An optional filename for the Excel file (is automatically
+\item{fname}{An optional filename for the Excel file (is automatically
 generated if not explicitly provided).}
+
+\item{...}{Arguments passed on to \code{writeFormattedExcelSheet}.}
 }
 \value{
 This function is used only for its side-effects.
