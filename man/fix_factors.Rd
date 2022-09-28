@@ -9,8 +9,7 @@ fix_factors(data, newvars)
 \arguments{
 \item{data}{The data frame}
 
-\item{newvars}{A named vector with the variable names as provided
-by \code{options("jgbv.new.varnames")}.}
+\item{newvars}{A named vector with the variable names.}
 }
 \value{
 The modified data frame (if applicable).

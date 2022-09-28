@@ -54,16 +54,17 @@ print.Tools <- function(x, ...) {
 
 #' @rdname jgbv-objects
 #'
-#' @note \code{jgbv.new.varnames} is a named vector of new variable names that will be applied to the
-#' imported raw data. It is named to allow for indexing. These names are equally
-#' used in the database, so the actual values are SQL compliant, while the names
-#' are more R-focused.
+#' @note \code{new.varnames} is a named vector of new variable names that will
+#' be applied to the imported raw data. It is named to allow for indexing.
+#' These names are equally used in the database, so the actual values are SQL
+#' compliant, while the names are more R-focused.
+#'
 #' Not all the values are necessarily named; just those that are actually
 #' in use at the project level. The unnamed ones are usually extracted using
 #' regular expressions, especially for multi-response questions.
 #'
 #' @export
-new.varnames = c(
+new.varnames <- c(
   start = "int_start",
   end = "int_end",
   today = "today",

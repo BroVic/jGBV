@@ -346,9 +346,13 @@ multiresponse_by_lga <-
 #'
 #' @export
 plot_services_by_lga <- function(dat, labs = NULL) {
+  if (!is.data.frame(dat))
+    stop("'dat' is not a data frame")
+
   if (is.null(labs))
     labs <-
       c("Economic", "Health", "Legal", "Social", "Security", "Shelter")
+
   dat %>%
     pivot_longer(2:last_col(), names_to = "xVar", values_to = "Freq") %>%
     mutate(xVar = factor(xVar, labels = labs)) %>%

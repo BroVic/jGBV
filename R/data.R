@@ -64,16 +64,10 @@ load_data <- function(path, state, type = c("services", "capacity"), vars) {
   type <- match.arg(type)
 
   if (missing(vars))  {
-    qv <- quote(getOption("jgbv.new.varnames"))
-
     vars <- if (type == 'capacity')
       character()
     else
-      eval(qv)
-
-    if (is.null(vars))
-      stop(sQuote(deparse(qv)),
-           " evaluates to NULL: The call was not made in a valid project")
+      new.varnames
   }
 
   if (!is.character(vars))

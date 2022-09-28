@@ -13,8 +13,6 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @param dir A directory used for the downloads, which usually has
 #' subdirectories - one for each project State.
-#' @param db Path to an SQLite database. If non-existent, will attempt to
-#' create one. If \code{NULL}, the data are returned without being saved.
 #' @param modlist An optional list of objects of class \code{VarModifier}.
 #' @param state The project state.
 #' @param filetype The kind of data being imported. Should be one of
@@ -25,6 +23,8 @@ globalVariables(c("orgtype", "orgname"))
 #' @param nvars The number of columns in the final data frame.
 #' @param ... Arguments passed to \code{read_in_excel_data}.
 #' @param na.strings Strings in the Excel sheet to be interpreted as \code{MA}.
+#' @param db Path to an SQLite database. If non-existent, will attempt to
+#' create one. If \code{NULL}, the data are returned without being saved.
 #'
 #' @return Both functions return a \code{data.frame} with labelled variables.
 #' \code{import_data} does so invisibly.
@@ -41,16 +41,18 @@ globalVariables(c("orgtype", "orgname"))
 #'
 #' @export
 import_data <-
-  function(dir, db = NULL, modlist = NULL, state, filetype, ..., na.strings)
+  function(dir, modlist = NULL, state, filetype, ..., na.strings, db = NULL)
 {
   # Validate input
   if (!is.null(modlist)) {
     if (!is.vector(modlist, mode = "list"))
       stop("'modlist' must be a vector of type 'list'")
   }
+
   state <- match.arg(state, getOption("jgbv.project.states"))
   srv <- "Services"; cap <- "Capacity"
   filetype <- match.arg(filetype, c(srv, cap))
+
   if (missing(na.strings))
     na.strings <- ""
 
@@ -68,8 +70,8 @@ import_data <-
   ## had where data from 2 States were inadvertently joined
   ## together in a single Excel sheet. We don't want to have
   ## check this manually again. This applies only to the
-  ## capacity assessment data!!!
-  if (filetype == cap) {
+  ## capacity assessment data and for the NFWP project!!!
+  if (filetype == cap && getOption("jgbv.project.name") == "NFWP") {
     lgavarname <- paste0("lga.", tolower(state))
     lgavar <- newvars[lgavarname]
     dat <- dplyr::filter(dat, !is.na(.data[[lgavar]]))
@@ -98,11 +100,8 @@ import_data <-
   if (filetype == srv) {
     if (!is.null(modlist)) {
       for (x in modlist)
-        try(
-          dat <-
-            .modifyAndPreserveLabels(
-              dat, newvars[x$vars], x$func, x$nestfunc, x$args)
-        )
+        dat <- dat %>%
+          .modifyAndPreserveLabels(newvars[x$vars], x$func, x$nestfunc, x$args)
     }
     dat <- transform_bool_to_logical(dat)
 
@@ -170,10 +169,15 @@ import_data <-
 
 .chooseNewVars <- function(filetype) {
   stopifnot(is.character(filetype))
-  if (filetype == "Services")
-    getOption("jgbv.new.varnames")
-  else if (filetype == "Capacity")
-    getOption("jgbv.capnames")
+  ft <- tolower(filetype)
+
+  if (ft == 'services')
+    return(new.varnames)
+
+  if(ft == 'capacity')
+    return(getOption('jgbv.capnames'))
+
+  stop("No avaiable action for file type ", sQuote(filetype))
 }
 
 
@@ -351,7 +355,10 @@ read_in_excel_data <-
       stop("More than one Excel file selected")
     xlpath <- file.path(dir, xlf)
     newcolnames <- .chooseNewVars(filetype)
-    .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars, na = na.strings)
+    df <-
+      .readRawAndLabel(xlpath, newcolnames, filetype, state, drop.c, drop.v, nvars, na = na.strings)
+    class(df) <- c(filetype, class(df))
+    df
   }
 
 
@@ -416,17 +423,22 @@ read_in_excel_data <-
 #' Converts relevant character vectors in the dataset into factors.
 #'
 #' @param data The data frame
-#' @param newvars A named vector with the variable names as provided
-#' by \code{options("jgbv.new.varnames")}.
+#' @param newvars A named vector with the variable names.
 #'
 #' @return The modified data frame (if applicable).
 #'
 #' @export
 fix_factors <- function(data, newvars) {
+
   if (!is.data.frame(data))
     stop("'data' should be of class 'data.frame'")
+
+  if (missing(newvars))
+    newvars <- new.varnames
+
   if (!is.character(newvars))
     stop("'newvars' should be atomic and of type 'character'")
+
   data <-
     .factorizeAndPreserveLabels(data, newvars[.yesNoVarnames()], c("Yes", "No"))
   data <-
