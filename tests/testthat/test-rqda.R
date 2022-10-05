@@ -6,19 +6,19 @@ test_that("input validation for function that picks up RQDA projects", {
   expect_warning(get_rqda_projs("."),
                  "No RQDA projects were found in '.'")
 })
-
-
-
-test_that("input validation when picking up a single RQDA project", {
-  testproj <- 'testdata/test.rqda'
-  ct <- retrieve_codingtable(testproj)
-
-  expect_error(retrieve_codingtable("nonproject"),
-               "'proj' is not an RQDA project")
-  expect_type(ct, "list")
-  expect_s3_class(ct, 'codingTable')
-  expect_s3_class(ct, 'data.frame')
-})
+#
+#
+#
+# test_that("input validation when picking up a single RQDA project", {
+#   testproj <- 'testdata/test.rqda'
+#   ct <- retrieve_codingtable(testproj)
+#
+#   expect_error(retrieve_codingtable("nonproject"),
+#                "'proj' is not an RQDA project")
+#   expect_type(ct, "list")
+#   expect_s3_class(ct, 'codingTable')
+#   expect_s3_class(ct, 'data.frame')
+# })
 
 
 
@@ -28,30 +28,17 @@ test_that("create a master-table for all available codings", {
   ct <- get_codings_master_df(proj)
 
   expect_s3_class(ct, 'data.frame')
-  expect_length(ct, 10L)
+  expect_length(ct, 9L)
   expect_equal(nrow(ct), 9L)
-  expect_identical(
-    names(ct),
-    c(
-      "rowid",
-      "cid",
-      "fid",
-      "codename",
-      "filename",
-      "index1",
-      "index2",
-      "CodingLength",
-      "codecat",
-      "coder"
-    )
-  )
+
+  nm <- c("rowid", "cid", "fid", "codename", "filename",
+          "index1","index2", "CodingLength", "codecat")
+  expect_identical(names(ct), nm)
 
   expect_warning(try(get_codings_master_df(fakeproj), silent = TRUE),
                  "No project 'noexist.rqda' was found")
-  expect_error(
-    suppressWarnings(get_codings_master_df(fakeproj)),
-    "No projects files were found for the operation"
-  )
+  expect_error(suppressWarnings(get_codings_master_df(fakeproj)),
+               "No projects files were found for the operation")
 })
 
 
